@@ -1,8 +1,11 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 # Defining url patterns
 urlpatterns = [
+    path('', views.home, name='home'),  # Use the function-based view here
     # Endpoints related to users
     path("buyer/register", views.BuyerCreateView.as_view(), name="buyer-create-view"),
     path("seller/register", views.SellerCreateView.as_view(), name="seller-create-view"),
@@ -21,7 +24,7 @@ urlpatterns = [
     path("message/<int:pk>/update", views.MessageUpdateView.as_view(), name="message-update-view"),
     path("message/<int:pk>/destroy", views.MessageDestroyView.as_view(), name="message-destroy-view"),
 
-    #Endpoints related to payment
+    # Endpoints related to payment
     path('pay/', views.Payment.as_view(), name='pay'),
     path('verify/', views.PaymentVerify.as_view(), name='verify'),
 
@@ -37,4 +40,4 @@ urlpatterns = [
     path("product/<int:pk>", views.ProductRetrieveView.as_view(), name="product-retrieve-view"),
     path("product/<int:pk>/update", views.ProductUpdateView.as_view(), name="product-update-view"),
     path("product/<int:pk>/destroy", views.ProductDestroyView.as_view(), name="product-destroy-view")
-]
+]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

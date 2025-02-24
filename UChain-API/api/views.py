@@ -12,6 +12,13 @@ from django.contrib.auth import authenticate
 from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer, ProductSerializer, OrderSerializer, MessageSerializer, RatingSerializer
 from chapa import Chapa
 from datetime import datetime
+from django.shortcuts import render
+from django.http import HttpResponse
+
+
+def home(request):
+    return render(request, 'home.html')  # Replace 'home.html' with your template
+
 
 # Replace 'your_secret_key' with your actual Chapa secret key
 chapa = Chapa('CHASECK_TEST-YPSr0j8iNMFJg2a1SsN9exvQJq6CkoHM')
