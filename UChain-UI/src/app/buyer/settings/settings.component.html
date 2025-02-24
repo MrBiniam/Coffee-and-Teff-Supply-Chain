@@ -1,0 +1,106 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Settings</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a routerLink="/patient/dashboard">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item active">Settings</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="header">
+        <h2>
+          <strong>Account</strong> Settings</h2>
+      </div>
+      <div class="body">
+        <form class="register-form m-4" [formGroup]="registerFormBuyer" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Username</mat-label>
+                <input matInput formControlName="username" readonly="readonly" value="{{user.username}}">
+                <mat-icon matSuffix>face</mat-icon>
+              </mat-form-field>
+            </div>
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Phone Number</mat-label>
+                <input matInput formControlName="phone_number">
+                <mat-icon matSuffix>face</mat-icon>
+                <mat-error *ngIf="registerFormBuyer.get('phone_number').hasError('required')">
+                  Phone Number is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Address</mat-label>
+                <textarea matInput formControlName="address"></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Payment Method</mat-label>
+                <mat-select formControlName="payment_method" required>
+                  <mat-option [value]="'Telebirr'">
+                    Telebirr                      
+                  </mat-option>
+                  <mat-option [value]="'CBE'">
+                    CBE
+                  </mat-option>
+                  <mat-option [value]="'Dashen Bank'">
+                    Dashen Bank
+                  </mat-option>
+                </mat-select>
+                <mat-icon matSuffix>location_city</mat-icon>
+                <mat-error *ngIf="registerFormBuyer.get('payment_method').hasError('required')">
+                  Payment Method is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Account Number</mat-label>
+                <input matInput formControlName="account_number" required>
+                <mat-icon matSuffix>business</mat-icon>
+                <mat-error *ngIf="registerFormBuyer.get('account_number').hasError('required')">
+                  Account Number is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+              <mat-form-field class="example-full-width mb-3">
+                <ngx-mat-file-input formControlName="profile_image" placeholder="Upload Picture">
+                </ngx-mat-file-input>
+                <mat-icon matSuffix>cloud_upload</mat-icon>
+                <mat-error *ngIf="registerFormBuyer.get('profile_image').hasError('required')">
+                  Profile Image is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+              <button class="mr-3" [disabled]="!registerFormBuyer.valid" mat-raised-button color="primary">Submit</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

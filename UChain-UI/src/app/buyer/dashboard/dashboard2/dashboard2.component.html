@@ -1,0 +1,78 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Price Prediction</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a routerLink="/admin/dashboard/main">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item active">Price Prediction</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row clearfix">
+      <!-- Bar chart with line -->
+      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="header">
+            <h2><strong>Coffee</strong> Price Prediction</h2>
+
+          </div>
+          <div class="body">
+            <div echarts [options]="line_chart" class="deshboard-echart-height"></div>
+          </div>
+        </div>
+      </div>
+      </div>
+      <!-- line chart -->
+
+      <div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <div class="card">
+            <div class="header">
+              <h2>
+                <strong>General</strong> Report</h2>
+            </div>
+            <div class="body table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>TYPE</th>
+                    <th>TODAY</th>
+                    <th>THIS WEEK</th>
+                    <th>THIS MONTH</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">COFFEE AA</th>
+                    <td>{{today}}</td>
+                    <td>{{+thisWeek}}</td>
+                    <td>{{thisMonth}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">COFFEE AB</th>
+                    <td>{{today1}}</td>
+                    <td>{{+thisWeek1}}</td>
+                    <td>{{thisMonth1}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">COFFEE C</th>
+                    <td>{{today2}}</td>
+                    <td>{{+thisWeek2}}</td>
+                    <td>{{thisMonth2}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</section>

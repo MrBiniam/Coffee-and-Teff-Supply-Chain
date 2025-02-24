@@ -1,0 +1,98 @@
+<div class="addContainer">
+  <div class="modalHeader">
+    <div class="editRowModal">
+      <div class="modalHeader clearfix">
+        <img [src]='product.image' height="55sspx" width="55px" alt="" class="rounded-circle">
+        <div class="modal-about">
+          <div class="font-weight-bold p-t-5 p-l-10 font-17">
+            {{dialogTitle}}</div>
+        </div>
+      </div>
+    </div>
+    <button mat-icon-button (click)="dialogRef.close()" aria-label="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div mat-dialog-content>
+    <form class="m-4" [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+          <mat-form-field class="example-full-width mb-3">
+            <mat-label>Your Product Title</mat-label>
+            <input matInput formControlName="name" required>
+            <mat-error *ngIf="productForm.get('name').hasError('required')">
+              Product Title is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+          <mat-form-field class="example-full-width mb-3">
+            <mat-label>Quantity (Describe with the unit)</mat-label>
+            <input matInput formControlName="quantity" required>
+            <mat-error *ngIf="productForm.get('quantity').hasError('required')">
+              Quantity is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+          <mat-form-field class="example-full-width mb-3">
+            <mat-label>Product Type</mat-label>
+            <mat-select formControlName="product_type" required>
+              <mat-option [value]="'Coffee'">
+                Coffee
+              </mat-option>
+              <mat-option [value]="'Teff'">
+                Teff
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="productForm.get('product_type').hasError('required')">
+              Product Type is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+          <mat-form-field class="example-full-width mb-3">
+            <mat-label>Price per Unit</mat-label>
+            <input matInput formControlName="price" type="number" required>
+            <mat-error *ngIf="productForm.get('price').hasError('required')">
+              Price is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+          <mat-form-field class="example-full-width mb-3">
+            <mat-label>Descritpion</mat-label>
+            <textarea matInput formControlName="description" required></textarea>
+            <mat-error *ngIf="productForm.get('description').hasError('required')">
+              Description is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+          <mat-form-field class="example-full-width mb-3">
+            <mat-label>Image</mat-label>
+            <ngx-mat-file-input formControlName="image" required>
+            </ngx-mat-file-input>
+            <mat-icon matSuffix>face</mat-icon>
+            <mat-error *ngIf="productForm.get('image').hasError('required')">
+              Product Image is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+          <button class="mr-3" [disabled]="!productForm.valid " mat-raised-button
+            color="primary" [type]="submit" [mat-dialog-close]="1" (click)="onSubmit()">Submit</button>
+          <button type="button" mat-button >Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

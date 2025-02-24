@@ -1,0 +1,87 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Chat</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a href="#" onClick="return false;">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item bcrumb-2">
+              <a href="#" onClick="return false;">Apps</a>
+            </li>
+            <li class="breadcrumb-item active">Chat</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <div class="card">
+          <div class="body">
+            <div id="plist" class="people-list">
+              <div class="tab-content">
+                <div id="chat_user" style="position: relative; max-height: 590px;" [perfectScrollbar]>
+                  <ul class="chat-list list-unstyled m-b-0">
+                    <li class="clearfix active" *ngFor="let user of users" (click)="getMessages(user.username, user.profile_image)">
+                      <img src="../../..{{user.profile_image}}" alt="avatar">
+                      <div class="about">
+                        <div class="name">{{user.username}}</div>
+                        <div class="status">
+                          <i class="material-icons offline">fiber_manual_record</i>
+                          {{user.phone_number}} </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9" *ngIf="username!=''">
+        <div class="card">
+          <div class="chat">
+            <div class="chat-header clearfix">
+              <img src="../../..{{image}}" alt="avatar">
+              <div class="chat-about">
+                <div class="chat-with">{{username}}</div>
+                <div class="chat-num-messages">Your Chat History</div>
+              </div>
+            </div>
+            <div class="chat-message clearfix">
+                  <div class="row">
+                  <div style="width:85%">
+                    <mat-form-field class="example-full-width" appearance="outline"
+                    [hideRequiredMarker]="hideRequiredControl.value" [floatLabel]="false">
+                    <input matInput [(ngModel)]="content" placeholder="Enter text here.." required>
+                  </mat-form-field>
+                  </div>
+                  <button mat-mini-fab class="bg-green mr-2 ml-5 mt-2" (click)="sendMessages(username)"> <i class="material-icons" color="bg-green">arrow_right</i></button>
+                  </div>
+            </div>
+            <div class="chat-history" id="chat-conversation" style="position: relative; max-height: 449px;"
+              [perfectScrollbar] #scrollContainer>
+              <ul>
+                <li class="clearfix" *ngFor="let message of messages">
+                  <div class="message-data text-right" [ngClass]="{'text-right': message.sender==sender}">
+                    <span class="message-data-time">{{message.timestamp | date: 'MM/dd/yyyy'}}
+                    </span>
+                    &nbsp; &nbsp;
+                    <span class="message-data-name">{{message.sender}}</span>
+                  </div>
+                  <div class="message other-message float-right" *ngIf="message.sender==sender">{{message.content}}</div>
+                  <div class="message my-message" *ngIf="message.sender!=sender">{{message.content}}</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

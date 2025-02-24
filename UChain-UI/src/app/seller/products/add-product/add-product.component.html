@@ -1,0 +1,126 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Add Product</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a routerLink="/admin/dashboard/main">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item bcrumb-2">
+              <a href="#" onClick="return false;">Products</a>
+            </li>
+            <li class="breadcrumb-item active">Add</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row clearfix">
+      <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="header">
+            <h2><strong> Product Information</strong></h2>
+
+          </div>
+          <div class="body">
+            <form class="m-4" [formGroup]="productForm" (ngSubmit)="onSubmit()">
+              <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+                  <mat-form-field class="example-full-width mb-3">
+                    <mat-label>Your Product Title</mat-label>
+                    <input matInput formControlName="name" required>
+                    <mat-error *ngIf="productForm.get('name').hasError('required')">
+                      Product Title is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+                  <mat-form-field class="example-full-width mb-3">
+                    <mat-label>Quantity (Describe with the unit)</mat-label>
+                    <input matInput formControlName="quantity" required>
+                    <mat-error *ngIf="productForm.get('quantity').hasError('required')">
+                      Quantity is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+                  <mat-form-field class="example-full-width mb-3">
+                    <mat-label>Product Type</mat-label>
+                    <mat-select formControlName="product_type" required>
+                      <mat-option [value]="'Coffee'">
+                        Coffee
+                      </mat-option>
+                      <mat-option [value]="'Teff'">
+                        Teff
+                      </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="productForm.get('product_type').hasError('required')">
+                      Product Type is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+                  <mat-form-field class="example-full-width mb-3">
+                    <mat-label>Price per Unit</mat-label>
+                    <input matInput formControlName="price" type="number" required>
+                    <mat-error *ngIf="productForm.get('price').hasError('required')">
+                      Price is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
+                  <mat-form-field class="example-full-width mb-3">
+                    <mat-label>Location</mat-label>
+                    <input matInput formControlName="location" type="text" required>
+                    <mat-error *ngIf="productForm.get('location').hasError('required')">
+                      Location is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+                  <mat-form-field class="example-full-width mb-3">
+                    <mat-label>Descritpion</mat-label>
+                    <textarea matInput formControlName="description" required></textarea>
+                    <mat-error *ngIf="productForm.get('description').hasError('required')">
+                      Description is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+                  <mat-form-field class="example-full-width mb-3">
+                    <mat-label>Image</mat-label>
+                    <ngx-mat-file-input formControlName="image" required>
+                    </ngx-mat-file-input>
+                    <mat-icon matSuffix>face</mat-icon>
+                    <mat-error *ngIf="productForm.get('image').hasError('required')">
+                      Product Image is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+                  <button class="mr-3" [disabled]="!productForm.valid " mat-raised-button
+                    color="primary">Submit</button>
+                  <button type="button" mat-button>Cancel</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,115 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Dashboard</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a routerLink="/patient/dashboard">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item active">Driver Dashboard</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Widgets -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="body">
+            <div class="row align-items-center">
+              <div class="col-md-4">
+                <img src="../../..{{profileImage}}" alt="" class="w-100">
+              </div>
+              <div class="col-md-8">
+                <h4 class="font-20 weight-500 mb-2">
+                  Welcome back <div class="weight-600 font-30 col-blue pt-1">{{username}}!</div>
+                </h4>
+                <p class="font-18 max-width-600">We would like to take this opportunity to welcome you to our practice
+                  and to thank you
+                  for choosing our company to participate in the transportation service. We look forward to
+                  providing you with personalized, comprehensive customer care focusing on effieciency and
+                  productivity.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- #END# Widgets -->
+    <div class="row">
+      <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+        <div class="card infobox-5">
+          <div class="card-body">
+            <div class="clearfix">
+              <div class="float-left card-icon">
+                <i class="material-icons col-orange">add_shopping_cart</i>
+              </div>
+              <div class="float-right">
+                <p class="text-right font-15">Available Orders</p>
+                <div class="col-green">
+                  <h3 class="text-right mb-0">{{newOrders}}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+        <div class="card infobox-5">
+          <div class="card-body">
+            <div class="clearfix">
+              <div class="float-left card-icon">
+                <i class="material-icons col-green">check_circle</i>
+              </div>
+              <div class="float-right">
+                <p class="text-right font-15">Accepted Orders</p>
+                <div class="col-orange">
+                  <h3 class="text-right mb-0">{{acceptedOrders}}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+        <div class="card infobox-5">
+          <div class="card-body">
+            <div class="clearfix">
+              <div class="float-left card-icon">
+                <i class="material-icons col-red">local_shipping</i>
+              </div>
+              <div class="float-right">
+                <p class="text-right font-15">Shipped Orders</p>
+                <div class="col-blue">
+                  <h3 class="text-right mb-0">{{shippedOrders}}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+        <div class="card infobox-5">
+          <div class="card-body">
+            <div class="clearfix">
+              <div class="float-left card-icon">
+                <i class="material-icons col-blue">done_all</i>
+              </div>
+              <div class="float-right">
+                <p class="text-right font-15">Delivered Orders</p>
+                <div class="col-red">
+                  <h3 class="text-right mb-0">{{deliveredOrders}}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

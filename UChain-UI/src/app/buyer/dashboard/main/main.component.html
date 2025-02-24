@@ -1,0 +1,122 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Dashboard</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a routerLink="/admin/dashboard/main">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item active">Dashboard</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Widgets -->
+    <div class="row">
+      <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+        <div class="card infobox-5">
+          <div class="card-body">
+            <div class="clearfix">
+              <div class="float-left card-icon">
+                <i class="material-icons col-orange">add_shopping_cart</i>
+              </div>
+              <div class="float-right">
+                <p class="text-right font-15">New Orders</p>
+                <div class="col-green">
+                  <h3 class="text-right mb-0">{{newOrders}}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+        <div class="card infobox-5">
+          <div class="card-body">
+            <div class="clearfix">
+              <div class="float-left card-icon">
+                <i class="material-icons col-green">check_circle</i>
+              </div>
+              <div class="float-right">
+                <p class="text-right font-15">Accepted Orders</p>
+                <div class="col-orange">
+                  <h3 class="text-right mb-0">{{acceptedOrders}}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+        <div class="card infobox-5">
+          <div class="card-body">
+            <div class="clearfix">
+              <div class="float-left card-icon">
+                <i class="material-icons col-red">local_shipping</i>
+              </div>
+              <div class="float-right">
+                <p class="text-right font-15">Shipped Orders</p>
+                <div class="col-blue">
+                  <h3 class="text-right mb-0">{{shippedOrders}}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-3 col-md-3 col-sm-6">
+        <div class="card infobox-5">
+          <div class="card-body">
+            <div class="clearfix">
+              <div class="float-left card-icon">
+                <i class="material-icons col-blue">done_all</i>
+              </div>
+              <div class="float-right">
+                <p class="text-right font-15">Delivered Orders</p>
+                <div class="col-red">
+                  <h3 class="text-right mb-0">{{deliveredOrders}}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- #END# Widgets -->
+    <div class="row">
+      <div class="col-xl-12 col-lg-8 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="header">
+            <h2>
+              Coffee price estimation</h2>
+          </div>
+          <div class="body">
+            <!-- Canvas for Chart.js -->
+            <canvas baseChart [chartType]="'line'" [datasets]="areaChartData" [labels]="areaChartLabels"
+              [options]="areaChartOptions" [legend]="true">
+            </canvas>
+            <div class="text-center p-t-20">
+              <div class="chart-note">
+                <span class="dot dot-product"></span>
+                <span>AA COFFEE</span>
+              </div>
+              <div class="chart-note mr-2">
+                <span class="dot dot-service"></span>
+                <span>AB COFFEE</span>
+              </div>
+              <div class="chart-note mr-0">
+                <span class="dot" style="color: rgba(72,100,72,.2);"></span>
+                <span>C COFFEE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

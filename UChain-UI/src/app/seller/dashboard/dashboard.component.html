@@ -1,0 +1,98 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Dashboard</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a routerLink="/doctor/dashboard">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item active">Seller Dashboard</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Widgets -->
+    <div class="row">
+      <div class="col-lg-3 col-sm-6">
+        <div class="info-box7 l-bg-card1 order-info-box7">
+          <div class="info-box7-block">
+            <h5 class="m-b-15">New Orders</h5>
+            <h2 class="text-right"><i class="material-icons pull-left">add_shopping_cart</i><span>{{newOrders}}</span></h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-sm-6">
+        <div class="info-box7 l-bg-card2 order-info-box7">
+          <div class="info-box7-block">
+            <h5 class="m-b-15">Accepted Orders</h5>
+            <h2 class="text-right"><i class="material-icons pull-left">check_circle</i><span>{{acceptedOrders}}</span></h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-sm-6">
+        <div class="info-box7 l-bg-card3 order-info-box7">
+          <div class="info-box7-block">
+            <h5 class="m-b-15">Shipped Orders</h5>
+            <h2 class="text-right"><i class="material-icons pull-left">local_shipping</i><span>{{shippedOrders}}</span></h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-sm-6">
+        <div class="info-box7 l-bg-card4 order-info-box7">
+          <div class="info-box7-block">
+            <h5 class="m-b-15">Delivered Orders</h5>
+            <h2 class="text-right"><i class="material-icons pull-left">done_all</i><span>{{deliveredOrders}}</span></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- #END# Widgets -->
+    <div class="row">
+      <div class="col-xl-8 col-lg-8 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="header">
+            <h2>
+              Coffee Price Estimation</h2>
+
+          </div>
+          <div class="body">
+            <apx-chart [series]="areaChartOptions.series" [chart]="areaChartOptions.chart"
+              [xaxis]="areaChartOptions.xaxis" [yaxis]="areaChartOptions.yaxis" [colors]="areaChartOptions.colors"
+              [stroke]="areaChartOptions.stroke" [legend]="areaChartOptions.legend" [tooltip]="areaChartOptions.tooltip"
+              [dataLabels]="areaChartOptions.dataLabels"></apx-chart>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="header">
+            <h2>Todays Price</h2>
+          </div>
+          <div class="body">
+            <apx-chart [series]="radialChartOptions.series" [chart]="radialChartOptions.chart"
+              [plotOptions]="radialChartOptions.plotOptions" [labels]="radialChartOptions.labels"></apx-chart>
+            <div class="text-center p-t-20">
+              <div class="chart-note">
+                <span class="dot bg-red"></span>
+                <span>AA COFFEE</span>
+              </div>
+              <div class="chart-note">
+                <span class="dot bg-indigo"></span>
+                <span>AB COFFEE</span>
+              </div>
+              <div class="chart-note mr-0">
+                <span class="dot bg-green"></span>
+                <span>C Coffee</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

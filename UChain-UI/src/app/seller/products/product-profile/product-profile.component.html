@@ -1,0 +1,67 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Product Detail</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a routerLink="/admin/dashboard/main">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item bcrumb-2">
+              <a href="#" onClick="return false;">Product</a>
+            </li>
+            <li class="breadcrumb-item active">Detail</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row clearfix">
+      <div class="col-lg-4 col-md-12">
+        <div class="card">
+          <div class="contact-grid profile-image">
+            <img src="../../../{{product.image}}" alt="">
+          </div>
+        </div>
+        <div class="card">
+          <div class="header">
+            <h2>{{product.name}}</h2>
+          </div>
+          <div class="tab-pane body active" id="about">
+            <small class="text-muted">Product Type: </small>
+            <p>{{product.product_type}}</p>
+            <hr>
+            <small class="text-muted">Price per Unit: </small>
+            <p>{{product.price}}</p>
+            <hr>
+            <small class="text-muted">Quantity: </small>
+            <p>{{product.quantity}}</p>
+            <hr>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8 col-md-12">
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane active" aria-expanded="true">
+            <div class="row clearfix">
+              <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="card project_widget">
+                  <div class="header">
+                    <h5>About</h5>
+                  </div>
+                  <div class="body">
+                    <p>{{product.description}}</p>
+                    <br>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
