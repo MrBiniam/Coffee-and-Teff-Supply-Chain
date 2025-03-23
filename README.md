@@ -50,11 +50,14 @@
 ### Back End (Django):
 1. Navigate to the back-end directory.
 2. Install necessary packages:  
-   `pip install chapa pillow`
-3. Prepare the database:  
+   `pip install chapa`
+   `pip install pillow`
+   `pip install djangorestframework`
+   `pip install django-cors-headers`
+4. Prepare the database:  
    `python manage.py makemigrations`  
    `python manage.py migrate`
-4. Start the server:  
+5. Start the server:  
    `python manage.py runserver`  
    Access at: `http://localhost:8000`
 
