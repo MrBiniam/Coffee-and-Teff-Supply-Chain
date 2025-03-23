@@ -1,4 +1,4 @@
-import { ProductProfileComponent } from './product-profile/product-profile.component';
+import { SellerProductProfileComponent } from './product-profile/product-profile.component';
 import { AddProductComponent } from './add-product/add-product.component';
 import { ProductsComponent } from './my-products/products.component';
 import { Page404Component } from '../../authentication/page404/page404.component';
@@ -16,7 +16,7 @@ const routes: Routes = [
   },
   {
     path: 'product-profile/:id',
-    component: ProductProfileComponent,
+    component: SellerProductProfileComponent,
   },
   { path: '**', component: Page404Component },
 ];

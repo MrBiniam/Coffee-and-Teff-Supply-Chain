@@ -23,7 +23,9 @@
           <div class="body">
             <div class="row align-items-center">
               <div class="col-md-4">
-                <img src="../../..{{profileImage}}" alt="" class="w-100">
+                <div class="driver-profile-image-container">
+                  <img [src]="profileImage" alt="Driver Profile" class="driver-profile-image">
+                </div>
               </div>
               <div class="col-md-8">
                 <h4 class="font-20 weight-500 mb-2">

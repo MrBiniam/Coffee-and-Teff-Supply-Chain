@@ -21,7 +21,7 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
 import { ProductsRoutingModule } from './products-routing.module';
 import { AddProductComponent } from './add-product/add-product.component';
 import { ProductsComponent } from './my-products/products.component';
-import { ProductProfileComponent } from './product-profile/product-profile.component';
+import { SellerProductProfileComponent } from './product-profile/product-profile.component';
 import { FormDialogComponent } from './dialog/form-dialog/form-dialog.component';
 import { DeleteComponent } from './dialog/delete/delete.component';
 
@@ -30,7 +30,7 @@ import { DeleteComponent } from './dialog/delete/delete.component';
   declarations: [
     AddProductComponent,
     ProductsComponent,
-    ProductProfileComponent,
+    SellerProductProfileComponent,
     FormDialogComponent,
     DeleteComponent
   ],

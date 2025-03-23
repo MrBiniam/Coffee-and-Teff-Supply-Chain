@@ -27,17 +27,26 @@
             <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
               <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>Username</mat-label>
-                <input matInput formControlName="username" readonly="readonly">
+                <input matInput formControlName="username">
                 <mat-icon matSuffix>face</mat-icon>
+                <mat-error *ngIf="registerFormDriver.get('username').hasError('required')">
+                  Username is required
+                </mat-error>
+                <mat-error *ngIf="registerFormDriver.get('username').hasError('pattern')">
+                  Username must contain only letters and spaces
+                </mat-error>
               </mat-form-field>
             </div>
             <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
               <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>Phone Number</mat-label>
                 <input matInput formControlName="phone_number">
-                <mat-icon matSuffix>face</mat-icon>
+                <mat-icon matSuffix>phone</mat-icon>
                 <mat-error *ngIf="registerFormDriver.get('phone_number').hasError('required')">
                   Phone Number is required
+                </mat-error>
+                <mat-error *ngIf="registerFormDriver.get('phone_number').hasError('pattern')">
+                  Phone Number must start with 09 followed by 8 digits
                 </mat-error>
               </mat-form-field>
             </div>
@@ -47,6 +56,15 @@
               <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>Address</mat-label>
                 <textarea matInput formControlName="address"></textarea>
+                <mat-error *ngIf="registerFormDriver.get('address').hasError('required')">
+                  Address is required
+                </mat-error>
+                <mat-error *ngIf="registerFormDriver.get('address').hasError('minlength')">
+                  Address must be at least 5 characters
+                </mat-error>
+                <mat-error *ngIf="registerFormDriver.get('address').hasError('pattern')">
+                  Address can only contain letters, numbers, spaces, and slashes
+                </mat-error>
               </mat-form-field>
             </div>
           </div>
@@ -75,9 +93,12 @@
               <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>Account Number</mat-label>
                 <input matInput formControlName="account_number" required>
-                <mat-icon matSuffix>business</mat-icon>
+                <mat-icon matSuffix>account_balance</mat-icon>
                 <mat-error *ngIf="registerFormDriver.get('account_number').hasError('required')">
                   Account Number is required
+                </mat-error>
+                <mat-error *ngIf="registerFormDriver.get('account_number').hasError('pattern')">
+                  Account Number must be at least 10 digits
                 </mat-error>
               </mat-form-field>
             </div>
@@ -86,15 +107,19 @@
             <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
               <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>License Number</mat-label>
-                <input matInput formControlName="license_number" readonly="readonly">
-                <mat-icon matSuffix>location_city</mat-icon>
+                <input matInput formControlName="license_number" readonly="readonly" style="color: #00b300; font-weight: bold;">
+                <mat-icon matSuffix>card_membership</mat-icon>
+                <mat-hint>License number cannot be changed</mat-hint>
               </mat-form-field>
             </div>
             <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
               <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>Car Model</mat-label>
-                <input matInput formControlName="car_model" readonly="readonly">
-                <mat-icon matSuffix>business</mat-icon>
+                <input matInput formControlName="car_model">
+                <mat-icon matSuffix>directions_car</mat-icon>
+                <mat-error *ngIf="registerFormDriver.get('car_model').hasError('pattern')">
+                  Car model can only contain letters, numbers, and spaces
+                </mat-error>
               </mat-form-field>
             </div>
           </div>
@@ -113,6 +138,7 @@
           <div class="row">
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
               <button class="mr-3" [disabled]="!registerFormDriver.valid" mat-raised-button color="primary">Submit</button>
+              <button type="button" mat-raised-button color="warn" (click)="deleteAccount()">Delete Account</button>
             </div>
           </div>
         </form>

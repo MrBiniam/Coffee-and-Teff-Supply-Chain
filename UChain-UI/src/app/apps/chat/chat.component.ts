@@ -2,12 +2,13 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { User } from 'src/app/shared/security/user';
 import { UserService } from 'src/app/shared/security/user.service';
-import { apiUrl } from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
 import { Message } from './message';
 import { MessageService } from 'src/app/shared/security/message_service';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerfectScrollbarComponent } from 'ngx-perfect-scrollbar';
+
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',

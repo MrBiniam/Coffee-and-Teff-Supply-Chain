@@ -7,10 +7,19 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'username', "password", 'email', 'phone_number', 'is_buyer', 'is_seller', 'is_driver', "address", "registration_date", "payment_method", "account_number", "profile_image"]
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'profile_image': {'required': False}
+        }
 
     # Perform password Hashing when saved to the database
     def create(self, validated_data):
         validated_data["password"] = make_password(validated_data.get("password"))
+        
+        # Handle potential issues with profile_image
+        if 'profile_image' in validated_data and validated_data['profile_image'] is None:
+            validated_data.pop('profile_image')
+        
         return super().create(validated_data)
 
 # Serializer for Buyer Profile
@@ -33,9 +42,11 @@ class DriverProfileSerializer(serializers.ModelSerializer):
 
 # Serializer for Product
 class ProductSerializer(serializers.ModelSerializer):
+    seller = serializers.PrimaryKeyRelatedField(read_only=True)
+    
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'price', 'quantity',"product_type", 'image']
+        fields = ['id', 'name', 'description', 'price', 'quantity', 'product_type', 'image', 'seller']
         read_only_fields = ['seller']  # Exclude 'seller' from writable fields
 
     def create(self, validated_data):

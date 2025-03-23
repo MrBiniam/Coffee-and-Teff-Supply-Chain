@@ -5,6 +5,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { Role } from './../../shared/security/role';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { AuthLoginInfo } from 'src/app/shared/security/login-info';
+
 @Component({
   selector: 'app-signin',
   templateUrl: './signin.component.html',
@@ -21,7 +22,9 @@ export class SigninComponent implements OnInit {
   error = '';
   hide = true;
   formBuilder: any;
-  constructor(private router:Router,private authService: AuthService, private tokenStorage: TokenStorageService) { }
+
+  constructor(private router: Router, private authService: AuthService, private tokenStorage: TokenStorageService) { }
+
   ngOnInit() {
     if (this.tokenStorage.getToken()) {
       this.isLoggedIn = true;
@@ -31,17 +34,17 @@ export class SigninComponent implements OnInit {
     this.loginForm = new FormGroup({
       username: new FormControl(),
       password: new FormControl()
-   });
-   
+    });
   }
-  
+
   get f() {
     return this.loginForm.controls;
   }
+
   onSubmit() {
     console.log(this.loginForm.controls);
     console.log(this.f.username.value);
- 
+
     this.loginInfo = new AuthLoginInfo(
       this.f.username.value,
       this.f.password.value);
@@ -49,43 +52,67 @@ export class SigninComponent implements OnInit {
     formData.append('username', this.loginForm.get('username').value);
     formData.append('password', this.loginForm.get('password').value);
 
-      this.authService.attemptAuth(formData).subscribe(
-        data => {
-          
-          this.tokenStorage.saveToken(data.token);
-          this.tokenStorage.saveUsername(data.user['username']);
-          this.tokenStorage.saveProfileImage(data.user['profile_image']);
-          this.tokenStorage.saveId(data.user['id'] as string);
-          console.log(data.user);
-          this.tokenStorage.saveAuthorities(data.user['is_buyer']==true?'BUYER':data.user['is_seller']==true?'SELLER':data.user['is_driver']==true?'DRIVER':'USER');
-   
-          this.isLoginFailed = false;
-          this.isLoggedIn = true;
-          const role = this.tokenStorage.getAuthorities();
-          if (role === 'BUYER') {
-            localStorage.setItem('STATE', 'true');
-            localStorage.setItem('ROLE', "BUYER")
-            this.router.navigate(['/buyer/dashboard/main']);
-          } else if (role === 'SELLER') {
-            localStorage.setItem('STATE', 'true');
-            localStorage.setItem('ROLE', "SELLER")
-            this.router.navigate(['/seller/dashboard']);
-          } else if (role === 'DRIVER') {
-            localStorage.setItem('STATE', 'true');
-            localStorage.setItem('ROLE', "DRIVER")
-            this.router.navigate(['/driver/dashboard']);
+    this.authService.attemptAuth(formData).subscribe(
+      data => {
+
+        this.tokenStorage.saveToken(data.token);
+        this.tokenStorage.saveUsername(data.user['username']);
+        this.tokenStorage.saveProfileImage(data.user['profile_image']);
+        this.tokenStorage.saveId(data.user['id'] as string);
+        console.log(data.user);
+        this.tokenStorage.saveAuthorities(data.user['is_buyer'] == true ? 'BUYER' : data.user['is_seller'] == true ? 'SELLER' : data.user['is_driver'] == true ? 'DRIVER' : 'USER');
+
+        this.isLoginFailed = false;
+        this.isLoggedIn = true;
+        const role = this.tokenStorage.getAuthorities();
+
+        // Check if there's a pending payment verification
+        const pendingVerification = sessionStorage.getItem('pending_verification');
+        const pendingTxRef = sessionStorage.getItem('pending_tx_ref');
+        const pendingProductId = sessionStorage.getItem('pending_product_id');
+        const paymentReturnPending = sessionStorage.getItem('payment_return_pending');
+
+        if (role === 'BUYER' && (pendingVerification === 'true' || paymentReturnPending === 'true')) {
+          console.log('Detected pending payment verification after login. Redirecting to complete payment...');
+
+          // Set local storage state
+          localStorage.setItem('STATE', 'true');
+          localStorage.setItem('ROLE', "BUYER");
+
+          // Navigate back to the product with tx_ref to complete verification
+          if (pendingTxRef && pendingProductId) {
+            this.router.navigate(['/buyer/products/product', pendingProductId], {
+              queryParams: { tx_ref: pendingTxRef }
+            });
+          } else if (pendingProductId) {
+            this.router.navigate(['/buyer/products/product', pendingProductId]);
+          } else {
+            // If we don't have product ID, redirect to orders page
+            this.router.navigate(['/buyer/orders/order']);
           }
-        },
-        error => {
-          console.log(error);
-          this.errorMessage = error.error.message;
-          this.isLoginFailed = true;
+        } else if (role === 'BUYER') {
+          localStorage.setItem('STATE', 'true');
+          localStorage.setItem('ROLE', "BUYER")
+          this.router.navigate(['/buyer/dashboard/main']);
+        } else if (role === 'SELLER') {
+          localStorage.setItem('STATE', 'true');
+          localStorage.setItem('ROLE', "SELLER")
+          this.router.navigate(['/seller/dashboard']);
+        } else if (role === 'DRIVER') {
+          localStorage.setItem('STATE', 'true');
+          localStorage.setItem('ROLE', "DRIVER")
+          this.router.navigate(['/driver/dashboard']);
         }
-      );
-    }
-  
+      },
+      error => {
+        console.log(error);
+        this.errorMessage = error.error.message;
+        this.isLoginFailed = true;
+      }
+    );
+  }
+
   reloadPage() {
     window.location.reload();
   }
 }
-

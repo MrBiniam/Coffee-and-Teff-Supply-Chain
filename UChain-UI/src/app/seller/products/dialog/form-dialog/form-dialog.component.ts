@@ -48,7 +48,7 @@ export class FormDialogComponent {
       description: [this.product.description, [Validators.required]],
       price: [this.product.price, [Validators.required]],
       quantity: [this.product.quantity, [Validators.required]],
-      image: [this.product.image, [Validators.required]],
+      image: [null],  
       product_type: [this.product.product_type, [Validators.required]],
       
     });
@@ -61,39 +61,60 @@ export class FormDialogComponent {
   }
   onSubmit() {
     const formData = new FormData();
-      formData.append('name', this.productForm.get('name').value);
-      formData.append('description', this.productForm.get('description').value);
-      formData.append('price', this.productForm.get('price').value);
-      formData.append('quantity', this.productForm.get('quantity').value);
-      formData.append('product_type', this.productForm.get('product_type').value);
-      formData.append('image', this.productForm.get('image').value._files[0]);
-   
-      this.productService.editProduct(formData,this.data.product.id).subscribe(
-        _=> {
-            this.showNotification(
-              'snackbar-success',
-              'Product Upadated Successfully...!!!',
-              'bottom',
-              'center'
-            );
-          },
-        _=> {
-          this.showNotification(
-            'snackbar-danger',
-            'Can not Update Product Informaton! Try Again...!!!',
-            'bottom',
-            'center'
-          );
-        }
-      );
+    formData.append('name', this.productForm.get('name').value);
+    formData.append('description', this.productForm.get('description').value);
+    formData.append('price', this.productForm.get('price').value);
+    formData.append('quantity', this.productForm.get('quantity').value);
+    formData.append('product_type', this.productForm.get('product_type').value);
+    
+    // Check if a new image was selected
+    const imageControl = this.productForm.get('image');
+    if (imageControl && imageControl.value && imageControl.value._files && imageControl.value._files[0]) {
+      formData.append('image', imageControl.value._files[0]);
+    } else {
+      // If no new image was selected, don't modify the existing image
+      console.log('No new image selected, keeping existing image');
     }
+ 
+    // Create updated product object
+    const updatedProduct = {
+      ...this.data.product,
+      name: this.productForm.get('name').value,
+      description: this.productForm.get('description').value,
+      price: this.productForm.get('price').value,
+      quantity: this.productForm.get('quantity').value,
+      product_type: this.productForm.get('product_type').value
+    };
 
-    showNotification(colorName, text, placementFrom, placementAlign) {
-      this.snackBar.open(text, '', {
-        duration: 2000,
-        verticalPosition: placementFrom,
-        horizontalPosition: placementAlign,
-        panelClass: colorName,
-      });
-    }
+    this.productService.editProduct(formData, this.data.product.id).subscribe(
+      response => {
+        this.showNotification(
+          'snackbar-success',
+          'Product Updated Successfully!',
+          'bottom',
+          'center'
+        );
+        // Return the updated product instead of just 1
+        this.dialogRef.close(updatedProduct);
+      },
+      error => {
+        console.error('Error updating product:', error);
+        this.showNotification(
+          'snackbar-danger',
+          'Cannot Update Product Information! Try Again.',
+          'bottom',
+          'center'
+        );
+      }
+    );
+  }
+
+  showNotification(colorName, text, placementFrom, placementAlign) {
+    this.snackBar.open(text, '', {
+      duration: 2000,
+      verticalPosition: placementFrom,
+      horizontalPosition: placementAlign,
+      panelClass: colorName,
+    });
+  }
 }

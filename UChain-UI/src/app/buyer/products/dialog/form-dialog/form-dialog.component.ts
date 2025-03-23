@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductService } from 'src/app/seller/products/product.service';
 import { PayComponent } from '../pay/pay.component';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
+import { CustomValidators } from 'src/app/shared/validators/custom-validators';
 
 @Component({
   selector: 'app-form-dialog',
@@ -47,8 +48,15 @@ export class FormDialogComponent {
       : '';
   }
   createContactForm(): FormGroup {
+    // Extract numeric part of quantity if it's a string like "1kg"
+    let initialQuantity = this.product.quantity;
+    if (typeof initialQuantity === 'string') {
+      const numericMatch = initialQuantity.match(/^(\d+)/);
+      initialQuantity = numericMatch ? numericMatch[1] : '';
+    }
+    
     return this.orderForm = this.fb.group({
-      quantity: [this.product.quantity, [Validators.required ,Validators.pattern('[0-9]*')]],
+      quantity: [initialQuantity, [Validators.required, CustomValidators.productQuantity()]],
     });
   }
   submit() {
@@ -58,47 +66,15 @@ export class FormDialogComponent {
     this.dialogRef.close();
   }
   onSubmit() {
-    //   const data = {
-    //     "quantity": `${this.orderForm.value.quantity}`,
-    //     "product": [
-    //       {
-    //         "id": this.product.id
-    //       }
-    //     ]
-    //   }
-    //   this.productService.addOrder(data).subscribe(
-    //     _=> {
-    //         this.showNotification(
-    //           'snackbar-success',
-    //           'Order Submitted Successfully...!!!',
-    //           'bottom',
-    //           'center'
-    //         );
-    //       },
-    //     _=> {
-    //       this.showNotification(
-    //         'snackbar-danger',
-    //         'Ops! can not place order. Try Again...!!!',
-    //         'bottom',
-    //         'center'
-    //       );
-    //     }
-    //   );
-    // }
-
-    // showNotification(colorName, text, placementFrom, placementAlign) {
-    //   this.snackBar.open(text, '', {
-    //     duration: 2000,
-    //     verticalPosition: placementFrom,
-    //     horizontalPosition: placementAlign,
-    //     panelClass: colorName,
-    //   });
-    // }
+    // Get the product price (it's already a number, no need to parse)
+    const productPrice = this.product.price || 0;
+    const orderQuantity = parseInt(this.orderForm.value.quantity) || 1;
+    const totalPrice = isNaN(productPrice) ? 0 : orderQuantity * productPrice;
 
     const dialogRef = this.dialog.open(PayComponent, {
       data: {
         name: this.product.name,
-        price: (+this.orderForm.value.quantity)*this.product.price
+        price: totalPrice.toString() // Convert to string to match expected type
       },
     });
     this.tokenStorageService.savePId(this.product.id.toString())

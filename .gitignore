@@ -1,0 +1,47 @@
+# Node/Angular specific ignores
+UChain-UI/node_modules/
+UChain-UI/dist/
+UChain-UI/.angular/
+UChain-UI/.sass-cache/
+UChain-UI/npm-debug.log
+UChain-UI/.env
+UChain-UI/coverage/
+UChain-UI/tmp/
+
+# Django specific ignores
+UChain-API/venv/
+UChain-API/__pycache__/
+UChain-API/*/__pycache__/
+UChain-API/*/*/__pycache__/
+UChain-API/*/*/*/__pycache__/
+UChain-API/*.py[cod]
+UChain-API/*$py.class
+UChain-API/.env
+UChain-API/.python-version
+UChain-API/db.sqlite3
+UChain-API/db.sqlite3-journal
+UChain-API/local_settings.py
+
+# Media and static files (uncomment if you want to ignore these)
+# UChain-API/media/
+# UChain-API/static/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+.tmp/
+.temp/

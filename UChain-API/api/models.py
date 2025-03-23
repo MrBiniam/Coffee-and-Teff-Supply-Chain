@@ -42,7 +42,7 @@ class Product(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=7, decimal_places=2, default=0.00)
     quantity = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='Products/', null=True, blank=True)
+    image = models.ImageField(upload_to='Products_Pictures/', null=True, blank=True)
     product_type = models.CharField(max_length=200)
 
 # Model for Order

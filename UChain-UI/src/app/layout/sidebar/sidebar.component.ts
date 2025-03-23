@@ -87,6 +87,18 @@ export class SidebarComponent implements OnInit {
       this.userFullName = this.authService.getUserFullName();
       this.userImg = this.tokenStorageService.getProfileImage();
       console.log(this.userImg)
+      
+      // Fix for profile image URL - ensure it's a complete, absolute URL
+      if (this.userImg) {
+        // Remove any existing protocol and host
+        if (this.userImg.startsWith('/')) {
+          // It's already a relative path, just add the backend URL
+          this.userImg = 'http://127.0.0.1:8000' + this.userImg;
+        } else if (!this.userImg.startsWith('http')) {
+          // It's a filename without path, construct full URL
+          this.userImg = 'http://127.0.0.1:8000/media/profile_images/' + this.userImg;
+        }
+      }
 
       this.sidebarItems = ROUTES.filter(
         (x) => x.role.indexOf(userRole) !== -1 || x.role.indexOf('All') !== -1

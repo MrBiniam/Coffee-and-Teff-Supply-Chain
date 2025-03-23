@@ -36,6 +36,9 @@
                     <mat-error *ngIf="productForm.get('name').hasError('required')">
                       Product Title is required
                     </mat-error>
+                    <mat-error *ngIf="productForm.get('name').hasError('productTitle')">
+                      Product title should only contain letters
+                    </mat-error>
                   </mat-form-field>
                 </div>
                 <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
@@ -44,6 +47,9 @@
                     <input matInput formControlName="quantity" required>
                     <mat-error *ngIf="productForm.get('quantity').hasError('required')">
                       Quantity is required
+                    </mat-error>
+                    <mat-error *ngIf="productForm.get('quantity').hasError('productQuantity')">
+                      Quantity must be a number followed by a unit (e.g., 1kg)
                     </mat-error>
                   </mat-form-field>
                 </div>
@@ -72,6 +78,9 @@
                     <mat-error *ngIf="productForm.get('price').hasError('required')">
                       Price is required
                     </mat-error>
+                    <mat-error *ngIf="productForm.get('price').hasError('positiveNumber')">
+                      Price must be a positive number
+                    </mat-error>
                   </mat-form-field>
                 </div>
               </div>
@@ -83,6 +92,9 @@
                     <mat-error *ngIf="productForm.get('location').hasError('required')">
                       Location is required
                     </mat-error>
+                    <mat-error *ngIf="productForm.get('location').hasError('productLocation')">
+                      Location can be letters or a combination of letters and numbers
+                    </mat-error>
                   </mat-form-field>
                 </div>
               </div>
@@ -93,6 +105,12 @@
                     <textarea matInput formControlName="description" required></textarea>
                     <mat-error *ngIf="productForm.get('description').hasError('required')">
                       Description is required
+                    </mat-error>
+                    <mat-error *ngIf="productForm.get('description').hasError('productDescriptionOnlyLetters')">
+                      Description should only contain letters and punctuation (no numbers)
+                    </mat-error>
+                    <mat-error *ngIf="productForm.get('description').hasError('productDescriptionTooShort')">
+                      Description should be at least 10 characters long
                     </mat-error>
                   </mat-form-field>
                 </div>

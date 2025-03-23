@@ -79,6 +79,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "uchain.wsgi.application"
 
 
+
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -148,9 +149,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_CREDENTIALS = True
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         # Add other authentication classes here if needed
     ),
 }
+
+# Chapa Payment Gateway Configuration
+CHAPA_SECRET_KEY = 'CHASECK_TEST-eTExMhRkuBgrH6SMnNgZnQWvdeIif5lf'
+CHAPA_PUBLIC_KEY = 'CHAPUBK_TEST-aVejExSBQLcKVflvyjbZSlk0fRzcxELh'
+CHAPA_API_VERSION = 'v1'
+CHAPA_API_URL = 'https://api.chapa.co'

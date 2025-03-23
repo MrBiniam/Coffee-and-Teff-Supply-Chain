@@ -1,63 +1,160 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { apiUrl } from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { Product } from './product.model';
 import { catchError } from 'rxjs/operators';
+
 @Injectable()
 export class ProductService {
   // Temporarily stores data from dialogs
   dialogData: any;
-  dataChange: BehaviorSubject<Product[]> = new BehaviorSubject<
-    Product[]
-  >([]);
-  constructor(private httpClient: HttpClient,  private tokenStorage: TokenStorageService) {}
+  dataChange: BehaviorSubject<Product[]> = new BehaviorSubject<Product[]>([]);
+  private apiUrl = environment.apiUrl;
+  
+  constructor(private httpClient: HttpClient, private tokenStorage: TokenStorageService) { }
   get data(): Product[] {
     return this.dataChange.value;
   }
   getDialogData() {
     return this.dialogData
   }
-  getMyProduct(){
-    const getMyProductUrl = apiUrl+'products';
-    return this.httpClient.get<Product[]>(getMyProductUrl);
+  getMyProduct() {
+    const getMyProductUrl = this.apiUrl + 'products';
+    return this.httpClient.get<Product[]>(getMyProductUrl)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error fetching products:', error);
+          return of([]);  // Return empty array on error
+        })
+      );
   }
-  getOneProduct(id){
-    const getOneProductUrl = apiUrl+'product/'+id;
-    return this.httpClient.get<Product>(getOneProductUrl);
+  getOneProduct(id) {
+    const getOneProductUrl = this.apiUrl + 'product/' + id;
+    return this.httpClient.get<Product>(getOneProductUrl)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error fetching product:', error);
+          return of(null);  // Return null on error
+        })
+      );
   }
-  addProduct(formData: FormData): Observable<string> {
-    const addProductUrl = apiUrl+'product/create';
-    return this.httpClient.post<string>(addProductUrl, formData);
+  addProduct(formData: FormData): Observable<any> {
+    const addProductUrl = this.apiUrl + 'product/create';
+    // Ensure seller ID is included in form data
+    if (!formData.has('seller') && this.tokenStorage.getId()) {
+      formData.append('seller', this.tokenStorage.getId());
     }
+    return this.httpClient.post<any>(addProductUrl, formData)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error creating product:', error);
+          return of({ error: 'Failed to create product' });
+        })
+      );
+  }
   editProduct(formData: FormData, id): Observable<string> {
-    const addProductUrl = apiUrl+'product/'+id+'/update';
+    const addProductUrl = this.apiUrl + 'product/' + id + '/update';
     return this.httpClient.put<string>(addProductUrl, formData);
-      }
+  }
   deleteProduct(id) {
-    const deleteProductUrl = apiUrl+'product/'+id+'/destroy';
+    const deleteProductUrl = this.apiUrl + 'product/' + id + '/destroy';
     return this.httpClient.delete(deleteProductUrl);
-    }
+  }
   addOrder(data): Observable<string> {
-    const addOrderUrl = apiUrl+'order/create';
+    const addOrderUrl = this.apiUrl + 'order/create';
     return this.httpClient.post<string>(addOrderUrl, data);
-    }
-  pay(price,username): Observable<any> {
-    const verifyUrl = apiUrl+'pay/';
-    return this.httpClient.post<string>(verifyUrl, {
-      "email":"samuel@gmail.com",
-      "amount":price,
-      "first_name":username,
-      "last_name":username,
-      "return_url": "http://localhost:4200/#/buyer/products/product-profile/0"
+  }
+  pay(price, username, productId): Observable<any> {
+    const verifyUrl = this.apiUrl + 'pay/';
+    // Create a tx_ref that includes a timestamp to make it unique
+    const tx_ref = "tx_uchainappsmartsupplychainmanagementpaytxref" + new Date().toISOString().replace(/[-:.TZ]/g, '');
+    
+    // Store the tx_ref and product_id in sessionStorage so they can be used for verification
+    sessionStorage.setItem('tx_ref', tx_ref);
+    sessionStorage.setItem('verifying_product_id', productId);
+    this.tokenStorage.saveTxRef(tx_ref);
+    
+    // Base URL for the frontend application
+    const frontendBaseUrl = window.location.origin; // e.g., http://localhost:4200
+    
+    // Create the callback URL (used by the server for verification) and return URL (used by Chapa to redirect the user)
+    const callbackUrl = `${frontendBaseUrl}/buyer/products/product/${productId}?tx_ref=${tx_ref}`;
+    const returnUrl = `${frontendBaseUrl}/buyer/products/product/${productId}?tx_ref=${tx_ref}`;
+    
+    return this.httpClient.post<any>(verifyUrl, {
+      "email": this.tokenStorage.getEmail() || "UChain@gmail.com",
+      "amount": price,
+      "first_name": username,
+      "last_name": "",
+      "tx_ref": tx_ref,
+      "callback_url": callbackUrl,
+      "return_url": returnUrl,
+      "currency": "ETB",
+      "product_id": productId,
+      "product_name": "Coffee/Teff Product"
     });
-    }
+  }
+  
+  checkout(product: Product, amount: string, quantity: string): Observable<any> {
+    // Create a tx_ref that includes a timestamp to make it unique
+    const tx_ref = "tx_uchainappsmartsupplychainmanagementpaytxref" + new Date().toISOString().replace(/[-:.TZ]/g, '');
+    
+    // Store the tx_ref, product_id, and quantity in sessionStorage/tokenStorage so they can be used for verification
+    sessionStorage.setItem('tx_ref', tx_ref);
+    sessionStorage.setItem('verifying_product_id', product.id?.toString() || '0');
+    this.tokenStorage.saveTxRef(tx_ref);
+    this.tokenStorage.saveQuantity(quantity);
+    
+    // Base URL for the frontend application
+    const frontendBaseUrl = window.location.origin; // e.g., http://localhost:4200
+    
+    // Create the callback URL and return URL for Chapa
+    const callbackUrl = `${frontendBaseUrl}/buyer/products/product/${product.id}?tx_ref=${tx_ref}`;
+    const returnUrl = `${frontendBaseUrl}/buyer/products/product/${product.id}?tx_ref=${tx_ref}`;
+    
+    console.log('Initiating checkout for product:', product.id, 'Amount:', amount, 'Quantity:', quantity);
+    
+    return this.httpClient.post<any>(this.apiUrl + 'pay/', {
+      "amount": amount,
+      "currency": "ETB",
+      "email": this.tokenStorage.getEmail() || "test@example.com",
+      "first_name": this.tokenStorage.getUsername() || "John",
+      "last_name": "Doe",
+      "tx_ref": tx_ref,
+      "callback_url": callbackUrl,
+      "return_url": returnUrl,
+      "product_id": product.id?.toString() || '0', // Convert to string to fix type error
+      "product_name": product.name || "Coffee/Teff Product",
+      "phone_number": this.tokenStorage.getPhoneNumber() || ""
+    });
+  }
+  
   verify(tx_ref: string): Observable<any> {
-    const formData = new FormData();
-    formData.append('tx_ref',tx_ref)
-    const verifyUrl = apiUrl+'pay/verify';
-    console.log(tx_ref)
-    return this.httpClient.post<string>(verifyUrl, formData);
-    }  
+    console.log('Verifying transaction with tx_ref:', tx_ref);
+    
+    // Use proper Content-Type header for form data
+    // Create payload as JSON as the backend expects
+    const payload = { tx_ref: tx_ref };
+    
+    const verifyUrl = this.apiUrl + 'verify/';
+    
+    return this.httpClient.post<any>(verifyUrl, payload, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Payment verification error:', error);
+        // Return a meaningful error object
+        return of({ 
+          status: 'error', 
+          message: 'Payment verification failed', 
+          error: error,
+          tx_ref: tx_ref // Include tx_ref for debugging
+        });
+      })
+    );
+  }
 }

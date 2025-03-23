@@ -21,9 +21,9 @@
     </div>
     <div class="row clearfix">
       <div class="col-lg-4 col-md-12">
-        <div class="card">
-          <div class="contact-grid profile-image">
-            <img src="../../../{{product.image}}" alt="">
+        <div class="card p-0 overflow-hidden">
+          <div class="product-image-container">
+            <img [src]="productImageUrl" alt="Product Image" *ngIf="product && product.image" class="product-detail-image">
           </div>
         </div>
         <div class="card">

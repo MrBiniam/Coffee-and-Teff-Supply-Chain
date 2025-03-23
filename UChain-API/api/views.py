@@ -10,36 +10,115 @@ from rest_framework.response import Response
 from .models import CustomUser, BuyerProfile, DriverProfile, Product, Order, Message, Rating, SellerProfile
 from django.contrib.auth import authenticate
 from .serializers import CustomUserSerializer, BuyerProfileSerializer, SellerProfileSerializer, DriverProfileSerializer, ProductSerializer, OrderSerializer, MessageSerializer, RatingSerializer
+from django.conf import settings
 from chapa import Chapa
 from datetime import datetime
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.conf import settings
+from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.http import JsonResponse, HttpResponse
+from rest_framework import viewsets, permissions, status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from datetime import datetime
+import logging
+import json
+import re
+import sys
+import traceback
+from chapa import Chapa
+from functools import wraps
 
 
 def home(request):
     return render(request, 'home.html')  # Replace 'home.html' with your template
 
 
-# Replace 'your_secret_key' with your actual Chapa secret key
-chapa = Chapa('CHASECK_TEST-YPSr0j8iNMFJg2a1SsN9exvQJq6CkoHM')
+def debug_chapa_call(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__} with args: {args}, kwargs: {kwargs}")
+        try:
+            result = func(*args, **kwargs)
+            print(f"{func.__name__} result: {result}")
+            return result
+        except Exception as e:
+            print(f"{func.__name__} error: {str(e)}")
+            traceback.print_exc()
+            raise
+    return wrapper
+
+# Initialize Chapa with your secret key
+chapa = Chapa(settings.CHAPA_SECRET_KEY)
+
+# Add debug wrapper to Chapa methods
+original_verify = chapa.verify
+chapa.verify = debug_chapa_call(original_verify)
+
+# Comment out the problematic construct_request debug wrapper
+# This was causing the "got multiple values for argument 'url'" error
+'''
+try:
+    original_construct_request = chapa._construct_request
+    
+    def debug_construct_request(self, *args, **kwargs):
+        print(f"Chapa _construct_request called with args: {args}, kwargs: {kwargs}")
+        try:
+            result = original_construct_request(self, *args, **kwargs)
+            print(f"Chapa _construct_request result: {result}")
+            return result
+        except Exception as e:
+            print(f"Chapa _construct_request error: {str(e)}")
+            traceback.print_exc()
+            raise
+    
+    chapa._construct_request = debug_construct_request.__get__(chapa, type(chapa))
+except Exception as e:
+    print(f"Failed to patch _construct_request: {e}")
+'''
+
 # View to create a buyer user
 class BuyerCreateView(APIView):
     def post(self, request):
-        user_serializer = CustomUserSerializer(data=request.data)
-        if user_serializer.is_valid():
-            user_instance = user_serializer.save()
-            
-            # Create a buyer profile associated with the new user
-            buyer_data = {'user': user_instance.id}
-            buyer_serializer = BuyerProfileSerializer(data=buyer_data)
-            if buyer_serializer.is_valid():
-                buyer_serializer.save()
-                return Response({'message': 'Buyer created successfully.'}, status=status.HTTP_201_CREATED)
+        try:
+            user_serializer = CustomUserSerializer(data=request.data)
+            if user_serializer.is_valid():
+                # Make sure is_buyer is set to True
+                if 'is_buyer' not in user_serializer.validated_data or not user_serializer.validated_data['is_buyer']:
+                    user_serializer.validated_data['is_buyer'] = True
+                
+                # Create the user
+                user_instance = user_serializer.save()
+                
+                # Create a buyer profile associated with the new user
+                buyer_data = {'user': user_instance.id}
+                buyer_serializer = BuyerProfileSerializer(data=buyer_data)
+                if buyer_serializer.is_valid():
+                    buyer_serializer.save()
+                    return Response({'message': 'Buyer created successfully.'}, status=status.HTTP_201_CREATED)
+                else:
+                    # Rollback user creation if buyer profile creation fails
+                    user_instance.delete()
+                    return Response({'error': 'Failed to create buyer profile', 'details': buyer_serializer.errors}, 
+                                   status=status.HTTP_400_BAD_REQUEST)
             else:
-                # Rollback user creation if buyer profile creation fails
-                user_instance.delete()
-                return Response(buyer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                # Format validation errors more clearly
+                error_message = 'User data validation failed'
+                if 'username' in user_serializer.errors:
+                    if 'unique' in str(user_serializer.errors['username']).lower():
+                        error_message = 'Username already exists. Please choose a different username.'
+                
+                return Response({'error': error_message, 'details': user_serializer.errors}, 
+                               status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Error in buyer registration: {str(e)}")
+            return Response({'error': 'An unexpected error occurred during registration'}, 
+                           status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # View for Login a user
 class UserLoginView(APIView):
@@ -187,6 +266,112 @@ class OrderCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(buyer=self.request.user.buyerprofile)
 
+# view to retrieve all orders
+class OrderListView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Return orders based on user role
+        user = self.request.user
+        
+        try:
+            if user.is_buyer:
+                # Buyer can see their own orders
+                buyer_profile = getattr(user, 'buyerprofile', None)
+                if buyer_profile:
+                    return Order.objects.filter(buyer=buyer_profile)
+                else:
+                    # Return empty queryset if profile doesn't exist
+                    return Order.objects.none()
+            elif user.is_seller:
+                # Seller can see orders for their products
+                return Order.objects.filter(product__seller=user)
+            elif user.is_driver:
+                # Driver can see orders assigned to them
+                driver_profile = getattr(user, 'driverprofile', None)
+                if driver_profile:
+                    return Order.objects.filter(driver=driver_profile)
+                else:
+                    # Return empty queryset if profile doesn't exist
+                    return Order.objects.none()
+            else:
+                return Order.objects.none()
+        except Exception as e:
+            # Log the error and return empty queryset
+            print(f"Error in OrderListView: {str(e)}")
+            return Order.objects.none()
+
+# view to retrieve a specific order
+class OrderRetrieveView(generics.RetrieveAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        instance = super().get_object()
+        user = self.request.user
+
+        # Check if user has permission to view this order
+        if (user.is_buyer and hasattr(user, 'buyerprofile') and instance.buyer == user.buyerprofile) or \
+           (user.is_seller and instance.product.seller_id == user.id) or \
+           (user.is_driver and hasattr(user, 'driverprofile') and instance.driver == user.driverprofile):
+            return instance
+        
+        raise PermissionDenied("You don't have permission to view this order")
+
+# view to update a specific order
+class OrderUpdateView(generics.UpdateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        
+        user = request.user
+        # Check permissions
+        if user.is_seller and instance.product.seller_id != user.id:
+            raise PermissionDenied("You are not authorized to update this order.")
+        elif user.is_buyer and hasattr(user, 'buyerprofile') and instance.buyer != user.buyerprofile:
+            raise PermissionDenied("You are not authorized to update this order.")
+        elif user.is_driver and hasattr(user, 'driverprofile') and instance.driver != user.driverprofile:
+            raise PermissionDenied("You are not authorized to update this order.")
+        
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+# view to destroy an order
+class OrderDestroyView(generics.DestroyAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        user = request.user
+        # Check permissions
+        if user.is_seller and instance.product.seller_id != user.id:
+            raise PermissionDenied("You are not authorized to delete this order.")
+        elif user.is_buyer and hasattr(user, 'buyerprofile') and instance.buyer != user.buyerprofile:
+            raise PermissionDenied("You are not authorized to delete this order.")
+            
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 # view to send a message
 class SendMessageAPIView(APIView):
     def post(self, request):
@@ -198,28 +383,278 @@ class SendMessageAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+class PaymentDiagnostic(APIView):
+    """
+    Diagnostic endpoint for checking Chapa integration
+    """
+    def get(self, request):
+        try:
+            # Get the Chapa API version and status
+            diagnostic_data = {
+                "chapa_version": getattr(chapa, "__version__", "Unknown"),
+                "chapa_secret_key_length": len(settings.CHAPA_SECRET_KEY) if settings.CHAPA_SECRET_KEY else 0,
+                "chapa_api_url": settings.CHAPA_API_URL,
+                "chapa_api_version": settings.CHAPA_API_VERSION,
+                "python_version": sys.version,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            # Test minimal initialization - don't actually call the API
+            test_init_params = {
+                "email": "test@example.com",
+                "amount": "100",
+                "first_name": "Test",
+                "last_name": "User",
+                "tx_ref": "test_tx_ref",
+                "callback_url": "http://localhost:8000/api/callback",
+                "currency": "ETB"
+            }
+            
+            # Check if we can create the payload correctly
+            init_params_serialized = json.dumps(test_init_params, indent=2)
+            diagnostic_data["test_init_params"] = init_params_serialized
+            
+            # Include customization format
+            test_customization = {
+                "customization[title]": "Test Payment",
+                "customization[description]": "Test payment for diagnostics"
+            }
+            diagnostic_data["test_customization_format"] = json.dumps(test_customization, indent=2)
+            
+            # Return diagnostic data
+            return Response(diagnostic_data)
+        except Exception as e:
+            error_data = {
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }
+            return Response(error_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class Payment(APIView):
     def post(self, request):
-        # Get the current date and time
-        now = datetime.now()
-        # Format the date and time
-        tx_ref = 'tx_uchainappsmartsupplychainmanagementpaytxref' + now.strftime("%Y%m%d%H%M%S")
-        response = chapa.initialize(
-            email=request.data['email'],
-            amount=request.data['amount'],
-            first_name=request.data['first_name'],
-            last_name=request.data['last_name'],
-            tx_ref=tx_ref,
-            callback_url="https://yourcallback.url/here"
-        )
-        data = {'response': response, 'tx_ref': tx_ref}
-        return Response(data, status=status.HTTP_201_CREATED)
-    
+        try:
+            # Get the current date and time
+            now = datetime.now()
+            # Format the date and time
+            tx_ref = request.data.get('tx_ref', 'tx_uchainappsmartsupplychainmanagementpaytxref' + now.strftime("%Y%m%d%H%M%S"))
+            
+            # Log the request data for debugging
+            print("Payment initialization request:", request.data)
+            
+            # Set the frontend URL that Chapa should redirect to after payment
+            frontend_callback_url = request.data.get('callback_url', 'http://localhost:4200/buyer/products/product/0')
+            
+            # The return_url is where Chapa will redirect the user after payment
+            # This should be a page that can handle the tx_ref parameter
+            return_url = request.data.get('return_url', 'http://localhost:4200/buyer/products/product/0')
+            
+            print(f"Using callback URL: {frontend_callback_url}")
+            print(f"Using return URL: {return_url}")
+            
+            # Get product information if available
+            product_id = request.data.get('product_id')
+            product_name = request.data.get('product_name', 'Coffee and Teff Product')
+            
+            # Initialize payment with Chapa
+            try:
+                # Print debug info about Chapa configuration
+                print("CHAPA DEBUG INFO:")
+                print(f"Secret key set: {'Yes' if settings.CHAPA_SECRET_KEY else 'No'}")
+                print(f"Secret key length: {len(settings.CHAPA_SECRET_KEY) if settings.CHAPA_SECRET_KEY else 0}")
+                print(f"Base API URL: {settings.CHAPA_API_URL}")
+                print(f"API Version: {settings.CHAPA_API_VERSION}")
+                
+                # Prepare payment data - use string conversion for amount which should fix common issues
+                payment_data = {
+                    'email': request.data.get('email', 'test@example.com'),
+                    'amount': str(request.data['amount']),  # Convert to string to avoid decimal issues
+                    'first_name': request.data.get('first_name', 'Guest'),
+                    'last_name': request.data.get('last_name', 'User'),
+                    'tx_ref': tx_ref,
+                    'callback_url': frontend_callback_url,
+                    'return_url': return_url,
+                    'currency': 'ETB',  # Default to Ethiopian Birr
+                }
+                
+                # Add phone number if provided
+                if 'phone_number' in request.data and request.data['phone_number']:
+                    payment_data['phone_number'] = request.data['phone_number']
+                
+                # Add customization with short title and description (meeting Chapa's character limits)
+                # Note: Chapa requires titles ≤ 16 chars and descriptions ≤ 50 chars
+                payment_data['customization[title]'] = "Coffee Payment"  # Keep under 16 chars
+                payment_data['customization[description]'] = "Payment for Ethiopian Coffee Product"  # Keep under 50 chars
+                
+                # If product_id is available, add it to the return_url
+                if product_id:
+                    # Always start with a clean return_url
+                    modified_return_url = return_url.split('?')[0]  # Remove any existing query params
+                    
+                    # Add product_id parameter
+                    modified_return_url += f"?product_id={product_id}"
+                    
+                    # Add tx_ref parameter
+                    modified_return_url += f"&tx_ref={tx_ref}"
+                    
+                    # If the user is authenticated, include the auth token and user ID in the URL
+                    # These will be captured and stored in localStorage by the frontend to maintain session
+                    if request.user.is_authenticated:
+                        # Get the user's auth token - either create a new one or get existing
+                        from rest_framework.authtoken.models import Token
+                        token, created = Token.objects.get_or_create(user=request.user)
+                        
+                        # Add token and user ID to URL (they'll be used by frontend to restore session)
+                        modified_return_url += f"&auth_token={token.key}"
+                        modified_return_url += f"&user_id={request.user.id}"
+                        modified_return_url += f"&is_authenticated=true"
+                        
+                        # Add user role information
+                        if hasattr(request.user, 'is_buyer') and request.user.is_buyer:
+                            modified_return_url += f"&user_role=BUYER"
+                        elif hasattr(request.user, 'is_seller') and request.user.is_seller:
+                            modified_return_url += f"&user_role=SELLER"
+                        elif hasattr(request.user, 'is_driver') and request.user.is_driver:
+                            modified_return_url += f"&user_role=DRIVER"
+                    
+                    # Update payment data with the modified return_url
+                    payment_data['return_url'] = modified_return_url
+                    
+                    print(f"Modified return URL: {modified_return_url}")
+                
+                print("About to call chapa.initialize with data:", payment_data)
+                
+                # Try directly with the initialize method
+                try:
+                    # Use a direct approach to avoid wrapper issues
+                    response = chapa.initialize(**payment_data)
+                    print("Chapa initialization response:", response)
+                    
+                    # For debugging, inspect the response type
+                    print(f"Response type: {type(response)}")
+                    if isinstance(response, dict):
+                        print(f"Response keys: {response.keys()}")
+                        
+                        # Check for success or failure
+                        if response.get('status') == 'success' and 'data' in response and response['data'] and 'checkout_url' in response['data']:
+                            print("Payment initialization successful!")
+                            
+                            # Return the successful response
+                            data = {
+                                'response': response, 
+                                'tx_ref': tx_ref,
+                                'product_id': product_id,
+                                'checkout_url': response['data']['checkout_url']
+                            }
+                            return Response(data, status=status.HTTP_201_CREATED)
+                    
+                    # If we got here, the response didn't have a checkout_url
+                    print("Invalid response from Chapa API:", response)
+                    return Response(
+                        {"error": "Invalid response from payment gateway", "details": str(response)},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+                    
+                except Exception as e:
+                    print(f"Chapa initialize error: {str(e)}")
+                    print(f"Error type: {type(e).__name__}")
+                    print(traceback.format_exc())
+                    
+                    # Try to create a more detailed error response
+                    error_detail = {
+                        "message": str(e),
+                        "type": type(e).__name__,
+                        "traceback": traceback.format_exc()
+                    }
+                    
+                    return Response(
+                        {"error": "Payment gateway API error", "details": error_detail},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+                
+            except KeyError as ke:
+                print(f"Missing required field in payment data: {str(ke)}")
+                return Response(
+                    {"error": "Missing required payment information", "details": f"Field {str(ke)} is required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+        except Exception as e:
+            print(f"Unhandled exception in payment initialization: {str(e)}")
+            print(f"Error type: {type(e).__name__}")
+            print(traceback.format_exc())
+            
+            # Create a detailed error response
+            error_detail = {
+                "message": str(e),
+                "type": type(e).__name__,
+                "location": "Payment.post",
+                "traceback": traceback.format_exc()
+            }
+            
+            return Response(
+                {"error": "Payment initialization failed", "details": error_detail},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 class PaymentVerify(APIView):
-    def post(self,request):
-        verification_response = chapa.verify(request.data['tx_ref'])
-        return Response(verification_response, ststaus=status.HTTP_200_OK)
-    
+    def post(self, request):
+        try:
+            # Log the request data for debugging
+            print("Verification request data:", request.data)
+            
+            # Check if tx_ref is in the request data (handle both JSON and FormData)
+            tx_ref = None
+            if hasattr(request.data, 'get'):
+                tx_ref = request.data.get('tx_ref')
+            elif isinstance(request.data, dict) and 'tx_ref' in request.data:
+                tx_ref = request.data['tx_ref']
+            else:
+                # Try to get from POST if it's multipart/form-data
+                tx_ref = request.POST.get('tx_ref')
+            
+            # If still no tx_ref, return an error
+            if not tx_ref:
+                return Response({"error": "tx_ref parameter is required", "received_data": str(request.data)}, 
+                              status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                # Call the Chapa verification API with proper error handling
+                verification_response = chapa.verify(tx_ref)
+                
+                # Log the verification response for debugging
+                print("Chapa verification response:", verification_response)
+                
+                # Check if the verification response is valid
+                if not verification_response:
+                    return Response(
+                        {"status": "error", "message": "Empty response from payment gateway"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                
+                # Check if it's a successful response based on Chapa's format
+                if isinstance(verification_response, dict) and verification_response.get('status') == 'success':
+                    return Response(verification_response, status=status.HTTP_200_OK)
+                else:
+                    # Format a proper error response
+                    return Response(
+                        {"status": "error", "message": "Payment verification failed", "details": verification_response},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                    
+            except Exception as chapa_error:
+                print("Chapa API error:", str(chapa_error))
+                # Return a user-friendly error while logging the actual error
+                return Response(
+                    {"status": "error", "message": "Payment verification failed", "details": str(chapa_error)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except Exception as e:
+            # Log any exception that occurs
+            print("Payment verification error:", str(e))
+            import traceback
+            print(traceback.format_exc())
+            return Response({"status": "error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 # view to update a message
 class MessageUpdateView(generics.UpdateAPIView):
     queryset = Message.objects.all()
@@ -327,7 +762,7 @@ class RatingDestroyAPIView(generics.DestroyAPIView):
         
         # Check if the requesting user is authenticated
         if not request.user.is_authenticated:
-            raise PermissionDenied("You must be authenticated to delete this rating.")
+            raise PermissionDenied("You are not authorized to delete this rating.")
 
         # Check if the requesting user is the sender of the rating
         if instance.sender_id != request.user.id:
@@ -335,3 +770,66 @@ class RatingDestroyAPIView(generics.DestroyAPIView):
 
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# view to update a user
+class UserUpdateView(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAuthenticated]
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if the requesting user is updating their own profile
+        if instance.id != request.user.id:
+            raise PermissionDenied("You are not authorized to update this profile.")
+
+        # Create a mutable copy of the data
+        mutable_data = request.data.copy() if hasattr(request.data, 'copy') else dict(request.data)
+        
+        # Handle driver profile specific fields if the user is a driver
+        if instance.is_driver and hasattr(instance, 'driverprofile'):
+            driver_profile = instance.driverprofile
+            
+            # Always use the existing values for read-only fields
+            if 'license_number' in mutable_data:
+                mutable_data['license_number'] = driver_profile.license_number
+                
+            if 'car_model' in mutable_data:
+                mutable_data['car_model'] = driver_profile.car_model
+                
+        # Handle seller profile specific fields if the user is a seller
+        if instance.is_seller and hasattr(instance, 'sellerprofile'):
+            seller_profile = instance.sellerprofile
+            
+            # Always use the existing value for tax_number
+            if 'tax_number' in mutable_data:
+                mutable_data['tax_number'] = seller_profile.tax_number
+
+        # Use the modified data for the update
+        serializer = self.get_serializer(instance, data=mutable_data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+# view to delete a user account
+class UserDeleteView(generics.DestroyAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if the requesting user is authenticated
+        if not request.user.is_authenticated:
+            raise PermissionDenied("You must be authenticated to delete your account.")
+
+        # Check if the requesting user is deleting their own account
+        if instance.id != request.user.id:
+            raise PermissionDenied("You are not authorized to delete this account.")
+
+        self.perform_destroy(instance)
+        return Response({"message": "Your account has been successfully deleted."}, status=status.HTTP_200_OK)

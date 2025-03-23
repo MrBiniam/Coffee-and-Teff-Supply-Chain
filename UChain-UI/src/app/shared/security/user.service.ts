@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import { BehaviorSubject} from 'rxjs';
-import { apiUrl } from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { User } from 'src/app/shared/security/user';
 import { Rate } from './rate';
@@ -23,19 +23,23 @@ export class UserService {
     return this.dialogData
   }
   getOneUser(id){
-    const getOneUserUrl = apiUrl+'user/'+id
+    const getOneUserUrl = environment.apiUrl+'user/'+id
     return this.httpClient.get<User>(getOneUserUrl)
   }
   getUsers(){
-    const userUrl = apiUrl + 'user/all'
+    const userUrl = environment.apiUrl + 'user/all'
     return this.httpClient.get<User[]>(userUrl)
   }
   updateUser(id,data:FormData){
-    const updateUrl = apiUrl+'user/update/'+id
+    const updateUrl = environment.apiUrl+'user/update/'+id
     return this.httpClient.put(updateUrl,data)
   }
+  deleteUser(id){
+    const deleteUrl = environment.apiUrl+'user/delete/'+id
+    return this.httpClient.delete(deleteUrl)
+  }
   getRatings(){
-    const getOneProductUrl = apiUrl+'ratings/'
+    const getOneProductUrl = environment.apiUrl+'ratings/'
     return this.httpClient.get<Rate[]>(getOneProductUrl)
   }
   getSellerRating(username: string): number{

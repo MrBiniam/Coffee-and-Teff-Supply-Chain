@@ -21,9 +21,10 @@
     </div>
     <div class="row clearfix">
       <div class="col-lg-4 col-md-12">
-        <div class="card">
-          <div class="contact-grid profile-image">
-            <img src="../../../{{product.image}}" alt="">
+        <div class="card p-0 overflow-hidden">
+          <!-- Full-width rectangular image container -->
+          <div class="product-image-container">
+            <img [src]="productImageUrl" alt="Product Image" *ngIf="product && product.image" class="product-detail-image">
           </div>
         </div>
         <div class="card">
@@ -68,16 +69,18 @@
                         <div class="m-b-20 m-l-20 m-t-20 m-r-20">
                           <div class="contact-grid">
                             <div class="profile-header bg-green">
-                              <div class="user-name">{{user.username}}</div>
-                              <div class="name-center">{{user.payment_method}}</div>
+                              <div class="user-name">{{user?.username}}</div>
+                              <div class="name-center">{{user?.payment_method}}</div>
                             </div>
-                            <img src="../../../{{user.profile_image}}" class="user-img" alt="">
+                            <div class="user-image-container">
+                              <img [src]="userImageUrl" alt="User Profile" *ngIf="user && user.profile_image" class="user-profile-image">
+                            </div>
                             <p>
-                              {{user.address}}
+                              {{user?.address}}
                             </p>
                             <div>
                               <span class="phone">
-                                <i class="material-icons">phone</i>{{user.phone_number}}</span>
+                                <i class="material-icons">phone</i>{{user?.phone_number}}</span>
                             </div>
                           </div>
                         </div>

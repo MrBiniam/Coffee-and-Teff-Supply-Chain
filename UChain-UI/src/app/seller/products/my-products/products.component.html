@@ -19,9 +19,12 @@
     <div class="row">
       <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4" *ngFor="let product of products">
         <div class="card py-3 py-md-3">
-          <div class=" d-flex justify-content-between px-3 px-md-4">
-            <img src="../../../{{product.image}}" height="55sspx" width="55px" alt="" class="rounded-circle">
-            <div class="">
+          <!-- Full width image container at the top of the card -->
+          <div class="product-image-container">
+            <img [src]="product.image" alt="Product Image" class="product-image">
+          </div>
+          <div class="product-header d-flex justify-content-between px-3 px-md-4 mt-3">
+            <div class="product-info">
               <h6 class="col-green">{{product.name}}</h6>
               <p>Product Type: {{product.product_type}}</p>
             </div>
@@ -38,9 +41,11 @@
           <div class="d-flex justify-content-between px-3 px-md-4">
           </div>
           <hr class="light-hr">
-          <div class="d-flex justify-content-around px-4 pb-4"> <button mat-stroked-button color="primary" (click)="productDetail(product.id)">Read
-              More</button></div>
-          <div class="d-flex justify-content-around px-4"> <button mat-stroked-button color="primary" (click)="editProduct(product)">Edit Your Product</button></div>
+          <div class="d-flex justify-content-between px-4 py-2">
+            <button mat-raised-button color="primary" (click)="productDetail(product.id)" class="action-btn">Read More</button>
+            <button mat-raised-button color="accent" (click)="editProduct(product)" class="action-btn">Edit</button>
+            <button mat-raised-button color="warn" (click)="deleteProduct(product)" class="action-btn">Delete</button>
+          </div>
         </div>
       </div>
     </div>

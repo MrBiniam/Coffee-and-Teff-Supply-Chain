@@ -3,6 +3,7 @@ import { TokenStorageService } from "src/app/shared/security/token-storage.servi
 import { Order } from "../../orders/order.model";
 import { OrderService } from "../../orders/order.service";
 import { Data } from "../dashboard2/data";
+
 @Component({
   selector: "app-main",
   templateUrl: "./main.component.html",
@@ -201,13 +202,110 @@ export class MainComponent implements OnInit {
     },
   ];
   // end bar chart
-  ngOnInit() {this.getOrder()}
+  ngOnInit() {
+    this.initializeChartsData();
+    this.getOrder();
+  }
+
+  // Keep this method separate for reuse
+  ensureValidNumber(value) {
+    return (value !== undefined && value !== null && typeof value === 'number' && !isNaN(value)) ? value : 0;
+  }
+
+  initializeChartsData() {
+    try {
+      // Use defensive programming to ensure data objects exist
+      if (!this.data || !this.data.dataAACoffee || !this.data.dataCoffeeAB || !this.data.dataCoffeeC) {
+        console.warn('Chart data sources are not properly initialized');
+        this.data = new Data(); // Re-initialize if needed
+      }
+
+      // Define default values for chart data
+      const defaultData = [0, 0, 0, 0, 0, 0, 0];
+      
+      // Create safe data arrays with fallbacks
+      const aaCoffeeData = Array(7).fill(0).map((_, index) => {
+        const dataPoint = this.data?.dataAACoffee?.[index + 16];
+        return this.ensureValidNumber(dataPoint?.price);
+      });
+      
+      const abCoffeeData = Array(7).fill(0).map((_, index) => {
+        const dataPoint = this.data?.dataCoffeeAB?.[index + 16];
+        return this.ensureValidNumber(dataPoint?.price);
+      });
+      
+      const cCoffeeData = Array(7).fill(0).map((_, index) => {
+        const dataPoint = this.data?.dataCoffeeC?.[index + 16];
+        return this.ensureValidNumber(dataPoint?.price);
+      });
+
+      // Update chart data with safe values
+      this.areaChartData = [
+        {
+          label: "AA Coffee",
+          data: aaCoffeeData,
+          borderWidth: 4,
+          pointStyle: "circle",
+          pointRadius: 4,
+          borderColor: "rgba(37,188,232,.7)",
+          pointBackgroundColor: "rgba(37,188,232,.2)",
+          backgroundColor: "rgba(37,188,232,.2)",
+          pointBorderColor: "transparent",
+        },
+        {
+          label: "AB Coffee",
+          data: abCoffeeData,
+          borderWidth: 4,
+          pointStyle: "circle",
+          pointRadius: 4,
+          borderColor: "rgba(72,239,72,.7)",
+          pointBackgroundColor: "rgba(72,239,72,.2)",
+          backgroundColor: "rgba(72,239,72,.2)",
+          pointBorderColor: "transparent",
+        },
+        {
+          label: "C Coffee",
+          data: cCoffeeData,
+          borderWidth: 4,
+          pointStyle: "circle",
+          pointRadius: 4,
+          borderColor: "rgba(72,100,72,.7)",
+          pointBackgroundColor: "rgba(72,100,72,.2)",
+          backgroundColor: "rgba(72,100,72,.2)",
+          pointBorderColor: "transparent",
+        },
+      ];
+
+      // Safe bar chart data
+      this.barChartData = [
+        { data: [58, 60, 74, 78, 55, 64, 42], label: "AA Coffee" },
+        { data: [30, 45, 51, 22, 79, 35, 82], label: "AB Coffee" },
+        { data: [30, 45, 51, 22, 79, 35, 82], label: "C Coffee" },
+      ];
+    } catch (error) {
+      console.error("Error initializing chart data:", error);
+      // Provide default empty data in case of errors
+      this.areaChartData = [];
+      this.barChartData = [];
+    }
+  }
 
   getOrder(){
     const id = parseInt(this.tokenStorage.getId())
+    
+    if (isNaN(id)) {
+      console.error("Invalid user ID - cannot retrieve orders");
+      return;
+    }
+    
     this.orderService.getMyOrder().subscribe(
-      data=>{
-        data.forEach((value)=>{
+      data => {
+        if (!data || data.length === 0) {
+          console.log("No orders found for this user");
+          return;
+        }
+        
+        data.forEach((value) => {
           if(value.driver==null && value.buyer==id && value.status=='Pending'){
               this.newOrders+=1
             }else 
@@ -220,11 +318,10 @@ export class MainComponent implements OnInit {
           if(value.driver!=null && value.buyer==id && value.status=='Delivered'){
             this.deliveredOrders+=1
           }
-          }
-        );
-      }
-      , error =>{
-          console.log("Can't get Product")
+        });
+      },
+      error => {
+          console.error("Error fetching orders:", error);
       }
     );
   }
