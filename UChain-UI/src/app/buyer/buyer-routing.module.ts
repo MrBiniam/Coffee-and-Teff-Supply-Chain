@@ -19,6 +19,11 @@ const routes: Routes = [
       import('./orders/order.module').then((m) => m.OrderModule),
   },
   {
+    path: 'payments',
+    loadChildren: () =>
+      import('./payments/payments.module').then((m) => m.PaymentsModule),
+  },
+  {
     path: 'settings',
     component: SettingsComponent,
   },

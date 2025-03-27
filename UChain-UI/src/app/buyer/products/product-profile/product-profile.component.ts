@@ -68,8 +68,39 @@ export class ProductProfileComponent implements OnInit {
           this.recoverSession();
         }
         
-        // Extract product ID from URL if available
-        const productIdFromUrl = params['product_id'] || this.route.snapshot.paramMap.get('id');
+        // Enhanced debugging to see all available parameters
+        console.log('All URL params:', this.route.snapshot.queryParams);
+        console.log('All route params:', this.route.snapshot.params);
+        
+        // Extract parameters from the full URL (needed due to encoding issues)
+        const fullUrl = window.location.href;
+        console.log('Full URL:', fullUrl);
+        
+        let productIdFromUrl = null;
+        
+        // Try getting product_id from either parameters or directly from URL
+        try {
+          // Check URL for semicolon-delimited product_id
+          if (fullUrl.includes('product_id=')) {
+            const productIdMatch = fullUrl.match(/[?&;]product_id=([^&;]+)/);
+            if (productIdMatch && productIdMatch[1]) {
+              productIdFromUrl = productIdMatch[1];
+              console.log('Product ID extracted from full URL:', productIdFromUrl);
+            }
+          }
+          
+          // If not found, try the usual parameter mechanisms
+          if (!productIdFromUrl) {
+            productIdFromUrl = this.route.snapshot.queryParams['product_id'] || 
+                           this.route.snapshot.queryParams['amp;product_id'] || // Handle encoding issue
+                           params['product_id'] || 
+                           this.route.snapshot.params['id'] || 
+                           params['id'];
+          }
+        } catch (e) {
+          console.error('Error extracting product ID from URL:', e);
+        }
+                               
         if (productIdFromUrl && productIdFromUrl !== '0' && productIdFromUrl !== 'undefined') {
           this.productId = productIdFromUrl;
           console.log('Product ID from URL:', this.productId);
@@ -155,6 +186,12 @@ export class ProductProfileComponent implements OnInit {
   getProduct(id) {
     console.log('Fetching product with ID:', id);
     
+    if (!id || id === 'undefined' || id === 'null') {
+      console.log('Invalid product ID, trying to recover from localStorage...');
+      this.tryRecoverProductFromStorage();
+      return;
+    }
+    
     this.productService.getOneProduct(id).subscribe(
       data => {
         console.log('Product data received:', JSON.stringify(data));
@@ -202,16 +239,73 @@ export class ProductProfileComponent implements OnInit {
       },
       error => {
         console.error('Error fetching product:', error);
+        
+        // Try to recover product details from localStorage as fallback
+        this.tryRecoverProductFromStorage();
+      }
+    );
+  }
+  
+  private tryRecoverProductFromStorage() {
+    console.log('Attempting to recover product details from localStorage...');
+    try {
+      const storedProductJson = localStorage.getItem('last_product_checkout');
+      if (storedProductJson) {
+        const storedProduct = JSON.parse(storedProductJson);
+        console.log('Recovered product from localStorage:', storedProduct);
+        
+        // Create a Product object from the stored data
+        this.product = new Product();
+        this.product.id = storedProduct.id;
+        this.product.name = storedProduct.name;
+        this.product.description = storedProduct.description;
+        this.product.price = storedProduct.price;
+        this.product.image = storedProduct.image;
+        this.product.seller = storedProduct.seller;
+        
+        // Update product ID for verification
+        this.productId = this.product.id;
+        
+        // Fix image path using the helper method
+        if (this.product.image) {
+          this.productImageUrl = this.fixImagePath(this.product.image);
+        }
+        
+        // Check if seller ID exists before fetching seller details
+        if (this.product.seller) {
+          this.getComments(this.product.seller);
+        } else {
+          this.user = new User(); // Initialize with empty user to avoid template errors
+        }
+        
+        this.showNotification(
+          'snackbar-info',
+          'Product details recovered from your recent checkout',
+          'bottom',
+          'center'
+        );
+      } else {
+        console.error('No stored product details found');
+        this.product = new Product();
+        this.user = new User();
         this.showNotification(
           'snackbar-danger',
           'Could not load product details. Please try again later.',
           'bottom',
           'center'
         );
-        this.product = new Product();
-        this.user = new User();
       }
-    );
+    } catch (e) {
+      console.error('Error recovering product details:', e);
+      this.product = new Product();
+      this.user = new User();
+      this.showNotification(
+        'snackbar-danger',
+        'Could not load product details. Please try again later.',
+        'bottom',
+        'center'
+      );
+    }
   }
 
   editProduct(product) {

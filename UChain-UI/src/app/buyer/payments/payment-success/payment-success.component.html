@@ -1,0 +1,86 @@
+<div class="container-fluid payment-success-container">
+  <div class="block-header">
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <ul class="breadcrumb breadcrumb-style">
+          <li class="breadcrumb-item">
+            <h4 class="page-title">Payment Success</h4>
+          </li>
+          <li class="breadcrumb-item bcrumb-1">
+            <a routerLink="/buyer/dashboard/main">
+              <i class="fas fa-home"></i> Home</a>
+          </li>
+          <li class="breadcrumb-item active">Payment Success</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row clearfix">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+      <div class="card">
+        <div class="body">
+          <!-- Top branding section -->
+          <div class="top-section">
+            <!-- Move the UChain title to center -->
+            <div class="uchain-branding">
+              <h2 class="uchain-title">
+                <strong>UChain</strong>
+              </h2>
+              <div class="tagline">Smart Supply Chain Management</div>
+            </div>
+            <!-- Logo container stays at right -->
+            <div class="logo-container">
+              <img src="assets/images/logo.png" alt="U-Chain Logo" class="u-chain-logo">
+            </div>
+          </div>
+          
+          <!-- Loading spinner during verification -->
+          <div *ngIf="isVerifying" class="verification-loading">
+            <div class="spinner">
+              <div class="bounce1"></div>
+              <div class="bounce2"></div>
+              <div class="bounce3"></div>
+            </div>
+            <p class="loading-text">{{ loadingMessage }}</p>
+          </div>
+          
+          <!-- Success content after verification -->
+          <div *ngIf="!isVerifying" class="success-content">
+            <div class="success-icon-container">
+              <i class="material-icons success-icon">check_circle</i>
+              <h3 class="welcome-message">{{ userName }}, we're glad you use our app!</h3>
+              <p class="success-message">Your payment was successful and your order is being processed.</p>
+              
+              <!-- Transaction details -->
+              <div class="transaction-details">
+                <div class="transaction-item">
+                  <div class="label">Product:</div>
+                  <div class="value">{{ productName || 'Coffee/Teff Product' }}</div>
+                </div>
+                <div class="transaction-item" *ngIf="amount">
+                  <div class="label">Amount:</div>
+                  <div class="value">{{ amount }} ETB</div>
+                </div>
+                <div class="transaction-item tx-ref-container">
+                  <div class="label">Transaction Ref:</div>
+                  <div class="value tx-ref">{{ txRef }}</div>
+                </div>
+              </div>
+              
+              <!-- Action buttons -->
+              <div class="action-buttons">
+                <button mat-raised-button color="primary" (click)="goToSelectDriver()" class="action-button driver-button">
+                  <i class="material-icons">local_shipping</i> Select Driver
+                </button>
+                <button mat-raised-button color="accent" (click)="goToProducts()" class="action-button products-button">
+                  <i class="material-icons">shopping_basket</i> View Products
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

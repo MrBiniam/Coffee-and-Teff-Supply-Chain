@@ -73,6 +73,7 @@ export class FormDialogComponent {
 
     const dialogRef = this.dialog.open(PayComponent, {
       data: {
+        ProductId: this.product.id,
         name: this.product.name,
         price: totalPrice.toString() // Convert to string to match expected type
       },

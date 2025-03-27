@@ -25,6 +25,7 @@ import { MatRadioModule } from "@angular/material/radio";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MaterialFileInputModule } from "ngx-material-file-input";
+import { PaymentsModule } from "./payments/payments.module";
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { MaterialFileInputModule } from "ngx-material-file-input";
     FormsModule,
     ReactiveFormsModule,
     MaterialFileInputModule,
+    PaymentsModule,
 
   ],
 })

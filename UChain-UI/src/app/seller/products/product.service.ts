@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { Product } from './product.model';
-import { catchError } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 
 @Injectable()
 export class ProductService {
@@ -74,27 +74,48 @@ export class ProductService {
     // Store the tx_ref and product_id in sessionStorage so they can be used for verification
     sessionStorage.setItem('tx_ref', tx_ref);
     sessionStorage.setItem('verifying_product_id', productId);
+    localStorage.setItem('verifying_product_id', productId);
     this.tokenStorage.saveTxRef(tx_ref);
     
-    // Base URL for the frontend application
-    const frontendBaseUrl = window.location.origin; // e.g., http://localhost:4200
-    
-    // Create the callback URL (used by the server for verification) and return URL (used by Chapa to redirect the user)
-    const callbackUrl = `${frontendBaseUrl}/buyer/products/product/${productId}?tx_ref=${tx_ref}`;
-    const returnUrl = `${frontendBaseUrl}/buyer/products/product/${productId}?tx_ref=${tx_ref}`;
-    
-    return this.httpClient.post<any>(verifyUrl, {
-      "email": this.tokenStorage.getEmail() || "UChain@gmail.com",
-      "amount": price,
-      "first_name": username,
-      "last_name": "",
-      "tx_ref": tx_ref,
-      "callback_url": callbackUrl,
-      "return_url": returnUrl,
-      "currency": "ETB",
-      "product_id": productId,
-      "product_name": "Coffee/Teff Product"
-    });
+    // Modify to use switchMap for sequential operations
+    return this.getOneProduct(productId).pipe(
+      switchMap(product => {
+        try {
+          console.log('Storing product details for payment via pay():', product);
+          localStorage.setItem('last_product_checkout', JSON.stringify({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            description: product.description,
+            image: product.image,
+            seller: product.seller
+          }));
+        } catch (e) {
+          console.error('Error storing product details:', e);
+        }
+        
+        // Base URL for the frontend application
+        const frontendBaseUrl = window.location.origin; // e.g., http://localhost:4200
+        
+        // Fix URL parameters to avoid encoding issues - use semicolon instead of ampersand
+        const callbackUrl = `${frontendBaseUrl}/#/buyer/payments/success?tx_ref=${tx_ref};product_id=${productId}`;
+        const returnUrl = `${frontendBaseUrl}/#/buyer/payments/success?tx_ref=${tx_ref};product_id=${productId}`;
+        
+        // Now make the payment API call
+        return this.httpClient.post<any>(verifyUrl, {
+          "email": this.tokenStorage.getEmail() || "UChain@gmail.com",
+          "amount": price,
+          "first_name": username,
+          "last_name": "",
+          "tx_ref": tx_ref,
+          "callback_url": callbackUrl,
+          "return_url": returnUrl,
+          "currency": "ETB",
+          "product_id": productId,
+          "product_name": "Coffee/Teff Product"
+        });
+      })
+    );
   }
   
   checkout(product: Product, amount: string, quantity: string): Observable<any> {
@@ -104,17 +125,38 @@ export class ProductService {
     // Store the tx_ref, product_id, and quantity in sessionStorage/tokenStorage so they can be used for verification
     sessionStorage.setItem('tx_ref', tx_ref);
     sessionStorage.setItem('verifying_product_id', product.id?.toString() || '0');
+    localStorage.setItem('verifying_product_id', product.id?.toString() || '0');
+    
+    // Store additional product info in case ID lookup fails
+    try {
+      localStorage.setItem('last_product_checkout', JSON.stringify({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        description: product.description,
+        image: product.image,
+        seller: product.seller
+      }));
+      console.log('Stored product details for payment:', product.id);
+    } catch (e) {
+      console.error('Error storing product details:', e);
+    }
+    
     this.tokenStorage.saveTxRef(tx_ref);
     this.tokenStorage.saveQuantity(quantity);
     
     // Base URL for the frontend application
     const frontendBaseUrl = window.location.origin; // e.g., http://localhost:4200
     
-    // Create the callback URL and return URL for Chapa
-    const callbackUrl = `${frontendBaseUrl}/buyer/products/product/${product.id}?tx_ref=${tx_ref}`;
-    const returnUrl = `${frontendBaseUrl}/buyer/products/product/${product.id}?tx_ref=${tx_ref}`;
+    // Create the callback URL and return URL for Chapa - point to our new payment success page
+    const callbackUrl = `${frontendBaseUrl}/#/buyer/payments/success?tx_ref=${tx_ref}&product_id=${product.id}`;
+    const returnUrl = `${frontendBaseUrl}/#/buyer/payments/success?tx_ref=${tx_ref}&product_id=${product.id}`;
     
     console.log('Initiating checkout for product:', product.id, 'Amount:', amount, 'Quantity:', quantity);
+    
+    // Ensure that product ID is properly stored both in sessionStorage and localStorage for redundancy
+    sessionStorage.setItem('verifying_product_id', product.id?.toString() || '0');
+    localStorage.setItem('verifying_product_id', product.id?.toString() || '0');
     
     return this.httpClient.post<any>(this.apiUrl + 'pay/', {
       "amount": amount,

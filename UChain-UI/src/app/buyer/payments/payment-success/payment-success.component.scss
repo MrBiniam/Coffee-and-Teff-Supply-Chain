@@ -1,0 +1,476 @@
+.payment-success-container {
+  position: relative;
+  min-height: calc(100vh - 40px + 150px); /* Added 150px (≈3-5cm) to increase height */
+  display: flex;
+  flex-direction: column;
+}
+
+.row.clearfix {
+  flex: 1;
+  display: flex;
+  
+  > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.card {
+  border-radius: 12px; /* Increased from 8px for a softer look */
+  box-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  margin-bottom: 30px;
+  background-color: rgba(255, 255, 255, 0.97); /* Slightly more opaque */
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 100px + 150px); /* Added 150px (≈3-5cm) to increase height */
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/assets/images/coffee.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+    z-index: -1;
+  }
+  
+  &:hover {
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+  }
+  
+  .body {
+    padding: 15px 24px 20px; /* Further reduced top padding */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+}
+
+/* Top branding section styling */
+.top-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Changed from flex-start to center */
+  width: 100%;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative; /* Added for absolute positioning of logo */
+  
+  .uchain-branding {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Changed from flex-start to center */
+    margin: 0 auto; /* Center horizontally */
+    position: relative; /* For z-index */
+    z-index: 1; /* Ensure it's above other elements */
+    width: 100%; /* Take full width for centering */
+    
+    .uchain-title {
+      margin: 0;
+      font-size: 46px; /* Increased from 42px */
+      color: #3f51b5;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      
+      strong {
+        background: linear-gradient(45deg, #3f51b5, #5c6bc0);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+      }
+    }
+    
+    .tagline {
+      font-size: 16px;
+      color: #616161;
+      margin-top: 6px;
+      font-style: italic;
+    }
+  }
+  
+  .logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: absolute; /* Position absolutely */
+    right: 0; /* Align to the right edge */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Perfect vertical centering */
+    z-index: 2; /* Above other elements */
+    
+    .u-chain-logo {
+      height: 90px; /* Increased from 70px */
+      max-width: 240px; /* Increased from 220px */
+      object-fit: contain;
+    }
+  }
+}
+
+.verification-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  flex: 1;
+  
+  .spinner {
+    margin: 20px auto;
+    width: 70px;
+    text-align: center;
+    
+    > div {
+      width: 18px;
+      height: 18px;
+      background-color: #3f51b5;
+      border-radius: 100%;
+      display: inline-block;
+      animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+      margin: 0 4px;
+    }
+    
+    .bounce1 {
+      animation-delay: -0.32s;
+    }
+    
+    .bounce2 {
+      animation-delay: -0.16s;
+    }
+  }
+  
+  .loading-text {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #616161;
+    text-align: center;
+  }
+}
+
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% { 
+    transform: scale(0);
+  } 40% { 
+    transform: scale(1.0);
+  }
+}
+
+.success-content {
+  min-height: 300px;
+  animation: fadeIn 0.5s ease-in;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  padding: 0 0 20px; /* Removed top padding */
+  flex: 1;
+  
+  .success-icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 850px; /* Increased from 700px */
+    width: 100%; /* Ensure full width is used */
+    margin: 0 auto;
+    
+    .success-icon {
+      font-size: 70px;
+      color: #4CAF50;
+      margin-bottom: 25px;
+    }
+    
+    .welcome-message {
+      font-size: 30px; /* Increased from 28px */
+      font-weight: 500;
+      color: #3C4858;
+      margin-bottom: 15px;
+    }
+    
+    .success-message {
+      font-size: 18px; /* Increased from 16px */
+      color: #616161;
+      margin-bottom: 35px; /* Increased from 30px */
+    }
+  }
+  
+  .transaction-details {
+    background-color: #f9f9f9;
+    border-radius: 12px; /* Increased from 8px */
+    padding: 25px; /* Increased from 20px */
+    margin-bottom: 35px; /* Increased from 30px */
+    width: 100%;
+    max-width: 800px; /* Significantly increased from 650px */
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    
+    .transaction-item {
+      display: flex;
+      margin-bottom: 15px; /* Increased from 12px */
+      text-align: left;
+      
+      .label {
+        flex: 0 0 180px; /* Significantly increased from 130px to ensure "Transaction Ref:" stays on one line */
+        font-weight: 500;
+        color: #616161;
+        font-size: 16px;
+        white-space: nowrap; /* Prevent label from wrapping */
+      }
+      
+      .value {
+        flex: 1;
+        color: #212121;
+        font-weight: 400;
+        font-size: 16px;
+      }
+      
+      &.tx-ref-container {
+        width: 100%;
+        
+        .value.tx-ref {
+          word-break: break-word; /* Changed from break-all for better readability */
+          font-size: 14px;
+          font-family: monospace;
+          background-color: #f0f2ff;
+          padding: 8px;
+          border-radius: 4px;
+          border-left: 3px solid #3f51b5;
+        }
+      }
+    }
+  }
+  
+  .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px; /* Increased from 20px */
+    margin-top: 25px; /* Increased from 20px */
+    justify-content: center;
+    width: 100%;
+    max-width: 600px; /* Increased from 550px */
+    
+    .action-button {
+      min-width: 220px; /* Increased from 200px */
+      padding: 14px 28px; /* Increased from 12px 24px */
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px; /* Increased from 16px */
+      border-radius: 8px; /* Increased from 4px */
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+      
+      i {
+        margin-right: 10px; /* Increased from 8px */
+        font-size: 22px; /* Increased from 20px */
+      }
+      
+      &.driver-button {
+        background-color: #3f51b5;
+      }
+      
+      &.products-button {
+        background-color: #ff9800;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .success-content {
+    .transaction-details {
+      max-width: 750px; /* Increased from 600px */
+    }
+  }
+  
+  .top-section {
+    .uchain-branding .uchain-title {
+      font-size: 42px;
+    }
+    
+    .logo-container .u-chain-logo {
+      height: 80px;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .success-content {
+    padding: 0 15px 20px;
+    
+    .success-icon-container {
+      .welcome-message {
+        font-size: 26px;
+      }
+      
+      .success-message {
+        font-size: 16px;
+      }
+    }
+    
+    .transaction-details {
+      max-width: 680px; /* Increased from 520px */
+      padding: 20px;
+    }
+  }
+  
+  .top-section {
+    .uchain-branding .uchain-title {
+      font-size: 38px;
+    }
+    
+    .logo-container .u-chain-logo {
+      height: 70px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .payment-success-container {
+    padding: 0 10px;
+  }
+  
+  .card {
+    min-height: auto; /* Let it size naturally on mobile */
+  }
+  
+  .card .body {
+    padding: 12px;
+  }
+  
+  .top-section {
+    flex-direction: column;
+    align-items: center;
+    padding-top: 60px; /* Added space for the logo */
+    
+    .logo-container {
+      position: absolute;
+      top: 0;
+      right: 50%;
+      transform: translateX(50%);
+      margin-bottom: 0;
+      
+      .u-chain-logo {
+        height: 60px;
+      }
+    }
+    
+    .uchain-branding {
+      margin-bottom: 0;
+      
+      .uchain-title {
+        font-size: 34px;
+      }
+      
+      .tagline {
+        font-size: 14px;
+      }
+    }
+  }
+  
+  .success-content {
+    padding: 0 10px 20px;
+    
+    .success-icon-container {
+      .success-icon {
+        font-size: 60px;
+        margin-bottom: 20px;
+      }
+      
+      .welcome-message {
+        font-size: 22px;
+      }
+      
+      .success-message {
+        font-size: 15px;
+        margin-bottom: 25px;
+      }
+    }
+    
+    .transaction-details {
+      padding: 15px;
+      margin-bottom: 25px;
+      
+      .transaction-item {
+        flex-direction: column;
+        
+        .label {
+          margin-bottom: 5px;
+          flex: none;
+          white-space: normal; /* Allow wrapping on mobile */
+        }
+      }
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+      gap: 15px;
+      
+      .action-button {
+        width: 100%;
+        min-width: unset;
+        padding: 12px 20px;
+      }
+    }
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 576px) {
+  .top-section {
+    padding-top: 50px; /* Reduced space for logo */
+    
+    .logo-container .u-chain-logo {
+      height: 50px;
+    }
+    
+    .uchain-branding .uchain-title {
+      font-size: 30px;
+    }
+  }
+  
+  .success-content {
+    .success-icon-container {
+      .success-icon {
+        font-size: 50px;
+      }
+      
+      .welcome-message {
+        font-size: 20px;
+      }
+    }
+  }
+}

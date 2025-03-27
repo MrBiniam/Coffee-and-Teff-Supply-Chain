@@ -30,10 +30,24 @@ export class PayComponent {
     console.log('Payment data:', {
       price: this.data.price,
       username: this.username,
-      productId: this.data.productId
+      productId: this.data.ProductId
     });
     
-    this.productService.pay(this.data.price,this.username,this.data.productId).subscribe(
+    // Make sure we're using the correct property name - it's ProductId not productId
+    const productId = this.data.ProductId;
+    
+    if (!productId) {
+      console.error('Product ID is missing from payment data', this.data);
+      this.showNotification(
+        'snackbar-danger',
+        'Missing product information. Please try again.',
+        'bottom',
+        'center'
+      );
+      return;
+    }
+    
+    this.productService.pay(this.data.price, this.username, productId).subscribe(
         data => {
           // Log the complete response for debugging
           console.log('Full payment response:', data);
