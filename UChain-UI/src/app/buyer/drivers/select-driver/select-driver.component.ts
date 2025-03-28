@@ -66,6 +66,12 @@ export class SelectDriverComponent implements OnInit {
     
     console.log('URL Fragment and Query: ', fragmentAndQuery);
     
+    // Check if we came from payment page
+    if (window.location.href.includes('payment') || window.location.href.includes('tx_ref')) {
+      this.paymentSuccess = true;
+      console.log('User is coming from payment page. Success mode enabled.');
+    }
+    
     // Extract query parameters manually
     if (fragmentAndQuery.includes('?')) {
       const queryString = fragmentAndQuery.split('?')[1] || '';
@@ -77,6 +83,7 @@ export class SelectDriverComponent implements OnInit {
         if (txRef) {
           localStorage.setItem('transaction_reference', txRef);
           console.log('Saved transaction reference from URL:', txRef);
+          this.paymentSuccess = true;
         }
       }
       
@@ -115,11 +122,6 @@ export class SelectDriverComponent implements OnInit {
       localStorage.setItem('selected_product_id', productIdFromSearch);
       console.log('Saved product ID from URL search:', productIdFromSearch);
     }
-    
-    // Check if we came from payment page
-    if (window.location.href.includes('payment')) {
-      this.paymentSuccess = true;
-    }
   }
   
   /**
@@ -146,17 +148,28 @@ export class SelectDriverComponent implements OnInit {
    * Check payment information on component initialization
    */
   checkPaymentInfo() {
-    // This will also set this.hasPaymentInfo appropriately
-    this.hasPaymentInfo = this.driverService.hasCompletedPayment();
+    // Check if user is coming from payment success page
+    const urlHash = window.location.hash;
+    const fragmentAndQuery = urlHash.split('#')[1] || '';
+    const comingFromPayment = fragmentAndQuery.includes('payment=success');
     
-    if (this.hasPaymentInfo) {
-      console.log('Payment verification passed. Driver selection enabled.');
+    if (comingFromPayment) {
+      // If user is coming directly from payment success page, enable driver selection
+      this.hasPaymentInfo = true;
+      console.log('User coming from payment success page. Driver selection enabled.');
     } else {
-      console.log('Payment verification failed. Driver selection disabled.');
+      // Otherwise use the regular payment verification
+      this.hasPaymentInfo = this.driverService.hasCompletedPayment();
       
-      // Clear any stored payment status if we've navigated here directly (not from payment)
-      if (!window.location.href.includes('payment')) {
-        this.driverService.clearPaymentStatus();
+      if (this.hasPaymentInfo) {
+        console.log('Payment verification passed. Driver selection enabled.');
+      } else {
+        console.log('Payment verification failed. Driver selection disabled.');
+        
+        // Clear any stored payment status if we've navigated here directly (not from payment)
+        if (!fragmentAndQuery.includes('payment')) {
+          this.driverService.clearPaymentStatus();
+        }
       }
     }
   }
@@ -353,7 +366,7 @@ export class SelectDriverComponent implements OnInit {
    */
   getImageUrl(driver: User): string {
     if (!driver.profile_image) {
-      return 'assets/images/profile/user.jpg'; // Default image
+      return 'assets/images/user/default.png'; // Using the default image in user directory
     }
     
     // If the image URL is a relative path, use the assets folder
@@ -404,8 +417,12 @@ export class SelectDriverComponent implements OnInit {
   selectDriver(driver: User): void {
     console.log('Driver selection attempted for:', driver);
     
-    // Check payment status
-    if (!this.driverService.hasCompletedPayment()) {
+    // Check if coming from payment success or has valid payment
+    const url = window.location.href;
+    const urlPath = window.location.hash;
+    const comingFromPayment = url.includes('payment=success') || urlPath.includes('payment=success');
+    
+    if (!comingFromPayment && !this.driverService.hasCompletedPayment()) {
       // Show error message to user
       this.snackBar.open('Please complete payment for a product before selecting a driver.', 'OK', {
         duration: 4000,
@@ -422,7 +439,7 @@ export class SelectDriverComponent implements OnInit {
     console.log('Transaction reference:', txRef);
     
     // Make API call to select driver
-    this.driverService.selectDriver(driver.id).subscribe({
+    this.driverService.selectDriver(Number(driver.id)).subscribe({
       next: (response) => {
         console.log('Driver selection API response:', response);
         
@@ -437,11 +454,6 @@ export class SelectDriverComponent implements OnInit {
           }
           
           console.log('Showing driver selection success message for: ' + driver.username);
-          
-          // Redirect to orders page after successful selection (after 5 seconds)
-          setTimeout(() => {
-            this.router.navigate(['/buyer/orders']);
-          }, 5000);
         }
       },
       error: (error) => {
@@ -462,13 +474,21 @@ export class SelectDriverComponent implements OnInit {
    */
   private createSuccessOverlay(message: string, isGreen = false): void {
     // Check if payment is verified before showing success message
-    if (!this.hasPaymentInfo || !this.driverService.hasCompletedPayment()) {
+    if (!this.driverService.hasCompletedPayment()) {
       console.log('Cannot show success message - payment not verified');
+      return;
+    }
+
+    // Check if we already have an overlay visible (prevent duplicates)
+    const existingOverlay = document.querySelector('.driver-success-overlay');
+    if (existingOverlay) {
+      console.log('Success overlay already exists, not creating another one');
       return;
     }
 
     // Create overlay container
     const overlay = document.createElement('div');
+    overlay.classList.add('driver-success-overlay'); // Add class for easy identification
     overlay.style.position = 'fixed';
     overlay.style.top = '0';
     overlay.style.left = '0';
@@ -482,11 +502,11 @@ export class SelectDriverComponent implements OnInit {
     overlay.style.opacity = '0';
     overlay.style.transition = 'opacity 0.3s ease-in-out';
     
-    // Create message box
+    // Create message box - bigger and more visually striking for payment success
     const messageBox = document.createElement('div');
-    messageBox.style.backgroundColor = isGreen ? '#2ecc71' : '#2ecc71';
+    messageBox.style.backgroundColor = this.paymentSuccess ? '#2ecc71' : '#3f51b5'; // Green for payment success, blue for regular
     messageBox.style.color = 'white';
-    messageBox.style.padding = '30px';
+    messageBox.style.padding = this.paymentSuccess ? '40px' : '30px';
     messageBox.style.borderRadius = '10px';
     messageBox.style.textAlign = 'center';
     messageBox.style.maxWidth = '80%';
@@ -497,18 +517,31 @@ export class SelectDriverComponent implements OnInit {
     // Create check icon
     const icon = document.createElement('div');
     icon.innerHTML = '✓';
-    icon.style.fontSize = '70px';
+    icon.style.fontSize = this.paymentSuccess ? '90px' : '70px';
     icon.style.marginBottom = '20px';
     
     // Create message text
     const text = document.createElement('div');
     text.innerHTML = message;
-    text.style.fontSize = '24px';
+    text.style.fontSize = this.paymentSuccess ? '28px' : '24px';
     text.style.fontWeight = 'bold';
     
-    // Assemble the elements
-    messageBox.appendChild(icon);
-    messageBox.appendChild(text);
+    // Add extra message for payment success
+    if (this.paymentSuccess) {
+      const subText = document.createElement('div');
+      subText.innerHTML = 'Your payment was successful and driver has been assigned!';
+      subText.style.fontSize = '18px';
+      subText.style.marginTop = '15px';
+      subText.style.opacity = '0.9';
+      messageBox.appendChild(icon);
+      messageBox.appendChild(text);
+      messageBox.appendChild(subText);
+    } else {
+      // Regular success message
+      messageBox.appendChild(icon);
+      messageBox.appendChild(text);
+    }
+    
     overlay.appendChild(messageBox);
     document.body.appendChild(overlay);
     
@@ -560,6 +593,25 @@ export class SelectDriverComponent implements OnInit {
   private ensureTransactionReference(): string {
     // Check if we already have a transaction reference
     let txRef = localStorage.getItem('transaction_reference');
+    
+    // If we have a tx_ref in the URL, use that (from Chapa payment)
+    if (window.location.href.includes('tx_ref=')) {
+      const urlHash = window.location.hash;
+      const fragmentAndQuery = urlHash.split('#')[1] || '';
+      
+      if (fragmentAndQuery.includes('?')) {
+        const queryString = fragmentAndQuery.split('?')[1] || '';
+        const urlTxRef = this.extractParamFromQueryString(queryString, 'tx_ref');
+        
+        if (urlTxRef) {
+          // Extract just the transaction reference part (sometimes it comes with additional params)
+          const cleanTxRef = urlTxRef.split(';')[0].trim();
+          console.log('Using transaction reference from URL:', cleanTxRef);
+          localStorage.setItem('transaction_reference', cleanTxRef);
+          return cleanTxRef;
+        }
+      }
+    }
     
     // If no transaction reference exists, create one
     if (!txRef) {

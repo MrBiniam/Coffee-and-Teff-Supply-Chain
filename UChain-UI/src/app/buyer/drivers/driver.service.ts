@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { catchError, map, retry, timeout } from 'rxjs/operators';
 import { User } from 'src/app/shared/security/user';
 import { environment } from 'src/environments/environment';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
@@ -14,8 +14,9 @@ export class DriverService {
 
   constructor(
     private http: HttpClient,
-    private tokenStorage: TokenStorageService
-  ) { }
+    private tokenService: TokenStorageService
+  ) { 
+  }
 
   /**
    * Get all drivers from the system
@@ -48,7 +49,7 @@ export class DriverService {
   }
 
   /**
-   * Clear payment status - use this when testing or when a new session begins
+   * Clears any stored payment status from localStorage
    */
   clearPaymentStatus(): void {
     localStorage.removeItem('payment_completed');
@@ -58,43 +59,88 @@ export class DriverService {
   }
 
   /**
-   * Check if user has payment info from previous page
+   * Set payment as completed - stores in localStorage with a timestamp and user ID
+   * This makes the payment verification user-specific and adds a 15-second expiration
+   */
+  setPaymentCompleted(): void {
+    // Get the current user ID
+    const userId = this.tokenService.getId();
+    
+    if (!userId) {
+      console.warn('Cannot set payment completed: No user logged in');
+      return;
+    }
+    
+    const paymentData = {
+      completed: true,
+      userId: userId,
+      timestamp: new Date().getTime(), // Current timestamp in milliseconds
+      expiresIn: 15000 // 15 seconds in milliseconds
+    };
+    
+    localStorage.setItem('payment_completed', JSON.stringify(paymentData));
+    console.log('Payment marked as completed with 15-second expiration');
+  }
+
+  /**
+   * Check if user has completed payment
+   * Verifies the payment is for the current user and hasn't expired
    */
   hasCompletedPayment(): boolean {
-    // First check if we have a URL parameter to clear payment (for testing)
-    if (window.location.search.includes('clear_payment=true')) {
-      this.clearPaymentStatus();
+    // Get the current URL and check if coming from payment page
+    const fullUrl = window.location.href;
+    
+    // Debug log to see URL and help with debugging
+    console.log('Checking payment with URL:', fullUrl);
+    
+    // Check if the URL is from payment success or has payment parameters
+    if (fullUrl.includes('/buyer/drivers/select-driver?payment=success') ||
+        fullUrl.includes('payment=success') ||
+        fullUrl.includes('/buyer/payments/success')) {
+      console.log('✅ Payment verification bypassed: Coming from payment success page');
+      return true;
+    }
+    
+    // Get the current user ID
+    const userId = this.tokenService.getId();
+    
+    if (!userId) {
+      console.warn('Cannot verify payment: No user logged in');
       return false;
     }
     
-    // Check first in localStorage
-    const storedPaymentState = localStorage.getItem('payment_completed');
-    if (storedPaymentState === 'true') {
-      console.log('✓ Payment verified: Found stored payment_completed=true');
-      return true;
+    // Get payment data from localStorage
+    const storedPaymentData = localStorage.getItem('payment_completed');
+    if (!storedPaymentData) {
+      return false;
     }
     
-    // Also check for transaction reference (simplest check)
-    const txRef = localStorage.getItem('transaction_reference');
-    if (txRef) {
-      console.log('✓ Payment verified: Found transaction reference');
-      // Automatically set payment as completed if transaction reference exists
-      this.setPaymentCompleted();
+    try {
+      // Parse the JSON data
+      const paymentData = JSON.parse(storedPaymentData);
+      
+      // Check if payment is for current user
+      if (paymentData.userId !== userId) {
+        console.log('❌ Payment verification failed: Different user');
+        return false;
+      }
+      
+      // Check if payment has expired
+      const currentTime = new Date().getTime();
+      const expirationTime = paymentData.timestamp + paymentData.expiresIn;
+      
+      if (currentTime > expirationTime) {
+        console.log('❌ Payment verification failed: Payment expired');
+        localStorage.removeItem('payment_completed'); // Clean up expired payment
+        return false;
+      }
+      
+      console.log('✅ Payment verification passed');
       return true;
+    } catch (e) {
+      console.error('Error verifying payment:', e);
+      return false;
     }
-    
-    // Final fallback - check for payment info object
-    const paymentInfoExists = this.checkForPaymentInfoInStorage();
-    if (paymentInfoExists) {
-      console.log('✓ Payment verified: Found payment info in storage');
-      // Since we found payment info, update the localStorage value
-      this.setPaymentCompleted();
-      return true;
-    }
-    
-    // No payment found
-    console.log('✗ Payment not verified: No payment information found');
-    return false;
   }
 
   /**
@@ -130,44 +176,34 @@ export class DriverService {
   }
 
   /**
-   * Set payment as completed by storing in localStorage
+   * Checks for payment info in localStorage
    */
-  setPaymentCompleted(): void {
-    localStorage.setItem('payment_completed', 'true');
+  private checkForPaymentInfoInLocalStorage(): boolean {
+    const paymentInfo = localStorage.getItem('payment_info');
+    return !!paymentInfo;
   }
-  
+
   /**
-   * Select a driver for delivery
+   * Select a driver and assign them to the current order
    */
-  selectDriver(driverId: string): Observable<any> {
+  selectDriver(driverId: number): Observable<any> {
     // First verify payment one more time to ensure it's valid
     if (!this.hasCompletedPayment()) {
       return throwError(() => new Error('Payment verification failed'));
     }
     
     // Get transaction reference from localStorage
-    let txRef = localStorage.getItem('transaction_reference');
-    
-    // If no transaction reference exists, create one
-    if (!txRef) {
-      const timestamp = new Date().getTime();
-      const randomNum = Math.floor(Math.random() * 10000);
-      txRef = `TX-${timestamp}-${randomNum}`;
-      localStorage.setItem('transaction_reference', txRef);
-      console.log('Generated transaction reference:', txRef);
-    }
-    
-    // Get product ID and tariff ID from localStorage
+    const txRef = localStorage.getItem('transaction_reference');
     const productId = localStorage.getItem('selected_product_id');
     const tariffId = localStorage.getItem('selected_tariff_id');
     
-    // Create the payload - prioritize transaction reference for first-time users
+    // Create the payload with full debugging information
     const payload: any = {
       driver_id: driverId,
       transaction_reference: txRef  // Always include transaction reference
     };
     
-    // Add product_id and tariff_id if available (secondary items)
+    // Add product_id and tariff_id if available
     if (productId) {
       payload.product_id = productId;
     }
@@ -178,7 +214,20 @@ export class DriverService {
     
     console.log('Sending driver selection payload:', payload);
     
-    // Call the API to select the driver
-    return this.http.post(`${this.apiUrl}select-driver/`, payload);
+    // Call the API to select the driver with error handling
+    return this.http.post(`${this.apiUrl}select-driver/`, payload)
+      .pipe(
+        catchError(error => {
+          console.error('Driver selection API error:', error);
+          if (error.status === 500) {
+            console.log('Server error details:', error.error);
+            // Try to extract more useful information from the error
+            const errorMessage = error.error?.error || 
+                               'Internal server error when selecting driver. Please try again.';
+            return throwError(() => new Error(errorMessage));
+          }
+          return throwError(() => error);
+        })
+      );
   }
 }

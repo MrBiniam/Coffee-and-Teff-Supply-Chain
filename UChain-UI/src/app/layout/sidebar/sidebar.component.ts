@@ -98,6 +98,9 @@ export class SidebarComponent implements OnInit {
           // It's a filename without path, construct full URL
           this.userImg = 'http://127.0.0.1:8000/media/profile_images/' + this.userImg;
         }
+      } else {
+        // Use default image if no profile image is available
+        this.userImg = 'assets/images/user/default.png';
       }
 
       this.sidebarItems = ROUTES.filter(
