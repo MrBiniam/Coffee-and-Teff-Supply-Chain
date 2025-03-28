@@ -88,6 +88,47 @@ export class SignupComponent implements OnInit {
     return this.registerFormBuyer.controls;
   }
 
+  signUpProcess(formData: FormData, profile: string) {
+    // Log the entire FormData contents for debugging
+    console.log('FormData entries:');
+    formData.forEach((value, key) => {
+      console.log(key, value);
+    });
+
+    // Make API call to register the user
+    this.authService.signUp(formData, profile).subscribe(
+      (data) => {
+        console.log(`${profile} registration successful:`, data);
+        this.showNotification(
+          'snackbar-success',
+          'Account Created Successfully...!!!',
+          'bottom',
+          'center'
+        );
+        this.router.navigate(['/authentication/signin']);
+      },
+      (error) => {
+        console.error(`${profile} registration failed:`, error);
+        let errorMessage = 'Cannot create account! Try Again...!!!';
+        
+        if (error.error && typeof error.error === 'string') {
+          errorMessage = error.error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        } else if (error.status) {
+          errorMessage = `Server error (${error.status}): ${error.statusText || 'Unknown error'}`;
+        }
+        
+        this.showNotification(
+          'snackbar-danger',
+          errorMessage,
+          'bottom',
+          'center'
+        );
+      }
+    );
+  }
+
   onSubmit(profile: string) {
     console.log(`Submitting ${profile} registration form`);
     
@@ -117,6 +158,9 @@ export class SignupComponent implements OnInit {
       );
       return;
     }
+
+    // Log the form values for debugging
+    console.log('Form values:', registerForm.value);
 
     // Append common form fields
     Object.keys(registerForm.controls).forEach(key => {
@@ -158,35 +202,7 @@ export class SignupComponent implements OnInit {
     console.log(`Sending ${profile} registration data to server`);
     
     // Submit the form
-    this.authService.signUp(formData, profile).subscribe(
-      (data) => {
-        console.log(`${profile} registration successful:`, data);
-        this.showNotification(
-          'snackbar-success',
-          'Account Created Successfully...!!!',
-          'bottom',
-          'center'
-        );
-        this.router.navigate(['/authentication/signin']);
-      },
-      (error) => {
-        console.error(`${profile} registration failed:`, error);
-        let errorMessage = 'Cannot create account! Try Again...!!!';
-        
-        if (error.error && typeof error.error === 'string') {
-          errorMessage = error.error;
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-        
-        this.showNotification(
-          'snackbar-danger',
-          errorMessage,
-          'bottom',
-          'center'
-        );
-      }
-    );
+    this.signUpProcess(formData, profile);
   }
 
   showNotification(colorName, text, placementFrom, placementAlign) {

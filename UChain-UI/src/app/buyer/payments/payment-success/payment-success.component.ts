@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductService } from 'src/app/seller/products/product.service';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { environment } from 'src/environments/environment';
+import { DriverService } from '../../drivers/driver.service';
 
 @Component({
   selector: 'app-payment-success',
@@ -29,7 +30,8 @@ export class PaymentSuccessComponent implements OnInit {
     private router: Router,
     private productService: ProductService,
     private snackBar: MatSnackBar,
-    private tokenStorageService: TokenStorageService
+    private tokenStorageService: TokenStorageService,
+    private driverService: DriverService
   ) { }
 
   ngOnInit(): void {
@@ -116,6 +118,9 @@ export class PaymentSuccessComponent implements OnInit {
         // Check if verification was successful
         if (data && (data.status === 'success' || data.status === 'ok')) {
           this.isVerified = true;
+          
+          // Set payment as completed in the DriverService
+          this.driverService.setPaymentCompleted();
           
           // Try to get product details if we have a product ID
           if (this.productId) {
@@ -257,7 +262,9 @@ export class PaymentSuccessComponent implements OnInit {
    * Navigate to select driver page
    */
   goToSelectDriver() {
-    this.router.navigate(['/buyer/orders/order']);
+    // Set payment completed flag and redirect to driver selection page with success parameter
+    localStorage.setItem('payment_completed', 'true');
+    this.router.navigate(['/buyer/drivers/select-driver'], { queryParams: { payment: 'success' } });
   }
   
   /**

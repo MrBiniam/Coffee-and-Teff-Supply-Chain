@@ -883,15 +883,14 @@ class SelectDriverView(APIView):
                             order = Order.objects.create(
                                 buyer=buyer_profile,
                                 driver=driver_profile,
-                                quantity='1',
-                                status='pending',
-                                notes=f"Transaction: {transaction_reference}"
+                                quantity=f"1 [TX:{transaction_reference}]",  # Store tx ref in quantity field
+                                status='pending'
                             )
                             order.product.add(product)
                         else:
                             # Update existing order
                             order.driver = driver_profile
-                            order.notes = f"Transaction: {transaction_reference}"
+                            order.quantity = f"1 [TX:{transaction_reference}]"  # Update with tx ref
                             order.save()
                         
                         return Response({
@@ -911,9 +910,8 @@ class SelectDriverView(APIView):
                 order = Order.objects.create(
                     buyer=buyer_profile,
                     driver=driver_profile,
-                    quantity='1',
-                    status='pending',
-                    notes=f"Transaction: {transaction_reference}"
+                    quantity=f"1 [TX:{transaction_reference}]",  # Store tx ref in quantity field
+                    status='pending'
                 )
                 
                 return Response({
