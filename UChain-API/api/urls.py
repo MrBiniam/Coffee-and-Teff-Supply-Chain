@@ -16,6 +16,7 @@ urlpatterns = [
     path("user/delete/<int:pk>", views.UserDeleteView.as_view(), name="user-delete-view"),
     path("seller/<int:pk>", views.SellerRetrieveView.as_view(), name="seller-retrieve-view"),
     path("driver/<int:pk>", views.DriverRetrieveView.as_view(), name="driver-retrieve-view"),
+    path("user/drivers", views.DriversListView.as_view(), name="drivers-list-view"),
 
     # Endpoints related to order
     path("order/create", views.OrderCreateView.as_view(), name="order-create-api-view"),
@@ -46,5 +47,9 @@ urlpatterns = [
     path("product/create", views.ProductCreateView.as_view(), name="product-create-view"),
     path("product/<int:pk>", views.ProductRetrieveView.as_view(), name="product-retrieve-view"),
     path("product/<int:pk>/update", views.ProductUpdateView.as_view(), name="product-update-view"),
-    path("product/<int:pk>/destroy", views.ProductDestroyView.as_view(), name="product-destroy-view")
+    path("product/<int:pk>/destroy", views.ProductDestroyView.as_view(), name="product-destroy-view"),
+    
+    # Driver selection endpoint
+    path("select-driver/", views.SelectDriverView.as_view(), name="select-driver-view"),
+    path("driver-profile/<str:user_id>/", views.DriverProfileView.as_view(), name="driver-profile-view")
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

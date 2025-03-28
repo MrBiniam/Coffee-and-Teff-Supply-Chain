@@ -41,9 +41,6 @@ import { PaymentsModule } from "./payments/payments.module";
     PerfectScrollbarModule,
     MatIconModule,
     MatButtonModule,
-    PerfectScrollbarModule,
-    MatIconModule,
-    MatButtonModule,
     MatDialogModule,
     NgApexchartsModule,
     MatPaginatorModule,
@@ -64,7 +61,6 @@ import { PaymentsModule } from "./payments/payments.module";
     ReactiveFormsModule,
     MaterialFileInputModule,
     PaymentsModule,
-
   ],
 })
 export class BuyerModule {}
