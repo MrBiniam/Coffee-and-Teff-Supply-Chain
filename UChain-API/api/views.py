@@ -818,3 +818,147 @@ class UserDeleteView(generics.DestroyAPIView):
 
         self.perform_destroy(instance)
         return Response({"message": "Your account has been successfully deleted."}, status=status.HTTP_200_OK)
+
+# view to list all drivers
+class DriversListView(APIView):
+    def get(self, request):
+        # Get all users who are drivers
+        drivers = CustomUser.objects.filter(is_driver=True)
+        serializer = CustomUserSerializer(drivers, many=True)
+        return Response(serializer.data)
+
+# Driver selection view for assigning a driver to an order or product
+class SelectDriverView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        try:
+            # Extract data from request
+            driver_id = request.data.get('driver_id')
+            transaction_reference = request.data.get('transaction_reference')
+            product_id = request.data.get('product_id')
+            tariff_id = request.data.get('tariff_id')
+            
+            print(f"Driver selection data: driver_id={driver_id}, transaction_reference={transaction_reference}, product_id={product_id}")
+            
+            if not driver_id:
+                return Response({'error': 'Driver ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            # Get the driver
+            driver = CustomUser.objects.filter(id=driver_id, is_driver=True).first()
+            if not driver:
+                return Response({'error': 'Driver not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+            driver_profile = DriverProfile.objects.filter(user=driver).first()
+            if not driver_profile:
+                return Response({'error': 'Driver profile not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+            # Check if we have a buyer profile
+            buyer_profile = request.user.buyerprofile
+            if not buyer_profile:
+                return Response({'error': 'User does not have a buyer profile'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Generate a reference number if none provided
+            if not transaction_reference:
+                transaction_reference = f"GEN-{datetime.now().strftime('%Y%m%d%H%M%S')}-{request.user.id}"
+                print(f"Generated reference number: {transaction_reference}")
+                
+            # Create or update an order
+            try:
+                if product_id:
+                    try:
+                        product = Product.objects.get(pk=product_id)
+                        
+                        # Check for existing orders with this product for this buyer
+                        order = None
+                        existing_orders = Order.objects.filter(buyer=buyer_profile)
+                        
+                        for existing_order in existing_orders:
+                            if product in existing_order.product.all():
+                                order = existing_order
+                                break
+                        
+                        # If no existing order, create one
+                        if not order:
+                            order = Order.objects.create(
+                                buyer=buyer_profile,
+                                driver=driver_profile,
+                                quantity='1',
+                                status='pending',
+                                notes=f"Transaction: {transaction_reference}"
+                            )
+                            order.product.add(product)
+                        else:
+                            # Update existing order
+                            order.driver = driver_profile
+                            order.notes = f"Transaction: {transaction_reference}"
+                            order.save()
+                        
+                        return Response({
+                            'success': True,
+                            'message': f'Driver {driver.username} assigned successfully',
+                            'order_id': order.id,
+                            'driver_id': driver.id,
+                            'driver_name': driver.username,
+                            'transaction_reference': transaction_reference
+                        }, status=status.HTTP_200_OK)
+                        
+                    except Product.DoesNotExist:
+                        print(f"Product {product_id} not found")
+                        # Continue to fallback
+                
+                # Fallback - create generic order without product
+                order = Order.objects.create(
+                    buyer=buyer_profile,
+                    driver=driver_profile,
+                    quantity='1',
+                    status='pending',
+                    notes=f"Transaction: {transaction_reference}"
+                )
+                
+                return Response({
+                    'success': True,
+                    'message': f'Driver {driver.username} assigned successfully',
+                    'order_id': order.id,
+                    'driver_id': driver.id,
+                    'driver_name': driver.username,
+                    'transaction_reference': transaction_reference
+                }, status=status.HTTP_200_OK)
+                
+            except Exception as e:
+                print(f"Error creating/updating order: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                return Response({'error': f'Failed to assign driver: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+        except Exception as e:
+            print(f"Error in driver selection: {str(e)}")
+            import traceback
+            traceback.print_exc()  # Print stack trace for debugging
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# View for getting a driver's profile
+class DriverProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, user_id):
+        try:
+            # Get the driver
+            driver = CustomUser.objects.filter(id=user_id, is_driver=True).first()
+            if not driver:
+                return Response({'error': 'Driver not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+            # Get the driver profile
+            driver_profile = DriverProfile.objects.filter(user=driver).first()
+            if not driver_profile:
+                return Response({'error': 'Driver profile not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+            # Return the driver profile data
+            return Response({
+                'user_id': driver.id,
+                'license_number': driver_profile.license_number,
+                'car_model': driver_profile.car_model
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

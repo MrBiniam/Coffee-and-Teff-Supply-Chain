@@ -1,0 +1,140 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Select Driver</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a routerLink="/buyer/dashboard/main">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item active">Select Driver</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row clearfix">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+          <div class="body">
+            <div *ngIf="loading" class="d-flex justify-content-center my-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+            </div>
+
+            <div *ngIf="error" class="alert alert-warning" role="alert">
+              {{ error }}
+            </div>
+
+            <!-- Payment Status Alert -->
+            <div *ngIf="!hasPaymentInfo && !loading" class="alert alert-info mb-4">
+              <i class="material-icons align-middle mr-2">info</i>
+              You can browse drivers, but you need to complete a payment before selecting one.
+              <a routerLink="/buyer/products" class="alert-link">View Products</a>
+            </div>
+
+            <div class="row" *ngIf="!loading && drivers.length === 0">
+              <div class="col-12 text-center my-4">
+                <div class="spinner-border text-primary mb-3" role="status">
+                  <span class="sr-only">Loading drivers...</span>
+                </div>
+                <h5>Loading available drivers...</h5>
+              </div>
+            </div>
+
+            <div class="row" *ngFor="let driver of drivers">
+              <div class="col-12">
+                <div class="card p-3 driver-card">
+                  <div class="row">
+                    <!-- Driver Photo -->
+                    <div class="col-12 col-md-3 mb-3 mb-md-0">
+                      <div class="driver-image-container">
+                        <img [src]="getImageUrl(driver)" alt="Driver Photo" class="driver-image">
+                      </div>
+                    </div>
+                    
+                    <!-- Driver Info -->
+                    <div class="col-md-5 border-right mb-3 mb-md-0">
+                      <div class="doc-card-title">
+                        <h4>{{ driver.username }}</h4>
+                      </div>
+                      
+                      <!-- Rating Stars -->
+                      <div class="driver-rating mb-2">
+                        <span class="star" *ngFor="let star of getStars(driverRatings[driver.id])">
+                          <i class="material-icons" *ngIf="star === 1">star</i>
+                          <i class="material-icons" *ngIf="star === 0.5">star_half</i>
+                          <i class="material-icons" *ngIf="star === 0">star_border</i>
+                        </span>
+                        <span class="ml-2">{{ driverRatings[driver.id] }}</span>
+                      </div>
+                      
+                      <!-- Driver Vehicle -->
+                      <div class="mb-2">
+                        <i class="material-icons">directions_car</i>
+                        <span class="car-model">{{ driver.driver_profile?.car_model }}</span>
+                      </div>
+                      
+                      <!-- Driver Location -->
+                      <div class="mb-2">
+                        <i class="material-icons">location_on</i>
+                        <span>{{ driver.address }}</span>
+                      </div>
+                      
+                      <!-- Driver Phone -->
+                      <div class="mb-2">
+                        <i class="material-icons">phone</i>
+                        <span>{{ driver.phone_number }}</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Action Section -->
+                    <div class="col-md-4 d-flex">
+                      <div class="d-flex flex-column justify-content-center align-items-center w-100">
+                        <!-- Payment status indicator (only visible when not verified) -->
+                        <div *ngIf="!hasPaymentInfo" class="payment-warning mb-2">
+                          <i class="material-icons text-warning">warning</i>
+                          <span class="text-warning">Please order a product first</span>
+                        </div>
+                        
+                        <!-- Button - Larger size -->
+                        <button 
+                          mat-raised-button 
+                          color="primary" 
+                          [disabled]="!hasPaymentInfo" 
+                          (click)="selectDriver(driver)"
+                          class="select-driver-btn">
+                          <i class="material-icons">check_circle</i>
+                          Select Driver
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Message displayed when no product is selected -->
+    <div class="row" *ngIf="!hasPaymentInfo">
+      <div class="col-12">
+        <div class="alert alert-warning" role="alert">
+          <div class="d-flex align-items-center">
+            <i class="material-icons mr-3">info</i>
+            <div>
+              <h5 class="mb-1">No Product Selected</h5>
+              <p class="mb-0">Please select and pay for a product first to enable driver selection.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
