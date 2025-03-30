@@ -23,7 +23,9 @@ export class AcceptedOrderComponent implements OnInit {
     this.orders = []
     this.orderService.getMyOrder().subscribe(
       data=>{
+        console.log(data)
         data.forEach((value)=>{
+         
           if(value.driver!=null && value.product[0].seller==id && value.status=='Pending'){
             if(value.product[0].image.includes("127.0.0.1:8000")){
               value.product[0].image = value.product[0].image.substring(21)

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Order } from '../order.model';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { FormDialogComponent } from '../dialog/form-dialog/form-dialog.component';
@@ -17,40 +17,79 @@ import { User } from 'src/app/shared/security/user';
 export class OrderProfileComponent implements OnInit {
   order: Order = new Order();
   orderId: any;
-  rate: Rate[]
+  rate: Rate[];
   stars: boolean[] = Array(5).fill(false);
-  user: User
-  constructor(private orderService: OrderService,private userService: UserService, private route: ActivatedRoute,private snackBar: MatSnackBar,public dialog: MatDialog) {
-    this.orderId=this.route.snapshot.paramMap.get('id');
-    console.log(this.orderId)
+  user: User;
+  backendUrl = 'http://127.0.0.1:8000';
+  
+  constructor(
+    private orderService: OrderService,
+    private userService: UserService, 
+    private route: ActivatedRoute,
+    private router: Router,
+    private snackBar: MatSnackBar,
+    public dialog: MatDialog
+  ) {
+    this.orderId = this.route.snapshot.paramMap.get('id');
+    console.log(this.orderId);
     this.getOrder(this.orderId);
   }
+  
   ngOnInit(): void {
   }
-  getComments(id){
+  
+  getComments(id) {
     this.userService.getOneUser(id).subscribe(
-      data=>{
-        this.rate =this.userService.getSellerComments(data.username);
-        this.user=data
-        if(this.user.profile_image.includes("127.0.0.1:8000")){
-          this.user.profile_image = this.user.profile_image.substring(21)}
-      }
-    )
-  }
-  getOrder(id){
-    this.orderService.getOneOrder(id).subscribe(
-      data=>{
-        if(data.product[0].image.includes("127.0.0.1:8000")){
-          data.product[0].image = data.product[0].image.substring(21)
+      data => {
+        this.rate = this.userService.getSellerComments(data.username);
+        this.user = data;
+        
+        // Fix the profile image path to point directly to the backend
+        if (this.user && this.user.profile_image) {
+          // Extract just the filename if it contains a path
+          const imageName = this.user.profile_image.split('/').pop();
+          this.user.profile_image = `/media/profile_images/${imageName}`;
         }
-        this.order = data;
-        this.getComments(data.product[0].seller)
-      }
-      , error =>{
-          console.log("Can't get Order")
+      },
+      error => {
+        console.error('Error fetching user data:', error);
       }
     );
   }
+  
+  getOrder(id) {
+    this.orderService.getOneOrder(id).subscribe(
+      data => {
+        this.order = data;
+        
+        // Fix product image paths to point to the backend server
+        if (this.order && this.order.product && this.order.product.length > 0) {
+          this.order.product.forEach(prod => {
+            if (prod.image) {
+              // Extract just the filename if it contains a path
+              const imageName = prod.image.split('/').pop();
+              prod.image = `/media/Products_Pictures/${imageName}`;
+            }
+          });
+        }
+        
+        if (this.order && this.order.product && this.order.product.length > 0) {
+          this.getComments(this.order.product[0].seller);
+        }
+      },
+      error => {
+        console.log("Can't get Order");
+      }
+    );
+  }
+  
+  // Add a method to navigate to the product profile
+  viewProduct(productId) {
+    if (productId) {
+      this.router.navigate([`/buyer/products/product-profile/${productId}`]);
+    }
+  }
+  
   editOrder(order) {
     const dialogRef = this.dialog.open(FormDialogComponent, {
       data: {
@@ -79,5 +118,4 @@ export class OrderProfileComponent implements OnInit {
       panelClass: colorName,
     });
   }
-
 }

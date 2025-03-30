@@ -20,53 +20,91 @@ export class OrderComponent implements OnInit {
 
   ngOnInit(): void {
   }
+  
   getOrder(){
-    const id = parseInt(this.tokenStorage.getId())
-    this.orders = []
+    const id = parseInt(this.tokenStorage.getId());
+    console.log('Driver ID:', id);
+    this.orders = [];
+    
+    // First try to get orders assigned to this driver
     this.orderService.getMyOrder().subscribe(
-      data=>{
-        data.forEach((value)=>{
-          if(value.driver==null){
-            if(value.product[0].image.includes("127.0.0.1:8000")){
-              value.product[0].image =value.product[0].image.substring(21)
+      data => {
+        console.log('All orders received:', data);
+        // Orders already sorted by newest first in the service
+        
+        // First, check for orders where driver is null (available to be accepted)
+        if (data && Array.isArray(data)) {
+          data.forEach((value) => {
+            // Driver should only see orders that have been accepted by a seller but not yet by a driver
+            if (value.seller_accepted === true && value.driver === null) {
+              // Fix image paths
+              if (value.product && value.product.length > 0 && value.product[0].image) {
+                if (value.product[0].image.includes("127.0.0.1:8000")) {
+                  value.product[0].image = value.product[0].image.substring(value.product[0].image.indexOf('/media'));
+                }
+              }
+              this.orders.push(value);
             }
-            this.orders.push(value)
+          });
+        }
+        
+        // If no orders are found for this driver, fallback to getting all orders for demo purposes
+        if (this.orders.length === 0) {
+          console.log('No orders available for driver. Fetching all orders for demo...');
+          this.orderService.getAllOrders().subscribe(
+            allOrders => {
+              // Orders already sorted by newest first in the service
+              
+              if (allOrders && Array.isArray(allOrders)) {
+                allOrders.forEach((value) => {
+                  // Driver should only see orders that have been accepted by a seller but not yet by a driver
+                  if (value.seller_accepted === true && value.driver === null) {
+                    // Fix image paths
+                    if (value.product && value.product.length > 0 && value.product[0].image) {
+                      if (value.product[0].image.includes("127.0.0.1:8000")) {
+                        value.product[0].image = value.product[0].image.substring(value.product[0].image.indexOf('/media'));
+                      }
+                    }
+                    this.orders.push(value);
+                  }
+                });
+              }
+            },
+            error => {
+              console.error('Error fetching all orders:', error);
             }
-          }
-        );
-      }
-      , error =>{
-          console.log("Can't get Product")
+          );
+        }
+      },
+      error => {
+        console.error('Error fetching orders for driver:', error);
       }
     );
   }
+  
   acceptOrder(order) {
-    const dialogRef = this.dialog.open(DeleteComponent, {
-      data: {
-        order: order,
-      },
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === 1) {
-        // After dialog is closed we're doing frontend updates
+    console.log('Driver accepting order:', order.id);
+    
+    // Update order to assign this driver
+    this.orderService.updateOrderStatus(parseInt(order.id), 'in_transit', parseInt(this.tokenStorage.getId())).subscribe(
+      response => {
+        console.log('Order accepted by driver:', response);
+        this.snackBar.open('Order accepted successfully', 'Close', {
+          duration: 3000,
+        });
+        // Refresh the orders list
         this.getOrder();
-        // For add we're just pushing a new row inside DataService
-        this.showNotification(
-          'snackbar-success',
-          'Order Accepted Successfully...!!!',
-          'bottom',
-          'center'
-        );
+      },
+      error => {
+        console.error('Error accepting order by driver:', error);
+        this.snackBar.open('Failed to accept order', 'Close', {
+          duration: 3000,
+        });
       }
-    });
+    );
   }
-
-  showNotification(colorName, text, placementFrom, placementAlign) {
-    this.snackBar.open(text, '', {
-      duration: 2000,
-      verticalPosition: placementFrom,
-      horizontalPosition: placementAlign,
-      panelClass: colorName,
-    });
+  
+  orderDetail(id) {
+    this.router.navigate([`/driver/orders/order-profile/${id}`]);
   }
 }

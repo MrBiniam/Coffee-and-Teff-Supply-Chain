@@ -21,26 +21,39 @@
     </div>
     <div class="row clearfix">
       <div class="col-lg-4 col-md-12">
-        <div class="card">
-          <div class="contact-grid profile-image">
-            <img src="../../../{{order.product[0].image}}" alt="">
+        <div class="card p-0 overflow-hidden">
+          <!-- Full-width rectangular image container -->
+          <div class="product-image-container">
+            <img *ngIf="order?.product && order.product[0]?.image" [src]="backendUrl + order.product[0].image" class="product-detail-image" alt="Product Image" onerror="this.src='assets/images/products/p-13.jpg'">
+            <img *ngIf="!order?.product || !order.product[0]?.image" src="assets/images/products/p-13.jpg" class="product-detail-image" alt="Product Image">
           </div>
         </div>
         <div class="card">
           <div class="header">
-            <h2>{{order.product[0].name}}</h2>
+            <h2 *ngIf="order?.product && order.product[0]?.name">{{order.product[0].name}}</h2>
+            <h2 *ngIf="!order?.product || !order.product[0]?.name">Product Details</h2>
           </div>
           <div class="tab-pane body active" id="about">
             <small class="text-muted">Product Type: </small>
-            <p>{{order.product[0].product_type}}</p>
+            <p *ngIf="order?.product && order.product[0]?.product_type">{{order.product[0].product_type}}</p>
+            <p *ngIf="!order?.product || !order.product[0]?.product_type">Product Type Unavailable</p>
             <hr>
             <small class="text-muted">Price per Unit: </small>
-            <p>{{order.product[0].price}}</p>
+            <p *ngIf="order?.product && order.product[0]?.price">{{order.product[0].price}}</p>
+            <p *ngIf="!order?.product || !order.product[0]?.price">Price Unavailable</p>
             <hr>
             <small class="text-muted">Quantity: </small>
-            <p>{{order.quantity}}</p>
+            <p>{{order?.quantity}}</p>
             <hr>
           </div>
+        </div>
+        <div class="buttons-order-profile" style="margin-top: 20px; display: flex; justify-content: center;">
+          <button *ngIf="order?.product && order.product[0]?.id" mat-raised-button (click)="viewProduct(order.product[0].id)" style="background: linear-gradient(60deg, #ec407a, #d81b60); color: white; box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(233, 30, 99, 0.4); margin-right: 10px;">
+            <i class="material-icons">visibility</i> View Product
+          </button>
+          <button mat-raised-button (click)="editOrder(order)" style="background: linear-gradient(60deg, #ffa726, #fb8c00); color: white; box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(255, 152, 0, 0.4);">
+            <i class="material-icons">edit</i> Edit Order
+          </button>
         </div>
       </div>
       <div class="col-lg-8 col-md-12">
@@ -53,7 +66,8 @@
                     <h5>About</h5>
                   </div>
                   <div class="body">
-                    <p>{{order.product[0].description}}</p>
+                    <p *ngIf="order?.product && order.product[0]?.description">{{order.product[0].description}}</p>
+                    <p *ngIf="!order?.product || !order.product[0]?.description">Product Description Unavailable</p>
                     <br>
                   </div>
                 </div>
@@ -68,16 +82,17 @@
                         <div class="m-l-20 m-t-20 m-r-20">
                           <div class="contact-grid">
                             <div class="profile-header bg-green">
-                              <div class="user-name">{{user.username}}</div>
-                              <div class="name-center">{{user.payment_method}}</div>
+                              <div class="user-name" *ngIf="user">{{user.username}}</div>
+                              <div class="user-name" *ngIf="!user">User information unavailable</div>
+                              <div class="name-center" *ngIf="user">{{user.payment_method}}</div>
                             </div>
-                            <img src="../../../{{user.profile_image}}" class="user-img" alt="">
-                            <p>
-                              {{user.address}}
-                            </p>
+                            <img *ngIf="user && user.profile_image" [src]="backendUrl + user.profile_image" class="user-img" alt="User Image" onerror="this.src='assets/images/user/default.png'">
+                            <img *ngIf="!user || !user.profile_image" src="assets/images/user/default.png" class="user-img" alt="User Image">
+                            <p *ngIf="user">{{user.address}}</p>
+                            <p *ngIf="!user">User Address Unavailable</p>
                             <div>
                               <span class="phone">
-                                <i class="material-icons">phone</i>{{user.phone_number}}</span>
+                                <i class="material-icons">phone</i>{{user?.phone_number}}</span>
                             </div>
                           </div>
                         </div>

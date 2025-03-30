@@ -40,8 +40,9 @@
     background-image: url('/assets/images/coffee.jpg');
     background-size: cover;
     background-position: center;
-    opacity: 0.15;
+    opacity: 0.35; /* Increased from 0.15 to make the background more visible */
     z-index: -1;
+    filter: brightness(1.2); /* Added brightness filter to make the image brighter */
   }
   
   &:hover {
@@ -210,49 +211,84 @@
   }
   
   .transaction-details {
-    background-color: #f9f9f9;
-    border-radius: 12px; /* Increased from 8px */
-    padding: 25px; /* Increased from 20px */
-    margin-bottom: 35px; /* Increased from 30px */
+    background: linear-gradient(135deg, #2c3e50, #4a69bd, #1e3c72); /* Rich gradient background */
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 35px;
     width: 100%;
-    max-width: 800px; /* Significantly increased from 650px */
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(71, 97, 206, 0.2); /* Enhanced shadow */
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
     
+    /* Diamond-like shine overlay */
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 100%);
+      transform: rotate(30deg);
+      animation: shimmer 4s infinite linear;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    /* Content needs to be above the shimmer */
     .transaction-item {
+      position: relative;
+      z-index: 2;
       display: flex;
-      margin-bottom: 15px; /* Increased from 12px */
+      margin-bottom: 15px;
       text-align: left;
       
       .label {
-        flex: 0 0 180px; /* Significantly increased from 130px to ensure "Transaction Ref:" stays on one line */
-        font-weight: 500;
-        color: #616161;
+        flex: 0 0 180px;
+        font-weight: 600; /* Made slightly bolder */
+        color: #ecf0f1; /* Light pearl white color */
         font-size: 16px;
-        white-space: nowrap; /* Prevent label from wrapping */
+        white-space: nowrap;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
       }
       
       .value {
         flex: 1;
-        color: #212121;
-        font-weight: 400;
+        color: #ffffff;
+        font-weight: 500; /* Made slightly bolder */
         font-size: 16px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
       }
       
       &.tx-ref-container {
         width: 100%;
         
         .value.tx-ref {
-          word-break: break-word; /* Changed from break-all for better readability */
+          word-break: break-word;
           font-size: 14px;
           font-family: monospace;
-          background-color: #f0f2ff;
-          padding: 8px;
-          border-radius: 4px;
-          border-left: 3px solid #3f51b5;
+          background-color: rgba(255, 255, 255, 0.08); /* Very subtle background */
+          padding: 10px 12px;
+          border-radius: 6px;
+          border-left: 3px solid rgba(255, 215, 0, 0.7); /* Gold-like accent */
+          color: rgba(255, 255, 255, 0.95);
+          box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Inner shadow for depth */
         }
       }
+    }
+  }
+
+  /* Shimmer animation for diamond-like effect */
+  @keyframes shimmer {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
     }
   }
   

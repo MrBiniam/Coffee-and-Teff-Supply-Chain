@@ -2,7 +2,8 @@
   <div class="modalHeader">
     <div class="editRowModal">
       <div class="modalHeader clearfix">
-        <img [src]='order.product[0].image' alt="avatar" height="55sspx" width="55px" alt="" class="rounded-circle">
+        <img [src]="'http://127.0.0.1:8000/media/Products_Pictures/' + (order.product[0].image.split('/').pop())" alt="Product Image" 
+            onerror="this.src='assets/images/products/p-13.jpg'" height="55px" width="55px" class="rounded-circle">
         <div class="modal-about">
           <div class="font-weight-bold p-t-5 p-l-10 font-17">
             {{dialogTitle}}</div>
@@ -18,7 +19,7 @@
       <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
           <mat-form-field class="example-full-width mb-3">
-            <mat-label>Quantity (Describe with the unit)</mat-label>
+            <mat-label>Quantity</mat-label>
             <input matInput formControlName="quantity" required>
             <mat-error *ngIf="orderForm.get('quantity').hasError('required')">
               Quantity is required

@@ -49,6 +49,7 @@ class Product(models.Model):
 class Order(models.Model):
     buyer = models.ForeignKey(BuyerProfile, on_delete=models.CASCADE)
     driver = models.ForeignKey(DriverProfile, on_delete=models.SET_NULL, null=True, blank=True)
+    
     PENDING = "Pending"
     SHIPPED = "Shipped"
     DELIVERED = "Delivered"

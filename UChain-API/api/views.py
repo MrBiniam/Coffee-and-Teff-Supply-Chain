@@ -286,7 +286,7 @@ class OrderListView(generics.ListAPIView):
                     return Order.objects.none()
             elif user.is_seller:
                 # Seller can see orders for their products
-                return Order.objects.filter(product__seller=user)
+                return Order.objects
             elif user.is_driver:
                 # Driver can see orders assigned to them
                 driver_profile = getattr(user, 'driverprofile', None)

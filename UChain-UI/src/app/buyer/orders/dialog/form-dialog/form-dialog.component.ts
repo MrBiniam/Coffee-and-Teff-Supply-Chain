@@ -43,8 +43,17 @@ export class FormDialogComponent {
       : '';
   }
   createContactForm(): FormGroup {
+    // Extract just the numeric part of the quantity (remove any transaction ID)
+    let quantityValue = this.order.quantity;
+    if (typeof quantityValue === 'string') {
+      // If it contains a transaction ID in square brackets, extract only the number
+      if (quantityValue.includes('[TX:')) {
+        quantityValue = quantityValue.split('[')[0].trim();
+      }
+    }
+    
     return this.orderForm = this.fb.group({
-      quantity: [this.order.quantity, [Validators.required]],
+      quantity: [quantityValue, [Validators.required]],
     });
   }
   submit() {

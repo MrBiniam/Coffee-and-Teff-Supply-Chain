@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { Order } from './order.model';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { User } from 'src/app/shared/security/user';
 
 @Injectable()
@@ -21,8 +21,17 @@ export class OrderService {
   }
   getMyOrder() {
     const getMyProductUrl = environment.apiUrl + 'orders';
+    console.log('Fetching orders from:', getMyProductUrl);
     return this.httpClient.get<Order[]>(getMyProductUrl)
       .pipe(
+        map(orders => {
+          console.log('Raw orders from API:', orders);
+          // Sort orders by newest first (assuming higher IDs are newer)
+          if (Array.isArray(orders)) {
+            return [...orders].sort((a, b) => b.id - a.id);
+          }
+          return orders;
+        }),
         catchError((error: HttpErrorResponse) => {
           if (error.status === 404) {
             console.error('Orders endpoint not found. Please check API configuration:', error);
@@ -37,6 +46,32 @@ export class OrderService {
         })
       );
   }
+
+  // Method to get all orders (for demonstration purposes)
+  getAllOrders() {
+    console.log('Getting all orders for demonstration...');
+    // Use the regular orders endpoint directly since 'all-orders' might not exist
+    const ordersUrl = environment.apiUrl + 'orders';
+    console.log('Fetching all orders from:', ordersUrl);
+    
+    // Don't use custom headers as they cause CORS issues
+    return this.httpClient.get<Order[]>(ordersUrl)
+      .pipe(
+        map(orders => {
+          console.log('Raw all orders from API:', orders);
+          // Sort orders by newest first (assuming higher IDs are newer)
+          if (Array.isArray(orders)) {
+            return [...orders].sort((a, b) => b.id - a.id);
+          }
+          return orders;
+        }),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error fetching all orders:', error);
+          return of([]); // Return empty array on error
+        })
+      );
+  }
+
   getOneOrder(id) {
     const getOneProductUrl = environment.apiUrl + 'order/' + id;
     return this.httpClient.get<Order>(getOneProductUrl)
@@ -94,6 +129,33 @@ export class OrderService {
         catchError((error: HttpErrorResponse) => {
           console.error('Error fetching user:', error);
           return of(null);  // Return null on error
+        })
+      );
+  }
+
+  // Method to update order status (for seller/driver acceptance)
+  updateOrderStatus(id: number, status: string, acceptedById: number) {
+    const updateOrderUrl = environment.apiUrl + 'update-order/' + id;
+    
+    // Create a payload with the new status and ID of the entity accepting the order
+    const payload = {
+      status: status,
+      accepted_by: acceptedById,
+      seller_accepted: status === 'accepted' ? true : false
+    };
+    
+    console.log('Updating order status with payload:', payload);
+    
+    return this.httpClient.put(updateOrderUrl, payload)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error updating order status:', error);
+          // If update-order endpoint doesn't exist, try the regular orders endpoint
+          if (error.status === 404) {
+            console.log('update-order endpoint not found, trying alternative...');
+            return this.httpClient.put(environment.apiUrl + 'orders/' + id, payload);
+          }
+          throw error;
         })
       );
   }

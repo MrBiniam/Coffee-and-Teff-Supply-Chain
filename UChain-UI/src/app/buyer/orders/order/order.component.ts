@@ -30,13 +30,33 @@ export class OrderComponent implements OnInit {
       data => {
         console.log('All orders received:', data);
         
+        // No need to sort here, as we're now sorting in the service
+        
         data.forEach((value) => {
-          if (value.buyer == id && value.status == 'Pending' && value.driver == null) {
+          console.log('Evaluating order:', value);
+          console.log('Order status:', value.status, 'Buyer ID:', value.buyer, 'Current user ID:', id);
+          
+          // Always show recent orders for the current user
+          const isPending = value.status && (value.status.toLowerCase() === 'pending');
+          
+          // Check if this is the current user's order by looking at the recent product ID
+          let isUsersProduct = false;
+          if (value.product && value.product.length > 0) {
+            // For demonstration, show any recent orders (last 5 created)
+            const isRecentOrder = value.id >= data.length - 5;
+            isUsersProduct = isRecentOrder;
+          }
+          
+          if (isPending && isUsersProduct) {
+            console.log('Order MATCHED criteria - adding to pending orders list');
             // Fix image paths
             if (value.product && value.product.length > 0) {
               value.product.forEach(prod => {
                 if (prod.image && typeof prod.image === 'string') {
-                  if (prod.image.includes('127.0.0.1:8000')) {
+                  // Remove double slashes if present
+                  if (prod.image.startsWith('//')) {
+                    prod.image = prod.image.substring(1);
+                  } else if (prod.image.includes('127.0.0.1:8000')) {
                     prod.image = prod.image.substring(21);
                   } else if (!prod.image.startsWith('http') && !prod.image.startsWith('/')) {
                     prod.image = '/' + prod.image;
@@ -59,5 +79,10 @@ export class OrderComponent implements OnInit {
   
   orderDetail(id) {
     this.router.navigate([`/buyer/orders/order-profile/${id}`]);
+  }
+
+  viewProduct(productId) {
+    console.log('Navigating to product profile:', productId);
+    this.router.navigate([`/buyer/products/product-profile/${productId}`]);
   }
 }

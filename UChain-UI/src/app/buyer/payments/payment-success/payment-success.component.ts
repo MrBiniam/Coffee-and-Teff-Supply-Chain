@@ -222,14 +222,21 @@ export class PaymentSuccessComponent implements OnInit {
   createOrder() {
     this.loadingMessage = 'Creating your order...';
     
+    // Get the current user ID
+    const buyerId = this.tokenStorageService.getId();
+    
     const order = {
       "quantity": this.tokenStorageService.getQuantity() || "1",
       "product": [
         {
           "id": this.productId || "0" // Provide a fallback value to prevent null/undefined
         }
-      ]
+      ],
+      "buyer": buyerId  // Explicitly include the buyer ID 
+      // No driver field - will be assigned during driver selection step
     };
+    
+    console.log('Creating order with explicit buyer ID:', order);
     
     this.productService.addOrder(order).subscribe({
       next: (response) => {

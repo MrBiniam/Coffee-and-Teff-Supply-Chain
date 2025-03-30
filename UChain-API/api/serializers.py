@@ -62,7 +62,7 @@ class OrderSerializer(serializers.ModelSerializer):
     status = serializers.CharField(required=False)
     order_date = serializers.DateTimeField(required=False)
     product = ProductSerializer(read_only=True, many=True)
-    driver = serializers.PrimaryKeyRelatedField(queryset=DriverProfile.objects.all(), required=True)
+    driver = serializers.PrimaryKeyRelatedField(queryset=DriverProfile.objects.all(), required=False)
 
     class Meta:
         model = Order
@@ -71,7 +71,25 @@ class OrderSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data): 
         products = self.initial_data['product']
-        validated_data["buyer"] = self.context['request'].user.buyerprofile
+        
+        # Try to get buyer from the authenticated user
+        try:
+            validated_data["buyer"] = self.context['request'].user.buyerprofile
+        except Exception as e:
+            print(f"Error setting buyer from authenticated user: {str(e)}")
+            # If buyer was explicitly provided in the request, try to use it
+            if 'buyer' in self.initial_data:
+                try:
+                    buyer_id = self.initial_data['buyer']
+                    from .models import BuyerProfile
+                    validated_data["buyer"] = BuyerProfile.objects.get(pk=buyer_id)
+                    print(f"Using buyer ID from request: {buyer_id}")
+                except Exception as e:
+                    print(f"Error using provided buyer ID: {str(e)}")
+                    raise serializers.ValidationError(f"Cannot create order: no valid buyer profile found")
+            else:
+                raise serializers.ValidationError(f"Cannot create order: user has no buyer profile")
+        
         productInstances = []
         
         for product in products:
