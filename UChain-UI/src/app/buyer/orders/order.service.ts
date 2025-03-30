@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, of, BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { Order } from './order.model';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { User } from 'src/app/shared/security/user';
 
 @Injectable()
@@ -124,10 +124,11 @@ export class OrderService {
   }
   getOneUser(id) {
     const getOneUserUrl = environment.apiUrl + 'user/' + id;
+    console.log(`Fetching user data from: ${getOneUserUrl} for buyer ID: ${id}`);
     return this.httpClient.get<User>(getOneUserUrl)
       .pipe(
         catchError((error: HttpErrorResponse) => {
-          console.error('Error fetching user:', error);
+          console.error(`Error fetching user with ID ${id}:`, error);
           return of(null);  // Return null on error
         })
       );
@@ -135,27 +136,80 @@ export class OrderService {
 
   // Method to update order status (for seller/driver acceptance)
   updateOrderStatus(id: number, status: string, acceptedById: number) {
-    const updateOrderUrl = environment.apiUrl + 'update-order/' + id;
+    // First, fetch the order details to ensure all required fields are included in the update request
+    const getOrderUrl = environment.apiUrl + 'order/' + id;
+    console.log(`Fetching order ${id} for status update to '${status}'`);
     
-    // Create a payload with the new status and ID of the entity accepting the order
-    const payload = {
-      status: status,
-      accepted_by: acceptedById,
-      seller_accepted: status === 'accepted' ? true : false
-    };
-    
-    console.log('Updating order status with payload:', payload);
-    
-    return this.httpClient.put(updateOrderUrl, payload)
+    return this.httpClient.get<Order>(getOrderUrl)
       .pipe(
-        catchError((error: HttpErrorResponse) => {
-          console.error('Error updating order status:', error);
-          // If update-order endpoint doesn't exist, try the regular orders endpoint
-          if (error.status === 404) {
-            console.log('update-order endpoint not found, trying alternative...');
-            return this.httpClient.put(environment.apiUrl + 'orders/' + id, payload);
+        switchMap(order => {
+          if (!order) {
+            console.error('Order not found:', id);
+            return of(null); // Return null if order not found
           }
-          throw error;
+
+          console.log('Original order data:', order);
+          
+          // IMPORTANT: Make first letter uppercase to match Django convention
+          const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+          
+          // Create a payload with the required fields from the original order
+          const payload = {
+            quantity: order.quantity,
+            status: formattedStatus, // Use properly capitalized status
+            accepted_by: acceptedById,
+            seller_accepted: formattedStatus === 'Accepted' ? true : false
+          };
+
+          console.log('Updating order status with payload:', payload);
+
+          // Use the correct API endpoint based on the URLs defined in Django backend
+          const updateOrderUrl = environment.apiUrl + 'order/' + id + '/update';
+
+          return this.httpClient.put(updateOrderUrl, payload)
+            .pipe(
+              map(response => {
+                console.log('Order update successful! Response:', response);
+                
+                // Verify the response has the correct status
+                if (response && response['status'] !== formattedStatus) {
+                  console.warn(`Warning: Server returned status "${response['status']}" but we expected "${formattedStatus}"`);
+                }
+                
+                return response;
+              }),
+              catchError((error: HttpErrorResponse) => {
+                console.error('Error updating order status:', error);
+                // If the primary endpoint fails, try alternative endpoints as fallbacks
+                if (error.status === 404) {
+                  console.log('Primary endpoint not found, trying alternatives...');
+                  // Try the first alternative endpoint
+                  return this.httpClient.put(environment.apiUrl + 'orders/' + id, payload)
+                    .pipe(
+                      map(response => {
+                        console.log('Order update successful via alternative endpoint! Response:', response);
+                        return response;
+                      }),
+                      catchError((innerError) => {
+                        console.error('First alternative endpoint failed:', innerError);
+                        // Try one more alternative format as last resort
+                        return this.httpClient.put(environment.apiUrl + 'order/' + id, payload)
+                          .pipe(
+                            map(response => {
+                              console.log('Order update successful via second alternative endpoint! Response:', response);
+                              return response;
+                            })
+                          );
+                      })
+                    );
+                }
+                throw error;
+              })
+            );
+        }),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error fetching order for update:', error);
+          return of(null); // Return null on error
         })
       );
   }

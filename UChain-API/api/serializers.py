@@ -63,10 +63,11 @@ class OrderSerializer(serializers.ModelSerializer):
     order_date = serializers.DateTimeField(required=False)
     product = ProductSerializer(read_only=True, many=True)
     driver = serializers.PrimaryKeyRelatedField(queryset=DriverProfile.objects.all(), required=False)
+    buyer = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Order
-        fields = ["id", "quantity", "status", "order_date", "product", "driver"]
+        fields = ["id", "quantity", "status", "order_date", "product", "driver", "buyer"]
         read_only_fields = ["buyer"]
     
     def create(self, validated_data): 

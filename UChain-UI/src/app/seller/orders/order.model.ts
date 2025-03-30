@@ -18,4 +18,7 @@ export class Order{
         ];
         driver: number;
         buyer: number;
+        // Additional properties for UI display
+        buyerName?: string;
+        buyerImageUrl?: string;
 }

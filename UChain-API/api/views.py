@@ -333,9 +333,17 @@ class OrderUpdateView(generics.UpdateAPIView):
         instance = self.get_object()
         
         user = request.user
-        # Check permissions
-        if user.is_seller and instance.product.seller_id != user.id:
-            raise PermissionDenied("You are not authorized to update this order.")
+        # Check permissions - FIX: Handle product ManyToManyField properly
+        if user.is_seller and hasattr(user, 'sellerprofile'):
+            # For sellers, check if they are associated with any product in this order
+            seller_has_product = False
+            for product in instance.product.all():
+                if product.seller == user.sellerprofile:
+                    seller_has_product = True
+                    break
+            
+            if not seller_has_product:
+                raise PermissionDenied("You are not authorized to update this order.")
         elif user.is_buyer and hasattr(user, 'buyerprofile') and instance.buyer != user.buyerprofile:
             raise PermissionDenied("You are not authorized to update this order.")
         elif user.is_driver and hasattr(user, 'driverprofile') and instance.driver != user.driverprofile:
