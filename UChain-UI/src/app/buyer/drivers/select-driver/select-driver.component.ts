@@ -455,6 +455,12 @@ export class SelectDriverComponent implements OnInit {
           
           console.log('Showing driver selection success message for: ' + driver.username);
         }
+        
+        // Automatically redirect to pending orders page after selection
+        console.log('Redirecting to buyer pending orders page in 2 seconds...');
+        setTimeout(() => {
+          this.router.navigate(['/buyer/orders/order']);
+        }, 2000);
       },
       error: (error) => {
         console.error('Error selecting driver:', error);
@@ -559,7 +565,7 @@ export class SelectDriverComponent implements OnInit {
       setTimeout(() => {
         document.body.removeChild(overlay);
       }, 300);
-    }, 5000);
+    }, 2000); // Reduced from 5000ms to 2000ms for faster feedback
   }
   
   /**

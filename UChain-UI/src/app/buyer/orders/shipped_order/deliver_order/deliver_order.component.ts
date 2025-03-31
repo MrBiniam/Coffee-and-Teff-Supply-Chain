@@ -163,9 +163,14 @@ export class DeliverOrderComponent {
                       'bottom',
                       'center'
                     );
-                    // Force order list refresh by triggering a page reload
+                    // Close the dialog and notify parent component
                     this.dialogRef.close(1);
-                    setTimeout(() => window.location.reload(), 1500);
+                    
+                    // Add a delay to show the success notification before redirecting
+                    setTimeout(() => {
+                      // Redirect to delivered orders page instead of just reloading
+                      window.location.href = '/buyer/orders/delivered_order';
+                    }, 2000);
                   },
                   _ => {
                     this.showNotification(

@@ -310,13 +310,15 @@ export class OrderService {
         }
 
         // Create payload for driver assignment
-        // The key issue is to ensure the status remains appropriate for driver visibility
+        // Make sure we preserve the existing status or use 'Pending'
         const payload = {
           driver: driverId,
-          // Ensure status is 'Pending' which is needed for driver visibility
-          status: 'Pending',
+          // Keep existing status if available, otherwise use 'Pending'
+          status: order.status || 'Pending',
           // Preserve other important fields
-          quantity: order.quantity
+          quantity: order.quantity,
+          // Make sure we keep the buyer information
+          buyer: order.buyer
         };
 
         console.log('Driver assignment payload:', payload);
@@ -360,12 +362,18 @@ export class OrderService {
           // IMPORTANT: Make first letter uppercase to match Django convention
           const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
           
-          // Create a payload with the required fields from the original order
+          // Create a payload with all required fields from the original order
           const payload = {
             quantity: order.quantity,
             status: formattedStatus, // Use properly capitalized status
             accepted_by: acceptedById,
-            seller_accepted: formattedStatus === 'Accepted' ? true : false
+            seller_accepted: formattedStatus === 'Accepted' ? true : false,
+            // Maintain critical fields from the original order
+            product: order.product, // Include product information
+            buyer: order.buyer,     // Include buyer information
+            driver: order.driver,   // Preserve driver assignment
+            // Include any other fields that might be needed by the backend
+            order_date: order.order_date
           };
 
           console.log('Updating order status with payload:', payload);

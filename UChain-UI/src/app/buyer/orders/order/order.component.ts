@@ -36,18 +36,18 @@ export class OrderComponent implements OnInit {
           console.log('Evaluating order:', value);
           console.log('Order status:', value.status, 'Buyer ID:', value.buyer, 'Current user ID:', id);
           
-          // Always show recent orders for the current user
-          const isPending = value.status && (value.status.toLowerCase() === 'pending');
+          // We only want to show PENDING orders in this view
+          // Accepted orders will show in the "Accepted Orders" view
+          const orderStatus = value.status ? value.status.toLowerCase() : '';
+          const isPending = orderStatus === 'pending';
           
-          // Check if this is the current user's order by looking at the recent product ID
-          let isUsersProduct = false;
-          if (value.product && value.product.length > 0) {
-            // For demonstration, show any recent orders (last 5 created)
-            const isRecentOrder = value.id >= data.length - 5;
-            isUsersProduct = isRecentOrder;
+          // Check if this is the current user's order
+          let isUsersOrder = false;
+          if (value.buyer === id) {
+            isUsersOrder = true;
           }
           
-          if (isPending && isUsersProduct) {
+          if (isPending && isUsersOrder) {
             console.log('Order MATCHED criteria - adding to pending orders list');
             // Fix image paths
             if (value.product && value.product.length > 0) {

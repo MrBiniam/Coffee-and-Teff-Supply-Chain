@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, map, retry, timeout } from 'rxjs/operators';
+import { catchError, map, retry, timeout, switchMap } from 'rxjs/operators';
 import { User } from 'src/app/shared/security/user';
 import { environment } from 'src/environments/environment';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
@@ -209,7 +209,15 @@ export class DriverService {
       transaction_reference: txRef  // Always include transaction reference
     };
     
-    // Add product_id and tariff_id if available
+    // Get the current order ID from localStorage (added by payment success component)
+    const currentOrderId = localStorage.getItem('current_order_id');
+    
+    // Add order_id, product_id and tariff_id if available
+    if (currentOrderId) {
+      console.log(`Using stored order ID from localStorage: ${currentOrderId}`);
+      payload.order_id = currentOrderId;
+    }
+    
     if (productId) {
       payload.product_id = productId;
     }
@@ -228,25 +236,11 @@ export class DriverService {
           
           // CRITICAL FIX: Ensure order has proper status by updating it
           // This is needed for the driver to see the assignment in their accepted orders page
-          if (response && response['order_id']) {
-            const orderId = response['order_id'];
-            console.log(`Order ${orderId} assigned to driver ${driverId}, updating status to ensure driver visibility`);
-            
-            // Import OrderService from the shared module
-            // Get the HTTP service to make a direct API call
-            this.http.put(`${this.apiUrl}order/${orderId}/update`, {
-              driver: driverId,
-              status: 'Pending',  // Status MUST be 'Pending' for driver to see it
-            }).subscribe(
-              updateResponse => {
-                console.log('Order status updated to ensure driver visibility:', updateResponse);
-              },
-              updateError => {
-                console.error('Error updating order status after driver assignment:', updateError);
-              }
-            );
-          } else {
-            console.warn('Driver assigned but no order_id received in response. Driver might not see assignment.');
+          if (response && response['success']) {
+            // Use the order ID from localStorage if available, otherwise use the API response
+            const orderIdToUpdate = currentOrderId || response['order_id'];
+            console.log(`Order ${orderIdToUpdate} (from ${currentOrderId ? 'localStorage' : 'API'}) assigned to driver ${response['driver_id']}, updating status to ensure driver visibility`);
+            this.updateOrderStatus(orderIdToUpdate, response['driver_id']);
           }
           
           return response;
@@ -262,6 +256,41 @@ export class DriverService {
           }
           return throwError(() => error);
         })
+      );
+  }
+
+  private updateOrderStatus(orderId: number, driverId: number): void {
+    // First, get the full order details to ensure we have all required fields
+    this.http.get(`${this.apiUrl}order/${orderId}`)
+      .pipe(
+        switchMap(orderDetails => {
+          console.log('Retrieved order details for update:', orderDetails);
+          
+          // Create a complete payload with all necessary fields from the original order
+          // Force status to "Accepted" for the driver view while keeping it as "Pending" for buyer/seller
+          const updatePayload = {
+            ...orderDetails,  // Include all original fields
+            driver: driverId, // Update the driver
+            status: 'Accepted', // Set to "Accepted" for driver's view
+            // Explicitly set these fields to ensure order is active
+            delivered: false,
+            delivered_date: null,
+            shipped: false,
+            shipped_date: null
+          };
+          
+          console.log('Updating order with complete payload:', updatePayload);
+          
+          // Update the order with the complete payload
+          return this.http.put(`${this.apiUrl}order/${orderId}/update`, updatePayload);
+        })
+      ).subscribe(
+        updateResponse => {
+          console.log('Order status updated to ensure driver visibility:', updateResponse);
+        },
+        updateError => {
+          console.error('Error updating order status after driver assignment:', updateError);
+        }
       );
   }
 }

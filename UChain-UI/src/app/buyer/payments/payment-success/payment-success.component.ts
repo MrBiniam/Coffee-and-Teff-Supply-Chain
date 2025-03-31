@@ -244,6 +244,19 @@ export class PaymentSuccessComponent implements OnInit {
         this.orderCreated = true;
         this.isVerifying = false;
         
+        // Store the newly created order ID in localStorage
+        try {
+          // Parse the response if it's a string
+          const orderData = typeof response === 'string' ? JSON.parse(response) : response;
+          
+          if (orderData && orderData.id) {
+            console.log(`Storing newly created order ID ${orderData.id} in localStorage`);
+            localStorage.setItem('current_order_id', orderData.id.toString());
+          }
+        } catch (e) {
+          console.error('Error parsing order response:', e);
+        }
+        
         this.showNotification(
           'snackbar-success',
           'Your order has been placed successfully!',

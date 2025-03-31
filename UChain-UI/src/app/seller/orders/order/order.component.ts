@@ -294,6 +294,7 @@ export class OrderComponent implements OnInit {
           status: 'Accepted',  // This is what we want to update
           order_date: currentDate, // Update the date to now for proper sorting
           accepted_date: currentDate, // Add a specific accepted_date field
+          seller_accepted: true, // Set this flag so driver can ship it
         };
         
         console.log('Sending update with payload:', updateData);

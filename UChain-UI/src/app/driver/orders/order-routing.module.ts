@@ -9,6 +9,7 @@ import { ShippedOrderProfileComponent } from './shipped_order/shipped_order_prof
 import { ShippedOrderComponent } from './shipped_order/shipped_order/shipped_order.component';
 import { DeliveredOrderComponent } from './delivered_order/delivered_order/delivered_order.component';
 import { DeliveredOrderProfileComponent } from './delivered_order/delivered_order_profile/delivered_order-profile.component';
+import { FixOrderStatusComponent } from './fix-order-status.component';
 
 const routes: Routes = [
   {
@@ -42,6 +43,10 @@ const routes: Routes = [
   {
     path: 'order-profile/:id',
     component: OrderProfileComponent,
+  },
+  {
+    path: 'fix-order-status',
+    component: FixOrderStatusComponent,
   },
   { path: '**', component: Page404Component },
 ];

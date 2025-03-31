@@ -30,7 +30,7 @@ import { ShippedOrderProfileComponent } from './shipped_order/shipped_order_prof
 import { ShippedOrderComponent } from './shipped_order/shipped_order/shipped_order.component';
 import { DeliveredOrderComponent } from './delivered_order/delivered_order/delivered_order.component';
 import { DeliveredOrderProfileComponent } from './delivered_order/delivered_order_profile/delivered_order-profile.component';
-
+import { FixOrderStatusComponent } from '../orders/fix-order-status.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +45,7 @@ import { DeliveredOrderProfileComponent } from './delivered_order/delivered_orde
     ShippedOrderProfileComponent,
     DeliveredOrderComponent,
     DeliveredOrderProfileComponent,
+    FixOrderStatusComponent,
   ],
   
   imports: [
