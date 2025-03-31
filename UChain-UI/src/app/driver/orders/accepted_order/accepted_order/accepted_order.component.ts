@@ -15,29 +15,136 @@ import { delay } from 'rxjs/operators';
   styleUrls: ['./accepted_order.component.sass']
 })
 export class AcceptedOrderComponent implements OnInit {
-  orders: Order[] = []
+  orders: Order[] = [];
+  completedOrders: Order[] = []; // For delivered/shipped orders
 
   constructor(private orderService: OrderService,private router: Router, private tokenStorage: TokenStorageService, private snackBar: MatSnackBar,public dialog: MatDialog) { this.getOrder()}
 
   ngOnInit(): void {
   }
+  
   getOrder(){
     const id = parseInt(this.tokenStorage.getId())
+    console.log('Driver ID:', id);
+    // Clear both arrays to start fresh
     this.orders = []
+    this.completedOrders = [] 
+    
     this.orderService.getMyOrder().subscribe(
-      data=>{
-        data.forEach((value)=>{
-          if(value.driver!=null && value.driver==id && value.status=='Pending'){
-            if(value.product[0].image.includes("127.0.0.1:8000")){
-              value.product[0].image =value.product[0].image.substring(21)
+      data => {
+        console.log('All orders received in driver view:', data);
+        
+        // Log debugging information
+        const ordersWithDriver = data.filter(order => order.driver !== null);
+        console.log('Orders with any driver assigned:', ordersWithDriver);
+        
+        const thisDriverOrders = data.filter(order => order.driver === id);
+        console.log('Orders assigned to this driver:', thisDriverOrders);
+        
+        // Create separate arrays for processing
+        let activeOrders = [];
+        let completedOrders = [];
+        
+        // Process each order
+        data.forEach((value) => {
+          console.log(`Evaluating order #${value.id} - Status: ${value.status}, Driver ID: ${value.driver}`);
+          
+          // First, check if this order belongs to this driver
+          if(value.driver != null && value.driver == id) {
+            
+            // Handle potential image URL issues
+            if(value.product && value.product.length > 0 && value.product[0].image) {
+              if(value.product[0].image.includes("127.0.0.1:8000")){
+                value.product[0].image = value.product[0].image.substring(21);
+              }
+              console.log(`Product image URL: ${value.product[0].image}`);
+            } else {
+              console.warn(`Order #${value.id} has missing or invalid product image`);
             }
-            this.orders.push(value)
+            
+            // Clean up quantity if it contains transaction IDs
+            if (value.quantity && typeof value.quantity === 'string') {
+              // Extract just the numeric part if it contains bracketed tx info
+              if (value.quantity.includes('[')) {
+                value.quantity = value.quantity.split('[')[0].trim();
+              }
             }
+            
+            // Add a timestamp field if not present to help with sorting
+            if (!value.acceptedTimestamp) {
+              // Use any available date fields, with fallbacks
+              if (value.accepted_date) {
+                value.acceptedTimestamp = new Date(value.accepted_date).getTime();
+              } else if (value.updated_at) {
+                value.acceptedTimestamp = new Date(value.updated_at).getTime();
+              } else if (value.order_date) {
+                value.acceptedTimestamp = new Date(value.order_date).getTime();
+              } else {
+                // If no date is available, use a default old date for orders without timestamps
+                value.acceptedTimestamp = 0;
+              }
+            }
+            
+            // Check status and put in the right array
+            // Convert to lowercase for case-insensitive comparison
+            const status = value.status ? value.status.toLowerCase() : '';
+            
+            if (status === 'shipped' || status === 'delivered') {
+              console.log(`✓ Order #${value.id} is COMPLETED - adding to completed orders list`);
+              completedOrders.push(value);
+            } else if (status !== 'cancelled' && status !== 'rejected') {
+              console.log(`✓ Order #${value.id} is ACTIVE - adding to active orders list`);
+              activeOrders.push(value);
+            } else {
+              console.log(`✗ Order #${value.id} is cancelled/rejected - excluded from both lists`);
+            }
+          } else {
+            console.log(`✗ Order #${value.id} did NOT match driver criteria - excluded`);
           }
-        );
-      }
-      , error =>{
-          console.log("Can't get Product")
+        });
+        
+        // Log final sorted counts
+        console.log(`Found ${activeOrders.length} active orders and ${completedOrders.length} completed orders for driver ID ${id}`);
+        
+        // Custom sorting function that prioritizes timestamp fields
+        const sortByTimestamp = (a, b) => {
+          // First check if we have acceptedTimestamp fields
+          if (a.acceptedTimestamp && b.acceptedTimestamp) {
+            return b.acceptedTimestamp - a.acceptedTimestamp; // Newest first
+          }
+          
+          // Next check for accepted_date
+          if (a.accepted_date && b.accepted_date) {
+            return new Date(b.accepted_date).getTime() - new Date(a.accepted_date).getTime();
+          }
+          
+          // Next check for updated_at
+          if (a.updated_at && b.updated_at) {
+            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+          }
+          
+          // Fall back to order_date
+          if (a.order_date && b.order_date) {
+            return new Date(b.order_date).getTime() - new Date(a.order_date).getTime();
+          }
+          
+          // If no sortable dates are available, fallback to order ID (newer IDs are typically higher)
+          return b.id - a.id;
+        };
+        
+        // Explicitly reassign the sorted arrays to the component properties
+        this.orders = [...activeOrders].sort(sortByTimestamp);
+        this.completedOrders = [...completedOrders].sort(sortByTimestamp);
+        
+        // Extra validation to ensure no completed orders are in the active list
+        const completedIds = this.completedOrders.map(order => order.id);
+        this.orders = this.orders.filter(order => !completedIds.includes(order.id));
+        
+        console.log("Final active orders:", this.orders.length);
+        console.log("Final completed orders:", this.completedOrders.length);
+      },
+      error => {
+          console.error("Error getting orders for driver:", error);
       }
     );
   }
@@ -69,24 +176,33 @@ export class AcceptedOrderComponent implements OnInit {
     this.router.navigate([`/driver/orders/accepted_order_profile/${id}`]);
   }
   shipOrder(order) {
-    const dialogRef = this.dialog.open(ShipOrderComponent, {
-      data: {
-        order: order,
-      },
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === 1) {
-        // After dialog is closed we're doing frontend updates
+    // Update the UI to use a more direct approach for shipping orders
+    if (!order || !order.id) {
+      this.snackBar.open('Order information is incomplete', 'Close', { duration: 3000 });
+      return;
+    }
+    
+    console.log("Shipping order:", order);
+    
+    // Create payload with current timestamp for shipping date
+    const payload = {
+      status: 'shipped',
+      shipped_date: new Date().toISOString()
+    };
+    
+    this.orderService.editOrder(payload, order.id).subscribe(
+      (res: any) => {
+        console.log("Ship order response:", res);
+        this.snackBar.open('Order has been marked as shipped', 'Success', { duration: 3000 });
+        
+        // Refresh the orders list after shipping
         this.getOrder();
-        // For add we're just pushing a new row inside DataService
-        this.showNotification(
-          'snackbar-success',
-          'Order Accepted Successfully...!!!',
-          'bottom',
-          'center'
-        );
+      },
+      (error: any) => {
+        console.error("Error shipping order:", error);
+        this.snackBar.open('Failed to ship order', 'Error', { duration: 3000 });
       }
-    });
+    );
   }
   showNotification(colorName, text, placementFrom, placementAlign) {
     this.snackBar.open(text, '', {
@@ -95,5 +211,35 @@ export class AcceptedOrderComponent implements OnInit {
       horizontalPosition: placementAlign,
       panelClass: colorName,
     });
+  }
+  
+  getUserImageUrl(username: string, role: string): string {
+    // Handle known users with specific mappings
+    if (username === 'Biniam') {
+      return 'assets/images/profile/usrbig1.jpg';
+    } else if (username === 'Abel') {
+      return 'assets/images/profile/usrbig2.jpg';
+    } else if (username === 'Abrham') {
+      return 'assets/images/profile/usrbig3.jpg';
+    } else if (username === 'Eyerus') {
+      return 'assets/images/profile/usrbig4.jpg';
+    } else if (username === 'Chala') {
+      return 'assets/images/profile/usrbig5.jpg';
+    }
+    
+    // Default images based on role
+    if (role === 'buyer') {
+      return 'assets/images/profile/usrbig1.jpg';
+    } else if (role === 'seller') {
+      return 'assets/images/profile/usrbig3.jpg';
+    } else if (role === 'driver') {
+      return 'assets/images/profile/usrbig2.jpg';
+    }
+    
+    return 'assets/images/profile/usrbig.jpg';
+  }
+
+  handleImageError(event: any) {
+    event.target.src = 'assets/images/profile/usrbig.jpg';
   }
 }

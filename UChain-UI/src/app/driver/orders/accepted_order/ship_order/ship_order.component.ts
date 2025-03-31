@@ -20,23 +20,38 @@ export class ShipOrderComponent {
     this.dialogRef.close();
   }
   shipOrder(): void {
-    this.orderService.editOrder({'status': "Shipped"},this.data.order.id).subscribe(
-      _=>{
+    // Get current date for order update
+    const currentDate = new Date().toISOString();
+    
+    // Create a complete payload with all required fields
+    const updateData = {
+      quantity: this.data.order.quantity, // Required field from the order
+      status: "Shipped",  // Update status to Shipped
+      shipped_date: currentDate, // Add shipping timestamp
+      order_date: this.data.order.order_date // Preserve the existing order date
+    };
+    
+    console.log('Sending ship order update with payload:', updateData);
+    
+    this.orderService.editOrder(updateData, this.data.order.id).subscribe(
+      response => {
+        console.log('Order successfully marked as shipped:', response);
         this.showNotification(
           'snackbar-success',
           'Order Shipped Successfully...!!!',
           'bottom',
           'center'
         );
+        this.dialogRef.close(1); // Close with success code
       },
-      _=>{
+      error => {
+        console.error('Error shipping order:', error);
         this.showNotification(
           'snackbar-danger',
-          'Cant! Try Agian...!!!',
+          'Cannot ship order. Please try again.',
           'bottom',
           'center'
         );
-
       }
     );
   }

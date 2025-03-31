@@ -11,7 +11,7 @@
               <a routerLink="/doctor/dashboard">
                 <i class="fas fa-home"></i> Home</a>
             </li>
-            <li class="breadcrumb-item active">Accepted Orders</li>
+            <li class="breadcrumb-item active">Shipped Orders</li>
           </ul>
         </div>
       </div>
@@ -24,30 +24,70 @@
               <div class="col-12">
                 <div class="card p-3">
                   <div class="row">
-                    <div class="col-12 col-md-2 mb-0">
-                      <img class="img-circle doc-card-image" style="width: 150px;" src="../../../{{order.product[0].image}}">
+                    <!-- Product image with consistent size -->
+                    <div class="col-12 col-md-3 mb-0">
+                      <div style="text-align: center; padding: 10px;">
+                        <img class="product-image shadow" 
+                             style="width: 200px; height: 160px; object-fit: cover; border-radius: 8px; border: 2px solid #eaeaea;" 
+                             src="http://127.0.0.1:8000/{{order.product[0].image}}"
+                             alt="{{order.product[0].name}}"
+                             onerror="this.src='assets/images/products/p-13.jpg'">
+                      </div>
                     </div>
-                    <div class="col-md-6 border-right mb-0">
+                    
+                    <!-- Product information with improved layout -->
+                    <div class="col-md-5 border-right mb-0">
                       <div class="doc-card-title">
-                        <h4>{{order.product[0].name}}</h4>
+                        <h4 style="font-size: 24px; color: #3f51b5; font-weight: 600; margin-bottom: 15px;">{{order.product[0].name}}</h4>
                       </div>
-                      <p>{{order.product[0].product_type}}</p>
-                      <div class="d-flex flex-row align-items-center">
-                      </div>
-                      <div class="description">
-                        <p>{{order.product[0].description}}<br></p>
+                      
+                      <!-- Order details with consistent formatting -->
+                      <div class="order-details">
+                        <div class="mb-2"><strong>Type:</strong> {{order.product[0].product_type}}</div>
+                        <div class="mb-2"><strong>Quantity:</strong> {{order.quantity}}</div>
+                        <div class="mb-2"><strong>Price per Unit:</strong> {{order.product[0].price}}</div>
+                        <div class="mb-2"><strong>Total Price:</strong> {{(+order.quantity) * order.product[0].price || order.product[0].price}}</div>
+                        <div class="mb-2"><strong>Order Date:</strong> {{order.order_date | date: 'MM/dd/yyyy'}}</div>
+                        <div class="mb-2" *ngIf="order.shipped_date"><strong>Shipped Date:</strong> {{order.shipped_date | date: 'MM/dd/yyyy'}}</div>
                       </div>
                     </div>
+                    
+                    <!-- Action buttons with improved styling -->
                     <div class="d-flex col-md-4 mb-0">
-                      <div class="d-flex flex-column justify-content-start user-profile w-100">
-                        <div><i class="fas fa-map-marker-alt pt-3 pr-3"></i> {{order.product[0].location}}</div>
-                        <div><i class="far fa-comment-dots pt-3 pr-3"></i> Quantity: {{order.quantity}} </div>
-                        <div><i class="far fa-money-bill-alt pt-3 pr-3"></i> Price per Unit: {{order.product[0].price}}</div>
-                        <div><i class="far fa-clock pt-3 pr-3"></i> Date: {{order.order_date | date: 'MM/dd/yyyy'}}</div>
-                        <div class="row">
-                          <div class="ml-4 mt-4"><button mat-raised-button color="primary" (click)="orderDetail(order.id)">Details</button></div>
-                          <div class="ml-4 mt-4"><button mat-raised-button color="primary" (click)="deliverOrder(order)">Delivered?</button></div>
-                        </div>
+                      <div class="d-flex flex-column justify-content-center align-items-center w-100">
+                        <div class="mb-3"><i class="fas fa-map-marker-alt pr-2"></i> {{order.product[0].location}}</div>
+                        
+                        <!-- Enhanced Details button -->
+                        <button mat-raised-button 
+                                (click)="orderDetail(order.id)" 
+                                style="background: linear-gradient(45deg, #3f51b5, #7986cb); 
+                                       color: white; 
+                                       padding: 10px 25px; 
+                                       font-size: 16px; 
+                                       font-weight: 600;
+                                       border-radius: 30px;
+                                       box-shadow: 0 4px 20px rgba(63, 81, 181, 0.4);
+                                       margin-bottom: 15px;
+                                       border: none;
+                                       transition: all 0.3s ease;">
+                          <i class="fas fa-map-marked-alt mr-2"></i> Details
+                        </button>
+                        
+                        <!-- Delivered button -->
+                        <button mat-raised-button 
+                                color="primary" 
+                                (click)="deliverOrder(order)"
+                                style="background: linear-gradient(45deg, #66bb6a, #81c784); 
+                                       color: white; 
+                                       padding: 10px 25px; 
+                                       font-size: 16px; 
+                                       font-weight: 600;
+                                       border-radius: 30px;
+                                       box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+                                       border: none;
+                                       transition: all 0.3s ease;">
+                          <i class="fas fa-check-circle mr-2"></i> Delivered?
+                        </button>
                       </div>
                     </div>
                   </div>

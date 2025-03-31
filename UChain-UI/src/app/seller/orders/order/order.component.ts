@@ -285,10 +285,15 @@ export class OrderComponent implements OnInit {
         
         console.log('Found order to update:', orderToUpdate);
         
+        // Get current date for order update
+        const currentDate = new Date().toISOString();
+        
         // Create a minimal payload with only the fields we need to update
         const updateData = {
           quantity: orderToUpdate.quantity, // Required field
           status: 'Accepted',  // This is what we want to update
+          order_date: currentDate, // Update the date to now for proper sorting
+          accepted_date: currentDate, // Add a specific accepted_date field
         };
         
         console.log('Sending update with payload:', updateData);

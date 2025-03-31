@@ -19,5 +19,11 @@ export class User {
    driver_profile: {
       license_number: string;
       car_model: string; 
-   }
+      car_plate?: string; // Made optional to maintain compatibility with existing code
+   };
+   
+   // Full name properties - these might not be directly in the API 
+   // but we'll need them for our display
+   name?: string;
+   fullName?: string;
 }

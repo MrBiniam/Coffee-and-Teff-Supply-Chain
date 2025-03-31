@@ -54,55 +54,55 @@
             <div *ngIf="!isLoading && orders.length > 0" class="row">
               <div class="col-12" *ngFor="let order of orders">
                 <div class="card p-3">
-                  <div class="row">
-                    <!-- Buyer and Product Photos - Vertically Stacked -->
-                    <div class="col-12 col-md-2 mb-0">
-                      <div class="photo-container">
-                        <!-- Rectangular Buyer Image -->
-                        <div class="buyer-image-container" style="margin-bottom: 10px; text-align: center;">
-                          <img class="buyer-image" 
-                            [src]="order.buyerImageUrl || 'assets/images/user/default.png'" 
-                            onerror="this.src='assets/images/user/default.png'"
-                            style="width: 100px; height: 120px; border-radius: 8px; object-fit: cover; border: 3px solid #4CAF50;">
-                        </div>
-                        <!-- Smaller Circular Product Image Below Buyer -->
-                        <div class="product-circular-container" style="text-align: center; margin-top: 5px;">
-                          <img class="product-circular-image" 
-                            [src]="'http://127.0.0.1:8000/media/Products_Pictures/' + (order.product[0].image.split('/').pop())" 
-                            onerror="this.src='assets/images/products/p-13.jpg'"
-                            style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #FFA000;">
-                        </div>
+                  <!-- Product name aligned with content -->
+                  <div class="row mb-2">
+                    <div class="col-12">
+                      <h2 style="font-size: 28px; font-weight: 600; color: #3f51b5; margin-bottom: 10px; text-align: left; padding-left: 15px;">{{order.product[0].name}}</h2>
+                    </div>
+                  </div>
+                  
+                  <div class="row align-items-center">
+                    <!-- Product image - left aligned -->
+                    <div class="col-12 col-md-4 mb-3">
+                      <div style="width: 210px; margin-left: 15px;">
+                        <img class="product-image shadow" 
+                             style="width: 100%; height: 175px; object-fit: cover; border-radius: 8px; border: 2px solid #eaeaea;" 
+                             src="http://127.0.0.1:8000/{{order.product[0].image}}" 
+                             alt="{{order.product[0].name}}"
+                             onerror="this.src='assets/images/products/p-13.jpg'">
                       </div>
                     </div>
                     
-                    <!-- Buyer Information -->
-                    <div class="col-md-6 border-right mb-0">
-                      <div class="doc-card-title">
-                        <!-- Colored Buyer Name for Better Visibility -->
-                        <h4 style="color: #2196F3; font-weight: bold; margin-bottom: 10px;">{{order.buyerName || 'Customer'}}</h4>
-                      </div>
-                      <div class="d-flex flex-row align-items-center mb-2">
-                        <span class="mr-1">Reliability Rating: </span>
-                        <div class="stars">
-                          <i *ngFor="let star of getBuyerRating(order)" class="fas fa-star col-orange"></i>
-                          <i *ngFor="let emptyStar of getEmptyStars(order)" class="far fa-star col-orange"></i>
-                        </div>
-                      </div>
-                      <div class="buyer-details">
-                        <p><strong>Ordered Product:</strong> {{order.product[0].name}} ({{order.product[0].product_type}})</p>
-                        <p><strong>Amount Paid:</strong> {{order.quantity * order.product[0].price | currency:'ETB '}}</p>
-                      </div>
-                    </div>
-                    
-                    <!-- Order Details -->
-                    <div class="d-flex col-md-4 mb-0">
+                    <!-- Product details -->
+                    <div class="col-md-5 mb-3 pl-0">
                       <div class="d-flex flex-column justify-content-start user-profile w-100">
-                        <div><i class="far fa-comment-dots pt-3 pr-3"></i> Quantity: {{order.quantity}} </div>
-                        <div><i class="far fa-money-bill-alt pt-3 pr-3"></i> Price per Unit: {{order.product[0].price}}</div>
-                        <div><i class="far fa-clock pt-3 pr-3"></i> Date: {{order.order_date | date: 'MM/dd/yyyy'}}</div>
-                        <div class="mt-3">
-                          <button mat-raised-button color="accent" (click)="acceptOrder(order.id)" style="background: linear-gradient(60deg, #ffa726, #fb8c00); color: white; box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(255, 152, 0, 0.4);">Accept Order</button>
+                        <div class="mb-2"><strong>Type:</strong> {{order.product[0].product_type}}</div>
+                        <div class="mb-2"><strong>Quantity:</strong> {{order.quantity}}</div>
+                        <div class="mb-2"><strong>Price per Unit:</strong> {{order.product[0].price}}</div>
+                        <div class="mb-2"><strong>Total Price:</strong> {{(+order.quantity) * order.product[0].price || order.product[0].price}}</div>
+                        <div class="mb-2"><strong>Order Date:</strong> {{order.order_date | date: 'MM/dd/yyyy'}}</div>
+                        
+                        <!-- Buyer info with rating -->
+                        <div class="mb-2 mt-2">
+                          <strong>Buyer:</strong> {{order.buyerName || 'Customer'}}
+                          <div class="d-inline-block ml-2">
+                            <i *ngFor="let star of getBuyerRating(order)" class="fas fa-star col-orange" style="font-size: 14px;"></i>
+                            <i *ngFor="let emptyStar of getEmptyStars(order)" class="far fa-star col-orange" style="font-size: 14px;"></i>
+                          </div>
                         </div>
+                      </div>
+                    </div>
+                    
+                    <div class="col-md-3 mb-3 d-flex flex-column align-items-end justify-content-center">
+                      <!-- Accept order button -->
+                      <div class="w-100">
+                        <button mat-raised-button color="accent" (click)="acceptOrder(order.id)"
+                                style="width: 100%; font-size: 16px; padding: 12px; border-radius: 30px; font-weight: 600; 
+                                box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3); 
+                                background: linear-gradient(45deg, #ff9800, #ffb74d); 
+                                border: none; color: white; transition: all 0.3s ease;">
+                          <i class="fas fa-check-circle mr-2"></i> Accept Order
+                        </button>
                       </div>
                     </div>
                   </div>

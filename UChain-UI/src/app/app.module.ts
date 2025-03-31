@@ -40,6 +40,8 @@ import { OrderService } from "./buyer/orders/order.service";
 import { UserService } from "./shared/security/user.service";
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { MessageService } from "./shared/security/message_service";
+import { SharedModule } from "./shared/shared.module";
+import { MatDialogModule } from "@angular/material/dialog";
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true,
@@ -72,9 +74,11 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     MatInputModule,
     MatListModule,
     MatButtonToggleModule,
+    MatDialogModule,
     NgxSpinnerModule,
     ClickOutsideModule,
     NgxMaskModule.forRoot(),
+    SharedModule,
   ],
   providers: [httpInterceptorProviders,
     { provide: LocationStrategy, useClass: HashLocationStrategy },

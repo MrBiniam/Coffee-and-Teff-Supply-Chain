@@ -23,60 +23,45 @@
             <div class="row" *ngFor="let order of orders">
               <div class="col-12">
                 <div class="card p-3">
-                  <!-- Product name at the top in large font -->
-                  <div class="doc-card-title text-center mb-3">
-                    <h2 style="font-size: 28px; font-weight: 600; color: #3f51b5;">{{order.product[0].name}}</h2>
+                  <!-- Product name aligned with content -->
+                  <div class="row mb-2">
+                    <div class="col-12">
+                      <h2 style="font-size: 28px; font-weight: 600; color: #3f51b5; margin-bottom: 10px; text-align: left; padding-left: 15px;">{{order.product[0].name}}</h2>
+                    </div>
                   </div>
                   
-                  <div class="row">
-                    <!-- Product image in a larger rectangular frame -->
-                    <div class="col-12 col-md-5 mb-3 text-center">
-                      <img class="product-image shadow" 
-                           style="width: 100%; height: 220px; object-fit: cover; border-radius: 8px;" 
-                           src="http://127.0.0.1:8000/{{order.product[0].image}}" 
-                           alt="{{order.product[0].name}}"
-                           onerror="this.src='https://via.placeholder.com/300x220?text=Product+Image'">
+                  <div class="row align-items-center">
+                    <!-- Product image - slightly bigger -->
+                    <div class="col-12 col-md-4 mb-3">
+                      <div style="width: 210px; margin-left: 15px;">
+                        <img class="product-image shadow" 
+                             style="width: 100%; height: 175px; object-fit: cover; border-radius: 8px; border: 2px solid #eaeaea;" 
+                             src="http://127.0.0.1:8000/{{order.product[0].image}}" 
+                             alt="{{order.product[0].name}}">
+                      </div>
                     </div>
                     
-                    <div class="col-md-4 mb-3">
-                      <!-- Product type and details without description -->
-                      <p><strong>Type:</strong> {{order.product[0].product_type}}</p>
+                    <!-- Product details -->
+                    <div class="col-md-5 mb-3 pl-0">
+                      <!-- Product details displayed clearly -->
                       <div class="d-flex flex-column justify-content-start user-profile w-100">
-                        <div><i class="fas fa-map-marker-alt pt-2 pr-3"></i> {{order.product[0].location}}</div>
-                        <div><i class="far fa-comment-dots pt-2 pr-3"></i> Quantity: {{order.quantity}} </div>
-                        <div><i class="far fa-money-bill-alt pt-2 pr-3"></i> Price per Unit: {{order.product[0].price}}</div>
-                        <div><i class="far fa-clock pt-2 pr-3"></i> Date: {{order.order_date | date: 'MM/dd/yyyy'}}</div>
+                        <div class="mb-2"><strong>Type:</strong> {{order.product[0].product_type}}</div>
+                        <div class="mb-2"><strong>Quantity:</strong> {{order.quantity}}</div>
+                        <div class="mb-2"><strong>Price per Unit:</strong> {{order.product[0].price}}</div>
+                        <div class="mb-2"><strong>Total Price:</strong> {{(+order.quantity) * order.product[0].price || order.product[0].price}}</div>
+                        <div class="mb-2"><strong>Order Date:</strong> {{order.order_date | date: 'MM/dd/yyyy'}}</div>
                       </div>
                     </div>
                     
-                    <div class="col-md-3 mb-3">
-                      <!-- Buyer and driver photos with names -->
-                      <div class="d-flex flex-column align-items-center mb-3">
-                        <p class="mb-1"><strong>Buyer</strong></p>
-                        <div class="circular-image" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 2px solid #3f51b5; margin-bottom: 5px;">
-                          <img style="width: 100%; height: 100%; object-fit: cover;" 
-                               src="http://127.0.0.1:8000{{order.buyer_image || '/media/default/user.png'}}" 
-                               alt="Buyer Photo"
-                               onerror="this.src='https://via.placeholder.com/80x80?text=Buyer'">
-                        </div>
-                        <p style="font-size: 14px; font-weight: 500; margin-top: 5px;">{{order.buyer_name || 'Buyer'}}</p>
-                      </div>
-                      
-                      <div class="d-flex flex-column align-items-center">
-                        <p class="mb-1"><strong>Driver</strong></p>
-                        <div class="circular-image" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 2px solid #ff9800; margin-bottom: 5px;">
-                          <img style="width: 100%; height: 100%; object-fit: cover;" 
-                               src="http://127.0.0.1:8000{{order.driver_image || '/media/default/user.png'}}" 
-                               alt="Driver Photo"
-                               onerror="this.src='https://via.placeholder.com/80x80?text=Driver'">
-                        </div>
-                        <p style="font-size: 14px; font-weight: 500; margin-top: 5px;">{{order.driver_name || 'Driver'}}</p>
-                      </div>
-                      
-                      <!-- Changed button text -->
-                      <div class="text-center mt-4">
-                        <button mat-raised-button color="primary" (click)="orderDetail(order.id)">
-                          Hey Let's Chat
+                    <div class="col-md-3 mb-3 d-flex flex-column align-items-end justify-content-center">
+                      <!-- Enhanced chat button -->
+                      <div class="w-100">
+                        <button mat-raised-button color="primary" (click)="orderDetail(order.id)"
+                                style="width: 100%; font-size: 16px; padding: 12px; border-radius: 30px; font-weight: 600; 
+                                box-shadow: 0 4px 8px rgba(63, 81, 181, 0.3); 
+                                background: linear-gradient(45deg, #3f51b5, #5c6bc0); 
+                                border: none; color: white; transition: all 0.3s ease;">
+                          <i class="fas fa-comments mr-2"></i> Hey Let's Chat
                         </button>
                       </div>
                     </div>

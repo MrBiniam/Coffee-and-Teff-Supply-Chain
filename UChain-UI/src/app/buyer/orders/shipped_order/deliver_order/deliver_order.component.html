@@ -2,10 +2,13 @@
   <div class="modalHeader">
     <div class="editRowModal">
       <div class="modalHeader clearfix">
-        <img [src]='order.product[0].image' height="55sspx" width="55px" alt="" class="rounded-circle" alt="avatar">
+        <img [src]="'http://127.0.0.1:8000/' + (order.product[0].image?.includes('http://127.0.0.1:8000/') ? order.product[0].image.substring(21) : order.product[0].image)" 
+            height="55px" width="55px" alt="Product Image" class="rounded-circle" 
+            onerror="this.src='assets/images/product.png'">
         <div class="modal-about">
           <div class="font-weight-bold p-t-5 p-l-10 font-17">
-            Rating and Comment</div>
+            {{dialogSubTitle || 'Rating and Comment'}}
+          </div>
         </div>
       </div>
     </div>
@@ -15,6 +18,11 @@
   </div>
   <div mat-dialog-content>
     <form class="m-4" [formGroup]="deliverForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
+          <p>Please rate and comment on your experience with the {{ratingTarget === 'driver' ? 'delivery driver' : 'seller'}}.</p>
+        </div>
+      </div>
       <div class="row">
         <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-3">
           <mat-form-field class="example-full-width mb-3">
@@ -54,10 +62,9 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
-          <button class="mr-3" [disabled]="!deliverForm.valid " mat-raised-button
-            color="primary" [mat-dialog-close]="1" (click)="onSubmit()">Submit</button>
-          <button type="button" mat-button >Cancel</button>
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+          <button type="submit" class="mr-3" [disabled]="!deliverForm.valid" mat-raised-button color="primary">Submit</button>
+          <button type="button" mat-button (click)="onNoClick()">Cancel</button>
         </div>
       </div>
     </form>

@@ -1,0 +1,125 @@
+<div class="rating-dialog-container">
+  <div class="rating-dialog-header" style="margin-bottom: 20px;">
+    <h2 mat-dialog-title style="color: #3f51b5; font-weight: 600; margin-bottom: 5px;">{{title}}</h2>
+    <p style="color: #757575; margin-bottom: 0;">{{subTitle}}</p>
+  </div>
+  
+  <form [formGroup]="ratingForm" (ngSubmit)="onSubmit()">
+    <mat-dialog-content>
+      <!-- Star Rating Selection -->
+      <div class="rating-section" style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 500; color: #424242;">Your Rating:</label>
+        <mat-form-field appearance="fill" style="width: 100%;">
+          <mat-label>Select Rating</mat-label>
+          <mat-select formControlName="rating">
+            <mat-option [value]="1">
+              <div class="rating-option">
+                <span>1</span>
+                <span class="stars">
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="far fa-star col-orange"></i>
+                  <i class="far fa-star col-orange"></i>
+                  <i class="far fa-star col-orange"></i>
+                  <i class="far fa-star col-orange"></i>
+                </span>
+                <span>Poor</span>
+              </div>
+            </mat-option>
+            <mat-option [value]="2">
+              <div class="rating-option">
+                <span>2</span>
+                <span class="stars">
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="far fa-star col-orange"></i>
+                  <i class="far fa-star col-orange"></i>
+                  <i class="far fa-star col-orange"></i>
+                </span>
+                <span>Fair</span>
+              </div>
+            </mat-option>
+            <mat-option [value]="3">
+              <div class="rating-option">
+                <span>3</span>
+                <span class="stars">
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="far fa-star col-orange"></i>
+                  <i class="far fa-star col-orange"></i>
+                </span>
+                <span>Average</span>
+              </div>
+            </mat-option>
+            <mat-option [value]="4">
+              <div class="rating-option">
+                <span>4</span>
+                <span class="stars">
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="far fa-star col-orange"></i>
+                </span>
+                <span>Good</span>
+              </div>
+            </mat-option>
+            <mat-option [value]="5">
+              <div class="rating-option">
+                <span>5</span>
+                <span class="stars">
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="fas fa-star col-orange"></i>
+                  <i class="fas fa-star col-orange"></i>
+                </span>
+                <span>Excellent</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="ratingForm.get('rating').hasError('required')">
+            Please select a rating
+          </mat-error>
+        </mat-form-field>
+      </div>
+      
+      <!-- Comment Field -->
+      <div class="comment-section">
+        <label style="display: block; margin-bottom: 10px; font-weight: 500; color: #424242;">Your Comments:</label>
+        <mat-form-field appearance="outline" style="width: 100%;">
+          <mat-label>Share your experience</mat-label>
+          <textarea 
+            matInput 
+            formControlName="comment" 
+            rows="4" 
+            placeholder="Tell us about your experience..."></textarea>
+          <mat-error *ngIf="ratingForm.get('comment').hasError('required')">
+            Please provide a comment
+          </mat-error>
+          <mat-error *ngIf="ratingForm.get('comment').hasError('minlength')">
+            Comment must be at least 3 characters long
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </mat-dialog-content>
+    
+    <mat-dialog-actions align="end">
+      <button 
+        mat-button 
+        type="button" 
+        (click)="onCancel()" 
+        style="margin-right: 8px;">
+        Cancel
+      </button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        type="submit" 
+        [disabled]="ratingForm.invalid"
+        style="background: linear-gradient(45deg, #3f51b5, #7986cb); color: white; font-weight: 500;">
+        Submit Rating
+      </button>
+    </mat-dialog-actions>
+  </form>
+</div>

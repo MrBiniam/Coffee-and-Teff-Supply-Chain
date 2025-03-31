@@ -17,9 +17,12 @@ import { OrderService } from '../../order.service';
 })
 export class DeliverOrderComponent {
   dialogTitle: string;
+  dialogSubTitle: string;
   deliverForm: FormGroup;
   order: Order;
   username: string;
+  ratingTarget: string; // 'seller' or 'driver'
+  
   constructor(
     public dialogRef: MatDialogRef<DeliverOrderComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -30,13 +33,24 @@ export class DeliverOrderComponent {
     // Set the defaults
     this.dialogTitle = data.order.product[0].name;
     this.order = data.order;
+    this.ratingTarget = data.ratingTarget || 'seller'; // Default to seller if not specified
+    
+    // Set appropriate title based on who is being rated
+    if (this.ratingTarget === 'driver') {
+      this.dialogSubTitle = 'Rate the Driver';
+    } else {
+      this.dialogSubTitle = 'Rate the Seller';
+    }
+    
     this.deliverForm = this.createContactForm();
-    this.getUser()
+    this.getUserToRate();
   }
+  
   formControl = new FormControl('', [
     Validators.required,
     // Validators.email,
   ]);
+  
   getErrorMessage() {
     return this.formControl.hasError('required')
       ? 'Required field'
@@ -44,6 +58,7 @@ export class DeliverOrderComponent {
       ? 'Not a valid email'
       : '';
   }
+  
   createContactForm(): FormGroup {
     return this.deliverForm = this.fb.group({
       receiver: [this.username],
@@ -52,64 +67,152 @@ export class DeliverOrderComponent {
       order: [this.order.id],
     });
   }
-  getUser(){
-    this.orderService.getOneUser(this.order.product[0].seller).subscribe(
-      data=>{
-        this.username = data.username;
-      }
-      , error =>{
-          console.log("Can't get User")
-      }
-    );
+  
+  getUserToRate(){
+    // Determine which user to load based on rating target
+    if (this.ratingTarget === 'driver') {
+      this.orderService.getOneUser(this.order.driver).subscribe(
+        data => {
+          this.username = data.username;
+          this.deliverForm.patchValue({
+            receiver: this.username
+          });
+        },
+        error => {
+          console.log("Can't get Driver information");
+        }
+      );
+    } else {
+      // Default to rating the seller
+      this.orderService.getOneUser(this.order.product[0].seller).subscribe(
+        data => {
+          this.username = data.username;
+          this.deliverForm.patchValue({
+            receiver: this.username
+          });
+        },
+        error => {
+          console.log("Can't get Seller information");
+        }
+      );
+    }
   }
+  
   onNoClick(): void {
     this.dialogRef.close();
   }
 
   onSubmit() {
-    const data ={
+    const data = {
       "receiver": this.username,
       "rating_value": parseInt(this.deliverForm.value.rating_value),
       "comment": this.deliverForm.value.comment,
       "order": this.order.id
     }
+    
+    // Different logic when submitting from delivered orders page vs shipped orders page
+    if (this.data.fromDeliveredPage) {
+      // Just submit rating without changing order status
       this.orderService.deliverOrder(data).subscribe(
-        _=> {
-          this.orderService.editOrder({"status": "Delivered"}, this.order.id).subscribe(
-            _=>{
-              this.showNotification(
-                'snackbar-success',
-                'Order Delivered Successfully...!!!',
-                'bottom',
-                'center'
-              );
-            } , _=>{
+        _ => {
+          this.showNotification(
+            'snackbar-success',
+            `${this.ratingTarget === 'driver' ? 'Driver' : 'Seller'} Rating Submitted Successfully!`,
+            'bottom',
+            'center'
+          );
+          this.dialogRef.close(1);
+        },
+        _ => {
+          this.showNotification(
+            'snackbar-danger',
+            'Could not submit rating. Please try again.',
+            'bottom',
+            'center'
+          );
+        }
+      );
+    } else {
+      // From shipped orders page - also change order status to Delivered
+      this.orderService.deliverOrder(data).subscribe(
+        _ => {
+          // Use the robust approach to update order status
+          this.orderService.getMyOrder().subscribe(
+            (allOrders) => {
+              // Find the order we want to update
+              const orderToUpdate = allOrders.find(order => order.id === this.order.id);
+              
+              if (orderToUpdate) {
+                // Get current date for order update
+                const currentDate = new Date().toISOString();
+                
+                // Create a complete payload with all required fields
+                const updateData = {
+                  quantity: orderToUpdate.quantity, // Required field
+                  status: 'Delivered', // Update status
+                  order_date: currentDate,
+                  delivered_date: currentDate // Add delivery timestamp
+                };
+                
+                // Update order with complete payload
+                this.orderService.editOrder(updateData, this.order.id).subscribe(
+                  _ => {
+                    this.showNotification(
+                      'snackbar-success',
+                      'Order Delivered Successfully...!!!',
+                      'bottom',
+                      'center'
+                    );
+                    // Force order list refresh by triggering a page reload
+                    this.dialogRef.close(1);
+                    setTimeout(() => window.location.reload(), 1500);
+                  },
+                  _ => {
+                    this.showNotification(
+                      'snackbar-danger',
+                      'Ops! cannot mark order as delivered. Try Again...!!!',
+                      'bottom',
+                      'center'
+                    );
+                  }
+                );
+              } else {
+                this.showNotification(
+                  'snackbar-danger',
+                  'Order not found in the list. Please try again.',
+                  'bottom',
+                  'center'
+                );
+              }
+            },
+            _ => {
               this.showNotification(
                 'snackbar-danger',
-                'Ops! can not Deliver order. Try Again...!!!',
+                'Could not retrieve order details. Please try again.',
                 'bottom',
                 'center'
               );
             }
           );
-          },
-        _=> {
+        },
+        _ => {
           this.showNotification(
             'snackbar-danger',
-            'Ops! can not Deliver order. Try Again...!!!',
+            'Ops! can not submit rating. Try Again...!!!',
             'bottom',
             'center'
           );
         }
       );
     }
-
-    showNotification(colorName, text, placementFrom, placementAlign) {
-      this.snackBar.open(text, '', {
-        duration: 2000,
-        verticalPosition: placementFrom,
-        horizontalPosition: placementAlign,
-        panelClass: colorName,
-      });
-    }
+  }
+  
+  showNotification(colorName, text, placementFrom, placementAlign) {
+    this.snackBar.open(text, '', {
+      duration: 2000,
+      verticalPosition: placementFrom,
+      horizontalPosition: placementAlign,
+      panelClass: colorName,
+    });
+  }
 }

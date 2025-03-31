@@ -6,6 +6,7 @@ import { TokenStorageService } from 'src/app/shared/security/token-storage.servi
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { DeliverOrderComponent } from '../deliver_order/deliver_order.component';
+import { SimpleConfirmComponent } from '../../../../shared/simple-confirm/simple-confirm.component';
 
 @Component({
   selector: 'app-shipped_order',
@@ -39,26 +40,50 @@ export class ShippedOrderComponent implements OnInit {
       }
     );
   }
+  
   deliverOrder(order) {
+    // Show confirmation dialog first
+    const confirmDialogRef = this.dialog.open(SimpleConfirmComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirm Delivery',
+        message: 'Are you sure the product is delivered?',
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No'
+      },
+      disableClose: true // Prevents closing by clicking outside
+    });
+
+    confirmDialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        // User confirmed - proceed with delivery rating dialog
+        this.openDeliveryRatingDialog(order);
+      }
+    });
+  }
+  
+  openDeliveryRatingDialog(order) {
     const dialogRef = this.dialog.open(DeliverOrderComponent, {
       data: {
         order: order,
       },
+      width: '500px'
     });
+    
     dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
         // After dialog is closed we're doing frontend updates
-        // For add we're just pushing a new row inside DataService
-        this.getOrder()
+        this.getOrder();
         this.showNotification(
           'snackbar-success',
-          'Order edited Successfully...!!!',
+          'Order marked as delivered successfully!',
           'bottom',
           'center'
         );
       }
     });
   }
+  
   showNotification(colorName, text, placementFrom, placementAlign) {
     this.snackBar.open(text, '', {
       duration: 2000,
@@ -67,6 +92,7 @@ export class ShippedOrderComponent implements OnInit {
       panelClass: colorName,
     });
   }
+  
   orderDetail(id) {
     this.router.navigate([`/buyer/orders/shipped_order_profile/${id}`]);
   }

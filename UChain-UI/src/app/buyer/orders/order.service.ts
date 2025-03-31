@@ -26,9 +26,140 @@ export class OrderService {
       .pipe(
         map(orders => {
           console.log('Raw orders from API:', orders);
-          // Sort orders by newest first (assuming higher IDs are newer)
           if (Array.isArray(orders)) {
-            return [...orders].sort((a, b) => b.id - a.id);
+            return [...orders].sort((a, b) => b.id - a.id).map(order => {
+              // Clean quantity field to remove transaction IDs
+              order = this.cleanQuantityField(order);
+              
+              // Using the correct API endpoints for getting user information
+              
+              // For seller information
+              if (order.product && order.product[0] && order.product[0].seller) {
+                // The correct endpoint is 'user/{id}' not 'users/{id}'
+                this.httpClient.get<any>(environment.apiUrl + 'user/' + order.product[0].seller)
+                  .subscribe(
+                    user => {
+                      console.log('Seller user data:', user);
+                      // Check different potential name fields in the response
+                      if (user.username) {
+                        order.seller_name = user.username;
+                        order.seller_username = user.username;
+                      } else if (user.user && user.user.username) {
+                        // Handle nested user object
+                        order.seller_name = user.user.username;
+                        order.seller_username = user.user.username;
+                      }
+                    },
+                    error => {
+                      console.error('Error fetching seller data:', error);
+                      // Set fallback username for the profile image
+                      order.seller_username = 'default';
+                    }
+                  );
+              }
+              
+              // For buyer information
+              if (order.buyer) {
+                // Try both possible formats - direct user ID and seller-specific endpoint
+                this.httpClient.get<any>(environment.apiUrl + 'user/' + order.buyer)
+                  .subscribe(
+                    user => {
+                      console.log('Buyer user data:', user);
+                      // Handle different response formats
+                      if (user.username) {
+                        order.buyer_name = user.username;
+                        order.buyer_username = user.username;
+                      } else if (user.user && user.user.username) {
+                        order.buyer_name = user.user.username;
+                        order.buyer_username = user.user.username;
+                      }
+                    },
+                    error => {
+                      console.error('Error fetching buyer data from user endpoint:', error);
+                      
+                      // Try the buyer-specific endpoint as fallback
+                      this.httpClient.get<any>(environment.apiUrl + 'buyer/' + order.buyer)
+                        .subscribe(
+                          user => {
+                            console.log('Buyer data from buyer endpoint:', user);
+                            if (user.username) {
+                              order.buyer_name = user.username;
+                              order.buyer_username = user.username;
+                            } else if (user.user && user.user.username) {
+                              order.buyer_name = user.user.username;
+                              order.buyer_username = user.user.username;
+                            }
+                          },
+                          error => {
+                            console.error('Error fetching buyer from buyer endpoint:', error);
+                            // Set fallback username for the profile image
+                            order.buyer_username = 'default';
+                          }
+                        );
+                    }
+                  );
+              }
+              
+              // For driver information
+              if (order.driver) {
+                // Try the specific driver endpoint first
+                this.httpClient.get<any>(environment.apiUrl + 'driver/' + order.driver)
+                  .subscribe(
+                    driverData => {
+                      console.log('Driver user data from driver endpoint:', driverData);
+                      // The driver endpoint returns {user: id, license_number: '...', car_model: '...'}
+                      // We need to fetch the actual user data using the user ID
+                      if (driverData.user) {
+                        // First set a temp name from what we have
+                        order.driver_name = 'Driver #' + driverData.user;
+                        
+                        // Then fetch the actual user data
+                        this.httpClient.get<any>(environment.apiUrl + 'user/' + driverData.user)
+                          .subscribe(
+                            userData => {
+                              console.log('Driver user details:', userData);
+                              if (userData.username) {
+                                order.driver_name = userData.username;
+                                order.driver_username = userData.username;
+                              }
+                            },
+                            error => {
+                              console.error('Error fetching driver user details:', error);
+                              order.driver_username = 'default';
+                            }
+                          );
+                      } else {
+                        // Handle case where driver data doesn't have a user ID
+                        order.driver_name = 'Driver';
+                        order.driver_username = 'default';
+                      }
+                    },
+                    error => {
+                      console.error('Error fetching driver data from driver endpoint:', error);
+                      // Try the generic user endpoint as fallback
+                      this.httpClient.get<any>(environment.apiUrl + 'user/' + order.driver)
+                        .subscribe(
+                          userData => {
+                            console.log('Driver data from user endpoint:', userData);
+                            if (userData.username) {
+                              order.driver_name = userData.username;
+                              order.driver_username = userData.username;
+                            } else if (userData.user && userData.user.username) {
+                              order.driver_name = userData.user.username;
+                              order.driver_username = userData.user.username;
+                            }
+                          },
+                          error => {
+                            console.error('Error fetching driver from user endpoint:', error);
+                            order.driver_username = 'default';
+                          }
+                        );
+                    }
+                  );
+              }
+              
+              return order;
+            });
           }
           return orders;
         }),
@@ -45,6 +176,38 @@ export class OrderService {
           return of([]);  // Return empty array on error
         })
       );
+  }
+
+  /**
+   * Helper method to clean quantity fields from transaction IDs
+   */
+  cleanQuantityField(order: any): any {
+    if (!order) return order;
+    
+    // Clean the main quantity field if it exists
+    if (order.quantity && typeof order.quantity === 'string') {
+      // Remove transaction ID pattern [TX:*] from quantity
+      if (order.quantity.includes('[TX:')) {
+        console.log(`Cleaning quantity field: "${order.quantity}"`);
+        order.quantity = order.quantity.split('[')[0].trim();
+        console.log(`Cleaned quantity: "${order.quantity}"`);
+      }
+    }
+    
+    // Also check if there's a quantity inside the product array
+    if (order.product && Array.isArray(order.product)) {
+      order.product.forEach(prod => {
+        if (prod.quantity && typeof prod.quantity === 'string') {
+          if (prod.quantity.includes('[TX:')) {
+            console.log(`Cleaning product quantity field: "${prod.quantity}"`);
+            prod.quantity = prod.quantity.split('[')[0].trim();
+            console.log(`Cleaned product quantity: "${prod.quantity}"`);
+          }
+        }
+      });
+    }
+    
+    return order;
   }
 
   // Method to get all orders (for demonstration purposes)
@@ -132,6 +295,50 @@ export class OrderService {
           return of(null);  // Return null on error
         })
       );
+  }
+
+  // New specialized method for driver assignments
+  assignDriverToOrder(orderId: number, driverId: number): Observable<any> {
+    console.log(`Assigning driver ID ${driverId} to order ID ${orderId}`);
+    
+    // Get the current order to preserve all fields
+    return this.getOneOrder(orderId).pipe(
+      switchMap(order => {
+        if (!order) {
+          console.error('Failed to fetch order for driver assignment');
+          return of(null);
+        }
+
+        // Create payload for driver assignment
+        // The key issue is to ensure the status remains appropriate for driver visibility
+        const payload = {
+          driver: driverId,
+          // Ensure status is 'Pending' which is needed for driver visibility
+          status: 'Pending',
+          // Preserve other important fields
+          quantity: order.quantity
+        };
+
+        console.log('Driver assignment payload:', payload);
+        
+        // Update the order with the driver assignment
+        const updateUrl = environment.apiUrl + 'order/' + orderId + '/update';
+        return this.httpClient.put(updateUrl, payload).pipe(
+          map(response => {
+            console.log('Driver assignment successful:', response);
+            return response;
+          }),
+          catchError(error => {
+            console.error('Error assigning driver:', error);
+            return of(null);
+          })
+        );
+      }),
+      catchError(error => {
+        console.error('Error in driver assignment process:', error);
+        return of(null);
+      })
+    );
   }
 
   // Method to update order status (for seller/driver acceptance)

@@ -197,6 +197,12 @@ export class DriverService {
     const productId = localStorage.getItem('selected_product_id');
     const tariffId = localStorage.getItem('selected_tariff_id');
     
+    console.log('Driver selection parameters:', {
+      driver_id: driverId,
+      product_id: productId,
+      transaction_ref: txRef
+    });
+    
     // Create the payload with full debugging information
     const payload: any = {
       driver_id: driverId,
@@ -217,6 +223,34 @@ export class DriverService {
     // Call the API to select the driver with error handling
     return this.http.post(`${this.apiUrl}select-driver/`, payload)
       .pipe(
+        map(response => {
+          console.log('Driver selection API response:', response);
+          
+          // CRITICAL FIX: Ensure order has proper status by updating it
+          // This is needed for the driver to see the assignment in their accepted orders page
+          if (response && response['order_id']) {
+            const orderId = response['order_id'];
+            console.log(`Order ${orderId} assigned to driver ${driverId}, updating status to ensure driver visibility`);
+            
+            // Import OrderService from the shared module
+            // Get the HTTP service to make a direct API call
+            this.http.put(`${this.apiUrl}order/${orderId}/update`, {
+              driver: driverId,
+              status: 'Pending',  // Status MUST be 'Pending' for driver to see it
+            }).subscribe(
+              updateResponse => {
+                console.log('Order status updated to ensure driver visibility:', updateResponse);
+              },
+              updateError => {
+                console.error('Error updating order status after driver assignment:', updateError);
+              }
+            );
+          } else {
+            console.warn('Driver assigned but no order_id received in response. Driver might not see assignment.');
+          }
+          
+          return response;
+        }),
         catchError(error => {
           console.error('Driver selection API error:', error);
           if (error.status === 500) {
