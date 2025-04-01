@@ -10,11 +10,16 @@ import { ShippedOrderComponent } from './shipped_order/shipped_order/shipped_ord
 import { DeliveredOrderComponent } from './delivered_order/delivered_order/delivered_order.component';
 import { DeliveredOrderProfileComponent } from './delivered_order/delivered_order_profile/delivered_order-profile.component';
 import { FixOrderStatusComponent } from './fix-order-status.component';
+import { PendingOrderComponent } from './pending_order/pending_order/pending_order.component';
 
 const routes: Routes = [
   {
     path: 'order',
     component: OrderComponent,
+  },
+  {
+    path: 'pending_order',
+    component: PendingOrderComponent,
   },
   {
     path: 'accepted_order',

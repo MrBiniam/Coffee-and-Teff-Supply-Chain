@@ -456,10 +456,11 @@ export class SelectDriverComponent implements OnInit {
           console.log('Showing driver selection success message for: ' + driver.username);
         }
         
-        // Automatically redirect to pending orders page after selection
+        // Automatically redirect to pending orders page after selection with absolute path
         console.log('Redirecting to buyer pending orders page in 2 seconds...');
         setTimeout(() => {
-          this.router.navigate(['/buyer/orders/order']);
+          // Use the full path to ensure proper routing without redirection to login
+          window.location.href = 'http://localhost:4200/#/buyer/orders/order';
         }, 2000);
       },
       error: (error) => {

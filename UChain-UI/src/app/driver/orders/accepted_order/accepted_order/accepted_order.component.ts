@@ -93,10 +93,10 @@ export class AcceptedOrderComponent implements OnInit {
               }
             }
             
-            // We ONLY want orders with "Accepted" status
+            // We want orders with "Accepted" status OR "Pending" status with a driver assigned
             // Orders with "Shipped" status should only appear in the shipped orders list
-            if (value.status === 'accepted') {
-              console.log(`✓ Order #${value.id} is ACCEPTED - adding to driver's orders list`);
+            if (value.status.toLowerCase() === 'accepted' || (value.status.toLowerCase() === 'pending' && value.driver === id)) {
+              console.log(`✓ Order #${value.id} is ${value.status.toUpperCase()} with driver assigned - adding to driver's accepted orders list`);
               activeOrders.push(value);
             } else {
               console.log(`✗ Order #${value.id} has status "${value.status}" - excluded from accepted list`);

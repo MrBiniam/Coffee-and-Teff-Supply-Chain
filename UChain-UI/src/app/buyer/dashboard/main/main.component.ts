@@ -298,26 +298,67 @@ export class MainComponent implements OnInit {
       return;
     }
     
+    // Reset counters before counting
+    this.newOrders = 0;
+    this.acceptedOrders = 0;
+    this.shippedOrders = 0;
+    this.deliveredOrders = 0;
+    
     this.orderService.getMyOrder().subscribe(
       data => {
-        if (!data || data.length === 0) {
+        if (!data || !Array.isArray(data) || data.length === 0) {
           console.log("No orders found for this user");
           return;
         }
         
+        console.log("Processing orders for buyer:", id);
+        
+        // First pass: count all orders to ensure we don't miss any
         data.forEach((value) => {
-          if(value.driver==null && value.buyer==id && value.status=='Pending'){
-              this.newOrders+=1
-            }else 
-          if(value.driver!=null && value.buyer==id && value.status=='Pending'){
-              this.acceptedOrders+=1
-            }else 
-          if(value.driver!=null && value.buyer==id && value.status=='Shipped'){
-              this.shippedOrders+=1
-            }else 
-          if(value.driver!=null && value.buyer==id && value.status=='Delivered'){
-            this.deliveredOrders+=1
+          try {
+            if (!value) return;
+            
+            const buyerMatches = value.buyer === id;
+            
+            if (!buyerMatches) return; // Skip orders not belonging to this buyer
+            
+            // Do case-insensitive status comparison to be safe
+            const status = value.status ? value.status.toLowerCase() : '';
+            
+            // NEW ORDERS: Status is "pending" (regardless of driver assignment)
+            if (status === 'pending' && buyerMatches) {
+              this.newOrders += 1;
+              console.log(`Order #${value.id} counted as new order - Status: ${value.status}, Driver: ${value.driver}, Buyer: ${value.buyer}`);
+            }
+            // ACCEPTED ORDERS: Status is "accepted" (must have a driver assigned)
+            else if (status === 'accepted' && buyerMatches) {
+              this.acceptedOrders += 1;
+              console.log(`Order #${value.id} counted as accepted order - Status: ${value.status}, Driver: ${value.driver}, Buyer: ${value.buyer}`);
+            }
+            // SHIPPED ORDERS: Status is "shipped" (must have a driver assigned)
+            else if (status === 'shipped' && buyerMatches) {
+              this.shippedOrders += 1;
+              console.log(`Order #${value.id} counted as shipped order`);
+            }
+            // DELIVERED ORDERS: Status is "delivered" (must have a driver assigned)
+            else if (status === 'delivered' && buyerMatches) {
+              this.deliveredOrders += 1;
+              console.log(`Order #${value.id} counted as delivered order`);
+            }
+            // Log any order that doesn't fit into the main categories
+            else if (buyerMatches) {
+              console.warn(`Order #${value.id} with status "${value.status}" and driver ${value.driver} not counted in any category`);
+            }
+          } catch (error) {
+            console.error("Error processing order:", error);
           }
+        });
+
+        console.log('Final order counts for buyer:', {
+          newOrders: this.newOrders,
+          acceptedOrders: this.acceptedOrders,
+          shippedOrders: this.shippedOrders,
+          deliveredOrders: this.deliveredOrders
         });
       },
       error => {

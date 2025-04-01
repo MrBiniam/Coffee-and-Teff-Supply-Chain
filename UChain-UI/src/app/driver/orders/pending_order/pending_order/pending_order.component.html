@@ -1,0 +1,76 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style ">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Assigned Orders</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a routerLink="/driver/dashboard">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item active">Assigned Orders</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row clearfix">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+          <div class="body">
+            <div *ngIf="loading" class="text-center p-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+              <p class="mt-2">Loading available orders...</p>
+            </div>
+            <div *ngIf="!loading && orders.length === 0" class="text-center p-5">
+              <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+              <h4>No Available Orders</h4>
+              <p>There are currently no pending orders available for pickup.</p>
+            </div>
+            <div class="row" *ngFor="let order of orders">
+              <div class="col-12">
+                <div class="card p-3 mb-4 order-card">
+                  <div class="row">
+                    <div class="col-12 col-md-3 mb-3 text-center">
+                      <div class="product-image-container">
+                        <img class="product-image" 
+                          [src]="'http://127.0.0.1:8000/media/Products_Pictures/' + order.product[0]?.image?.split('/')?.pop()" 
+                          onerror="this.src='assets/images/products/p-13.jpg'">
+                      </div>
+                    </div>
+                    <div class="col-md-5 mb-3">
+                      <div class="product-title">
+                        <h3>{{order.product[0]?.name}}</h3>
+                      </div>
+                      <div class="product-type mb-2">
+                        <span class="badge badge-info">{{order.product[0]?.product_type}}</span>
+                      </div>
+                      <div class="product-description">
+                        <h5>Description</h5>
+                        <p>{{order.product[0]?.description || 'No description available.'}}</p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-0">
+                      <div class="order-details-container">
+                        <h5 class="details-title">Order Details</h5>
+                        <div class="order-info"><i class="far fa-comment-dots"></i> Quantity: {{order.quantity || 'Not specified'}} </div>
+                        <div class="order-info"><i class="far fa-money-bill-alt"></i> Price per Unit: {{order.product[0]?.price || 'Not specified'}}</div>
+                        <div class="order-info"><i class="far fa-clock"></i> Date: {{order.order_date | date: 'MMM dd, yyyy' || 'Not specified'}}</div>
+                        <div class="order-info"><i class="fas fa-user"></i> Seller: {{order.seller_name || 'Unknown Seller'}}</div>
+                        <div class="order-info"><i class="fas fa-user"></i> Buyer: {{order.buyer_name || 'Unknown Buyer'}}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

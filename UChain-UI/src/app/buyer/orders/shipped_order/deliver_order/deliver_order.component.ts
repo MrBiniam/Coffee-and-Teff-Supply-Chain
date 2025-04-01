@@ -169,7 +169,7 @@ export class DeliverOrderComponent {
                     // Add a delay to show the success notification before redirecting
                     setTimeout(() => {
                       // Redirect to delivered orders page instead of just reloading
-                      window.location.href = '/buyer/orders/delivered_order';
+                      window.location.href = '/#/buyer/orders/delivered_order';
                     }, 2000);
                   },
                   _ => {

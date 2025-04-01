@@ -30,9 +30,12 @@ export class OrderComponent implements OnInit {
       data => {
         console.log('All orders received:', data);
         
-        // No need to sort here, as we're now sorting in the service
+        // Ensure orders are sorted with newest first (highest ID first)
+        // This provides a double-check in case the service sorting doesn't work
+        const sortedData = [...data].sort((a, b) => b.id - a.id);
+        console.log('Orders sorted by newest first (highest ID):', sortedData);
         
-        data.forEach((value) => {
+        sortedData.forEach((value) => {
           console.log('Evaluating order:', value);
           console.log('Order status:', value.status, 'Buyer ID:', value.buyer, 'Current user ID:', id);
           

@@ -267,11 +267,13 @@ export class DriverService {
           console.log('Retrieved order details for update:', orderDetails);
           
           // Create a complete payload with all necessary fields from the original order
-          // Force status to "Accepted" for the driver view while keeping it as "Pending" for buyer/seller
+          // Keep status as "Pending" for buyer/seller views but make it visible to the driver
           const updatePayload = {
             ...orderDetails,  // Include all original fields
             driver: driverId, // Update the driver
-            status: 'Accepted', // Set to "Accepted" for driver's view
+            status: 'Pending', // Keep as "Pending" for buyer/seller views
+            // Add a field to indicate this has a driver assigned
+            has_driver: true,
             // Explicitly set these fields to ensure order is active
             delivered: false,
             delivered_date: null,

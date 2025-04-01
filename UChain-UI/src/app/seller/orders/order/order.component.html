@@ -82,13 +82,14 @@
                         <div class="mb-2"><strong>Total Price:</strong> {{(+order.quantity) * order.product[0].price || order.product[0].price}}</div>
                         <div class="mb-2"><strong>Order Date:</strong> {{order.order_date | date: 'MM/dd/yyyy'}}</div>
                         
-                        <!-- Buyer info with rating -->
+                        <!-- Buyer info without rating stars -->
                         <div class="mb-2 mt-2">
-                          <strong>Buyer:</strong> {{order.buyerName || 'Customer'}}
-                          <div class="d-inline-block ml-2">
-                            <i *ngFor="let star of getBuyerRating(order)" class="fas fa-star col-orange" style="font-size: 14px;"></i>
-                            <i *ngFor="let emptyStar of getEmptyStars(order)" class="far fa-star col-orange" style="font-size: 14px;"></i>
-                          </div>
+                          <strong>Buyer:</strong> {{order.buyer_name || 'Customer'}}
+                        </div>
+                        
+                        <!-- Driver info -->
+                        <div class="mb-2">
+                          <strong>Driver:</strong> {{order.driver_name || 'Not assigned yet'}}
                         </div>
                       </div>
                     </div>

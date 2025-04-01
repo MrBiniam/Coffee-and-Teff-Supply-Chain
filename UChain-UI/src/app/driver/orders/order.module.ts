@@ -31,6 +31,7 @@ import { ShippedOrderComponent } from './shipped_order/shipped_order/shipped_ord
 import { DeliveredOrderComponent } from './delivered_order/delivered_order/delivered_order.component';
 import { DeliveredOrderProfileComponent } from './delivered_order/delivered_order_profile/delivered_order-profile.component';
 import { FixOrderStatusComponent } from '../orders/fix-order-status.component';
+import { PendingOrderModule } from './pending_order/pending_order.module';
 
 @NgModule({
   declarations: [
@@ -69,6 +70,7 @@ import { FixOrderStatusComponent } from '../orders/fix-order-status.component';
     MatMenuModule,
     MatCheckboxModule,
     MaterialFileInputModule,
+    PendingOrderModule,
   ],
 })
 export class OrderModule {}

@@ -49,6 +49,8 @@
                         <div class="mb-2"><strong>Total Price:</strong> {{(+order.quantity) * order.product[0].price || order.product[0].price}}</div>
                         <div class="mb-2"><strong>Order Date:</strong> {{order.order_date | date: 'MM/dd/yyyy'}}</div>
                         <div class="mb-2" *ngIf="order.shipped_date"><strong>Shipped Date:</strong> {{order.shipped_date | date: 'MM/dd/yyyy'}}</div>
+                        <div class="mb-2"><strong>Seller Name:</strong> {{order.product[0].seller_name || order.seller_name || 'Not available'}}</div>
+                        <div class="mb-2"><strong>Driver Name:</strong> {{order.driver_name || 'Not assigned yet'}}</div>
                       </div>
                     </div>
                     

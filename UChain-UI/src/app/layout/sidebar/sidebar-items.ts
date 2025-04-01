@@ -348,8 +348,21 @@ export const ROUTES: RouteInfo[] = [
     role: ['DRIVER'],
     submenu: [
       {
+        path: '/driver/orders/pending_order',
+        title: 'Available Orders',
+        moduleName: 'order',
+        iconType: '',
+        icon: '',
+        class: 'ml-menu',
+        groupTitle: false,
+        badge: '',
+        badgeClass: '',
+        role: [''],
+        submenu: [],
+      },
+      {
         path: '/driver/orders/accepted_order',
-        title: 'Assigned Orders',
+        title: 'Accepted Orders',
         moduleName: 'order',
         iconType: '',
         icon: '',

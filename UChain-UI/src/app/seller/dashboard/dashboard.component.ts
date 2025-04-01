@@ -430,7 +430,12 @@ export class DashboardComponent implements OnInit {
   
   getOrder() {
     try {
-      const seller_id = this.tokenStorage.getId(); 
+      const seller_id = parseInt(this.tokenStorage.getId());
+      if (isNaN(seller_id)) {
+        console.error("Invalid seller ID");
+        return;
+      }
+      
       this.orderService.getMyOrder().subscribe(orders => { 
         console.log('Orders received:', orders);
         if (!orders || !Array.isArray(orders) || orders.length === 0) {
@@ -442,25 +447,51 @@ export class DashboardComponent implements OnInit {
           return;
         }
         
-        // Safely filter orders to only include those for this seller
-        const myOrders = orders.filter(order => {
+        // Reset counters before counting
+        this.newOrders = 0;
+        this.acceptedOrders = 0;
+        this.shippedOrders = 0;
+        this.deliveredOrders = 0;
+        
+        // Process each order
+        orders.forEach(order => {
           try {
-            return order.product && order.product.seller === parseInt(seller_id);
-          } catch (e) {
-            return false;
+            // Check if this order belongs to this seller
+            if (order && order.product && Array.isArray(order.product) && order.product.length > 0) {
+              const product = order.product[0];
+              if (product && product.seller === seller_id) {
+                // Do case-insensitive status comparison to be safe
+                const status = order.status ? order.status.toLowerCase() : '';
+                
+                // Count based on status
+                if (status === 'pending') {
+                  this.newOrders += 1;
+                  console.log(`Order #${order.id} counted as new order for seller ${seller_id}`);
+                } else if (status === 'accepted') {
+                  this.acceptedOrders += 1;
+                  console.log(`Order #${order.id} counted as accepted order for seller ${seller_id}`);
+                } else if (status === 'shipped') {
+                  this.shippedOrders += 1;
+                  console.log(`Order #${order.id} counted as shipped order for seller ${seller_id}`);
+                } else if (status === 'delivered') {
+                  this.deliveredOrders += 1;
+                  console.log(`Order #${order.id} counted as delivered order for seller ${seller_id}`);
+                } else {
+                  console.warn(`Order #${order.id} with unknown status "${order.status}" not counted`);
+                }
+              }
+            }
+          } catch (error) {
+            console.error("Error processing order:", error);
           }
         });
         
-        if (myOrders.length === 0) {
-          console.log('No orders found for this seller');
-          return;
-        }
-        
-        // Count orders by status
-        this.newOrders = myOrders.filter(order => order.status === 'unapproved').length;
-        this.acceptedOrders = myOrders.filter(order => order.status === 'approved').length;
-        this.shippedOrders = myOrders.filter(order => order.status === 'shipped').length;
-        this.deliveredOrders = myOrders.filter(order => order.status === 'delivered').length;
+        console.log('Order counts for seller:', {
+          newOrders: this.newOrders,
+          acceptedOrders: this.acceptedOrders,
+          shippedOrders: this.shippedOrders,
+          deliveredOrders: this.deliveredOrders
+        });
       }, error => {
         console.error('Error fetching orders:', error);
       });
