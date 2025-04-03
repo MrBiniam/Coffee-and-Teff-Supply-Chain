@@ -11,6 +11,7 @@ import { User } from 'src/app/shared/security/user';
 import Swal from 'sweetalert2';
 import { delay } from 'rxjs/operators';
 import { MessageService } from 'src/app/shared/security/message_service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-order-profile',
@@ -20,41 +21,90 @@ import { MessageService } from 'src/app/shared/security/message_service';
 export class AcceptedOrderProfileComponent implements OnInit {
   order: Order = new Order();
   orderId: any;
-  rate: Rate[]
-  stars: boolean[] = Array(5).fill(false)
-  user: User = new User()
-  buyer: User = new User()
-  constructor(private router:Router, private messageService: MessageService,private orderService: OrderService,private userService: UserService, private route: ActivatedRoute,private snackBar: MatSnackBar,public dialog: MatDialog) {
-    this.orderId=this.route.snapshot.paramMap.get('id');
-    console.log(this.orderId)
+  rate: Rate[] = [];
+  stars: boolean[] = Array(5).fill(false);
+  user: User = new User();
+  buyer: User = new User();
+  isLoading = true;
+  
+  constructor(
+    private router: Router, 
+    private messageService: MessageService,
+    private orderService: OrderService,
+    private userService: UserService, 
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar,
+    public dialog: MatDialog
+  ) {
+    this.orderId = this.route.snapshot.paramMap.get('id');
+    console.log('Loading order ID:', this.orderId);
     this.getOrder(this.orderId);
   }
+  
   ngOnInit(): void {
-  }
-  getComments(id){
-    this.userService.getOneUser(id).subscribe(
-      data=>{
-        this.rate =this.userService.getSellerComments(data.username);
-        this.user=data
-        if(this.user.profile_image.includes("127.0.0.1:8000")){
-          this.user.profile_image = this.user.profile_image.substring(21)}
-      }
-    )
+    // Initialization handled in constructor
   }
   
-  getBuyer(id){
+  getComments(id) {
+    if (!id) {
+      console.log('No seller ID provided for getting comments');
+      return;
+    }
+    
     this.userService.getOneUser(id).subscribe(
-      data=>{
-        this.buyer = data
-        if(this.buyer.profile_image.includes("127.0.0.1:8000")){
-          this.buyer.profile_image = this.buyer.profile_image.substring(21)}
+      data => {
+        if (data) {
+          this.rate = this.userService.getSellerComments(data.username);
+          this.user = data;
+          this.processUserImage(this.user);
+        }
       },
-      _=>{
-        console.log("error here")
+      error => {
+        console.error('Error fetching user comments:', error);
       }
-    )
+    );
   }
-  goToChat(username:string) {
+  
+  getBuyer(id) {
+    if (!id) {
+      console.log('No buyer ID provided');
+      return;
+    }
+    
+    this.userService.getOneUser(id).subscribe(
+      data => {
+        if (data) {
+          this.buyer = data;
+          this.processUserImage(this.buyer);
+        }
+      },
+      error => {
+        console.error('Error fetching buyer details:', error);
+      }
+    );
+  }
+  
+  // Helper method to process user image paths
+  processUserImage(user: User) {
+    if (user && user.profile_image) {
+      // Extract just the filename if it's a full URL
+      if (user.profile_image.includes('http') || user.profile_image.includes('media')) {
+        // Extract the filename from the path
+        const pathParts = user.profile_image.split('/');
+        const fileName = pathParts[pathParts.length - 1];
+        // Store just the filename for use in template
+        user.imageFileName = fileName;
+      } else {
+        // If it's just a filename, use it directly
+        user.imageFileName = user.profile_image;
+      }
+    } else if (user) {
+      // If no image, use a default based on username or ID
+      user.imageFileName = `${user.id || user.username}.jpg`;
+    }
+  }
+  
+  goToChat(username: string) {
     Swal.fire({
       title: 'Are you sure?',
       text: "Want Say Hello!",
@@ -68,32 +118,84 @@ export class AcceptedOrderProfileComponent implements OnInit {
         const data = {
           "receiver": username,
           "content": "Hello"
-        }
+        };
         this.messageService.sendMessage(data).subscribe(
-          data=>{
-            Swal.fire('Sent!', 'You have sayed Hello to. ' + username, 'success');
-            delay(2000)
-            this.router.navigate([`/apps/chat`]);
+          response => {
+            Swal.fire('Sent!', 'You have said Hello to ' + username, 'success');
+            setTimeout(() => {
+              this.router.navigate(['/apps/chat'], { queryParams: { to: username } });
+            }, 2000);
+          },
+          error => {
+            console.error('Error sending message:', error);
+            Swal.fire('Error!', 'Failed to send message', 'error');
           }
-        )
+        );
       }
     });
   }
-  getOrder(id){
+  
+  getOrder(id) {
+    this.isLoading = true;
+    
+    if (!id) {
+      console.error('No order ID provided');
+      this.isLoading = false;
+      return;
+    }
+    
     this.orderService.getOneOrder(id).subscribe(
-      data=>{
-        if(data.product[0].image.includes("127.0.0.1:8000")){
-          data.product[0].image = data.product[0].image.substring(21)
+      data => {
+        this.order = data;
+        this.isLoading = false;
+        
+        // Process product images
+        if (this.order && this.order.product && this.order.product.length > 0) {
+          this.order.product.forEach(prod => {
+            if (prod.image) {
+              // Handle different image path scenarios
+              if (typeof prod.image === 'string') {
+                // Extract just the filename if it's a full URL
+                if (prod.image.includes('http') || prod.image.includes('media')) {
+                  // Extract the filename from the path
+                  const pathParts = prod.image.split('/');
+                  const fileName = pathParts[pathParts.length - 1];
+                  // Store just the filename for use in template
+                  prod.imageFileName = fileName;
+                } else {
+                  // If it's just a filename, use it directly
+                  prod.imageFileName = prod.image;
+                }
+              }
+            } else {
+              // If no image, use a default based on product ID
+              prod.imageFileName = `${prod.id}.jpg`;
+            }
+          });
+          
+          // Get seller and buyer details
+          if (this.order.product[0].seller) {
+            this.getComments(this.order.product[0].seller);
+          }
+          
+          if (this.order.buyer) {
+            this.getBuyer(this.order.buyer);
+          }
         }
-          this.order = data;
-          this.getComments(data.product[0].seller)
-          this.getBuyer(data.buyer)
-        }
-      , error =>{
-          console.log("Can't get Order")
+      },
+      error => {
+        console.error('Failed to get order details:', error);
+        this.isLoading = false;
+        this.showNotification(
+          'snackbar-danger',
+          'Error loading order details',
+          'bottom',
+          'center'
+        );
       }
     );
   }
+  
   editOrder(order) {
     const dialogRef = this.dialog.open(FormDialogComponent, {
       data: {
@@ -122,5 +224,4 @@ export class AcceptedOrderProfileComponent implements OnInit {
       panelClass: colorName,
     });
   }
-
 }

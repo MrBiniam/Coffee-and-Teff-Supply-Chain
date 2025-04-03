@@ -1,0 +1,179 @@
+// Main container styles
+.container-fluid {
+  padding: 20px;
+}
+
+// Shadow effect for all cards
+.shadow-effect {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Product card styling
+.contact-grid {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  
+  img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Card styling
+.card {
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .header {
+    background-color: #f5f5f5;
+    padding: 15px;
+    h2, h5 {
+      margin: 0;
+      font-weight: 500;
+      color: #333;
+    }
+  }
+  
+  .body {
+    padding: 20px;
+    
+    p {
+      color: #555;
+      line-height: 1.6;
+    }
+    
+    small.text-muted {
+      color: #777;
+      font-weight: 500;
+    }
+    
+    hr {
+      margin: 10px 0;
+      border-color: #eee;
+    }
+  }
+}
+
+// Project widget styling
+.project_widget {
+  border-radius: 8px;
+  overflow: hidden;
+  
+  .body {
+    p {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Skill progress styling
+.skill-progress {
+  height: 6px;
+  margin-bottom: 20px;
+  border-radius: 3px;
+  overflow: hidden;
+  background-color: #eee;
+  
+  .progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    
+    &.l-bg-green {
+      background: linear-gradient(45deg, #4caf50, #8bc34a);
+    }
+    
+    &.l-bg-orange {
+      background: linear-gradient(45deg, #ff9800, #ffcc80);
+    }
+    
+    &.l-bg-cyan {
+      background: linear-gradient(45deg, #00bcd4, #80deea);
+    }
+    
+    &.l-bg-purple {
+      background: linear-gradient(45deg, #9c27b0, #ce93d8);
+    }
+  }
+}
+
+// Width percentages
+.width-per-45 {
+  width: 45%;
+}
+
+.width-per-38 {
+  width: 38%;
+}
+
+.width-per-39 {
+  width: 39%;
+}
+
+.width-per-70 {
+  width: 70%;
+}
+
+// Review card styling
+.review-block {
+  padding: 10px 0;
+  
+  .row {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+  
+  .review-img {
+    width: 60px;
+    float: left;
+    margin-right: 15px;
+    
+    img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+  
+  h6 {
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+  
+  .material-icons {
+    color: #ffc107;
+    font-size: 20px;
+  }
+  
+  .text-muted {
+    color: #777;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .col-lg-4, .col-lg-8 {
+    margin-bottom: 20px;
+  }
+}

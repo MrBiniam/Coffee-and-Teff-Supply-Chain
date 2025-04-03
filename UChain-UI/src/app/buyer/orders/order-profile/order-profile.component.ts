@@ -95,17 +95,23 @@ export class OrderProfileComponent implements OnInit {
       data: {
         order: order,
       },
+      width: '500px'
     });
+    
     dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
-        // After dialog is closed we're doing frontend updates
-        // For add we're just pushing a new row inside DataService
+        // After dialog is closed and result is success
         this.showNotification(
           'snackbar-success',
           'Order edited Successfully...!!!',
           'bottom',
           'center'
         );
+        
+        // Navigate back to orders list
+        setTimeout(() => {
+          this.router.navigate(['/buyer/orders/order']);
+        }, 1000);
       }
     });
   }

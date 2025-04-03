@@ -8,11 +8,8 @@
               <h4 class="page-title">Chat</h4>
             </li>
             <li class="breadcrumb-item bcrumb-1">
-              <a href="#" onClick="return false;">
+              <a routerLink="/dashboard">
                 <i class="fas fa-home"></i> Home</a>
-            </li>
-            <li class="breadcrumb-item bcrumb-2">
-              <a href="#" onClick="return false;">Apps</a>
             </li>
             <li class="breadcrumb-item active">Chat</li>
           </ul>
@@ -23,17 +20,35 @@
       <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
         <div class="card">
           <div class="body">
-            <div id="plist" class="people-list">
+            <div class="chat-users-header p-2 text-center bg-light">
+              <h5 class="m-0">Contacts</h5>
+            </div>
+            <div *ngIf="isLoading && users.length === 0" class="p-3 text-center">
+              <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+              <p class="mt-2">Loading contacts...</p>
+            </div>
+            <div *ngIf="!isLoading && users.length === 0" class="p-3 text-center">
+              <i class="material-icons" style="font-size: 48px;">person_off</i>
+              <p>No conversations yet.<br>Start a chat from a profile page.</p>
+            </div>
+            <div id="plist" class="people-list" *ngIf="users.length > 0">
               <div class="tab-content">
                 <div id="chat_user" style="position: relative; max-height: 590px;" [perfectScrollbar]>
                   <ul class="chat-list list-unstyled m-b-0">
-                    <li class="clearfix active" *ngFor="let user of users" (click)="getMessages(user.username, user.profile_image)">
-                      <img src="../../..{{user.profile_image}}" alt="avatar">
+                    <li class="clearfix" *ngFor="let user of users" 
+                        [ngClass]="{'active': user.username === username}"
+                        (click)="getMessages(user.username, user.profile_image)">
+                      <img [src]="'http://127.0.0.1:8000/media/profile_images/' + getUserImage(user.username)" alt="avatar" 
+                           onerror="this.src='assets/images/user/user1.jpg'"
+                           style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
                       <div class="about">
                         <div class="name">{{user.username}}</div>
                         <div class="status">
-                          <i class="material-icons offline">fiber_manual_record</i>
-                          {{user.phone_number}} </div>
+                          <i class="material-icons online">fiber_manual_record</i>
+                          <span class="user-role">{{user.role || (user.is_seller ? 'Seller' : (user.is_driver ? 'Driver' : 'Buyer'))}}</span>
+                        </div>
                       </div>
                     </li>
                   </ul>
@@ -43,41 +58,88 @@
           </div>
         </div>
       </div>
-      <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9" *ngIf="username!=''">
-        <div class="card">
+      <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+        <!-- Show welcome message when no chat is selected -->
+        <div class="card" *ngIf="username === ''">
+          <div class="chat-welcome text-center p-5">
+            <i class="material-icons" style="font-size: 72px; color: #6777ef;">chat</i>
+            <h3 class="mt-3">Welcome to Messaging</h3>
+            <p class="text-muted">Select a contact to start chatting with suppliers, drivers and buyers</p>
+          </div>
+        </div>
+        
+        <!-- Show chat when a user is selected -->
+        <div class="card" *ngIf="username !== ''">
           <div class="chat">
             <div class="chat-header clearfix">
-              <img src="../../..{{image}}" alt="avatar">
+              <img [src]="'http://127.0.0.1:8000/media/profile_images/' + getUserImage(username)" alt="avatar" 
+                   onerror="this.src='assets/images/user/user1.jpg'" 
+                   style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-shadow: 0 3px 5px rgba(0,0,0,0.1);">
               <div class="chat-about">
                 <div class="chat-with">{{username}}</div>
-                <div class="chat-num-messages">Your Chat History</div>
+                <div class="chat-num-messages">
+                  <span class="user-role">{{selectedUser?.role || (selectedUser?.is_seller ? 'Seller' : (selectedUser?.is_driver ? 'Driver' : 'Buyer'))}}</span>
+                  <span *ngIf="selectedUser?.phone_number"> · {{selectedUser?.phone_number}}</span>
+                </div>
               </div>
             </div>
-            <div class="chat-message clearfix">
-                  <div class="row">
-                  <div style="width:85%">
-                    <mat-form-field class="example-full-width" appearance="outline"
-                    [hideRequiredMarker]="hideRequiredControl.value" [floatLabel]="false">
-                    <input matInput [(ngModel)]="content" placeholder="Enter text here.." required>
-                  </mat-form-field>
-                  </div>
-                  <button mat-mini-fab class="bg-green mr-2 ml-5 mt-2" (click)="sendMessages(username)"> <i class="material-icons" color="bg-green">arrow_right</i></button>
-                  </div>
-            </div>
-            <div class="chat-history" id="chat-conversation" style="position: relative; max-height: 449px;"
+            
+            <!-- Chat history section -->
+            <div class="chat-history" id="chat-conversation" style="position: relative; max-height: 449px; min-height: 300px;"
               [perfectScrollbar] #scrollContainer>
-              <ul>
+              
+              <div *ngIf="isLoading" class="text-center p-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="sr-only">Loading messages...</span>
+                </div>
+              </div>
+              
+              <div *ngIf="!isLoading && messages.length === 0" class="text-center p-5">
+                <p class="text-muted">No messages yet. Say hello to start the conversation!</p>
+                <button mat-raised-button color="primary" (click)="sendHelloMessage(username)">
+                  <i class="material-icons mr-2">waving_hand</i> Say Hello
+                </button>
+              </div>
+              
+              <ul *ngIf="!isLoading && messages.length > 0">
                 <li class="clearfix" *ngFor="let message of messages">
-                  <div class="message-data text-right" [ngClass]="{'text-right': message.sender==sender}">
-                    <span class="message-data-time">{{message.timestamp | date: 'MM/dd/yyyy'}}
+                  <div class="message-data" [ngClass]="{'text-right': message.sender==sender}">
+                    <span *ngIf="message.sender!=sender" class="message-sender-avatar">
+                      <img [src]="'http://127.0.0.1:8000/media/profile_images/' + getUserImage(message.sender)" 
+                           onerror="this.src='assets/images/user/user1.jpg'" width="30" height="30" 
+                           style="border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     </span>
-                    &nbsp; &nbsp;
-                    <span class="message-data-name">{{message.sender}}</span>
+                    <span class="message-data-time">{{message.timestamp | date: 'MMM d, h:mm a'}}</span>
+                    <span [ngClass]="{'ml-2': message.sender!=sender, 'mr-2': message.sender==sender}">
+                      {{message.sender === sender ? 'You' : message.sender}}
+                    </span>
+                    <span *ngIf="message.sender==sender" class="message-sender-avatar">
+                      <img [src]="'http://127.0.0.1:8000/media/profile_images/' + getUserImage(sender)" 
+                           onerror="this.src='assets/images/user/user1.jpg'" width="24" height="24" 
+                           style="border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    </span>
                   </div>
-                  <div class="message other-message float-right" *ngIf="message.sender==sender">{{message.content}}</div>
-                  <div class="message my-message" *ngIf="message.sender!=sender">{{message.content}}</div>
+                  <div class="message" 
+                       [ngClass]="{'other-message float-right': message.sender==sender, 'my-message': message.sender!=sender}">
+                    {{message.content}}
+                  </div>
                 </li>
               </ul>
+            </div>
+            
+            <!-- Message input area -->
+            <div class="chat-message clearfix">
+              <div class="input-group">
+                <input type="text" class="form-control message-input" placeholder="Type your message here..."
+                       [(ngModel)]="messageContent" (keyup.enter)="sendMessage()"
+                       style="height: 50px; font-size: 16px;">
+                <div class="input-group-append">
+                  <button type="button" class="btn send-button"
+                          [disabled]="!messageContent.trim()" (click)="sendMessage()">
+                    <i class="material-icons">send</i>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

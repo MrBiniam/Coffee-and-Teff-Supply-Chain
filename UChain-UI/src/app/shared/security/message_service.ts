@@ -5,7 +5,8 @@ import { environment } from 'src/environments/environment';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { User } from 'src/app/shared/security/user';
 import { Rate } from './rate';
-import { Message } from 'src/app/apps/chat/message';
+import { Message } from 'src/app/shared/security/message.model';
+
 @Injectable()
 export class MessageService {
   // Temporarily stores data from dialogs
@@ -14,23 +15,28 @@ export class MessageService {
     Message[]
   >([]);
 
-  constructor(private httpClient: HttpClient,  private tokenStorage: TokenStorageService) {}
+  constructor(private httpClient: HttpClient, private tokenStorage: TokenStorageService) {}
+  
   get data(): Message[] {
     return this.dataChange.value;
   }
-  getDialogData() {
+  
+  getDialogData(): any {
     return this.dialogData
   }
-  getOneMessage(id){
-    const getOneMessageUrl = environment.apiUrl+'message/'+id
-    return this.httpClient.get<Message>(getOneMessageUrl)
+  
+  getOneMessage(id): Observable<Message> {
+    const getOneMessageUrl = environment.apiUrl + 'messages/' + id;
+    return this.httpClient.get<Message>(getOneMessageUrl);
   }
-  getMessages(){
-    const messageUrl = environment.apiUrl + 'message/all'
-    return this.httpClient.get<Message[]>(messageUrl)
+  
+  getMessages(): Observable<Message[]> {
+    const messageUrl = environment.apiUrl + 'inbox/';
+    return this.httpClient.get<Message[]>(messageUrl);
   }
+  
   sendMessage(data): Observable<string> {
-    const sendMessageUrl = environment.apiUrl+'send/';
+    const sendMessageUrl = environment.apiUrl + 'send/';
     return this.httpClient.post<string>(sendMessageUrl, data);
-    }
+  }
 }

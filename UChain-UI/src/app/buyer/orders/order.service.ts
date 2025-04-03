@@ -235,16 +235,112 @@ export class OrderService {
       );
   }
 
-  getOneOrder(id) {
-    const getOneProductUrl = environment.apiUrl + 'order/' + id;
-    return this.httpClient.get<Order>(getOneProductUrl)
-      .pipe(
-        catchError((error: HttpErrorResponse) => {
-          console.error('Error fetching order:', error);
-          return of(null);  // Return null on error
-        })
-      );
+  // Get all orders to provide valid order IDs
+  getAllOrdersForSuggestion() {
+    const ordersUrl = `${environment.apiUrl}orders`;
+    console.log('Fetching all orders from:', ordersUrl);
+    
+    return this.httpClient.get<Order[]>(ordersUrl).pipe(
+      map(orders => {
+        console.log(`Received ${orders?.length || 0} orders from API`);
+        if (!Array.isArray(orders)) {
+          console.error('Invalid orders response format:', orders);
+          return [];
+        }
+        return orders;
+      }),
+      catchError(error => {
+        console.error('Error fetching all orders:', error);
+        return of([]);
+      })
+    );
   }
+
+  getOneOrder(id) {
+    // Convert id to number for reliable comparison
+    const orderId = typeof id === 'string' ? parseInt(id, 10) : id;
+    console.log(`Attempting to fetch order with ID: ${orderId} (type: ${typeof orderId})`);
+    
+    // Known problematic order IDs with 500 errors - go directly to fallback
+    const problematicOrderIds = [52, 48];
+    if (problematicOrderIds.includes(orderId)) {
+      console.log(`Order ID ${orderId} is known to cause 500 errors, skipping direct fetch and using fallback`);
+      return this.getOrderFromOrdersList(orderId);
+    }
+    
+    // Try the direct endpoint first for other order IDs
+    const primaryUrl = `${environment.apiUrl}order/${orderId}`;
+    console.log('Attempting to fetch order from primary URL:', primaryUrl);
+    
+    return this.httpClient.get<Order>(primaryUrl).pipe(
+      catchError((primaryError: HttpErrorResponse) => {
+        // Log the error
+        console.error('Error fetching order from primary URL:', primaryError);
+        
+        // If direct endpoint fails, try getting all orders and filtering
+        return this.getOrderFromOrdersList(orderId);
+      }),
+      map(order => {
+        if (!order) {
+          console.error(`No order data returned for ID: ${orderId}`);
+          return null;
+        }
+        
+        console.log('Successfully fetched order data:', order);
+        return this.cleanOrder(order);
+      })
+    );
+  }
+  
+  // Helper method to get an order from the full orders list
+  private getOrderFromOrdersList(orderId: number) {
+    const ordersUrl = `${environment.apiUrl}orders`;
+    console.log('Getting all orders and filtering for ID:', orderId);
+    
+    return this.httpClient.get<Order[]>(ordersUrl).pipe(
+      map(orders => {
+        console.log(`Received ${orders?.length || 0} orders from API`);
+        if (!orders || !Array.isArray(orders)) {
+          console.error('Invalid orders response format:', orders);
+          return null;
+        }
+        
+        // Find the order by ID
+        const foundOrder = orders.find(order => order.id === orderId);
+        if (foundOrder) {
+          console.log('Order found in orders list:', foundOrder);
+          return foundOrder;
+        } else {
+          console.error(`Order with ID ${orderId} not found in orders list`);
+          return null;
+        }
+      }),
+      catchError(ordersError => {
+        console.error('Error fetching all orders:', ordersError);
+        return of(null);
+      })
+    );
+  }
+
+  // Helper method to clean and process order data
+  cleanOrder(order: Order): Order {
+    if (!order) return null;
+
+    // Clean quantity field if needed
+    order = this.cleanQuantityField(order);
+    
+    // Fix product image paths
+    if (order.product && order.product.length > 0) {
+      order.product.forEach(product => {
+        if (product.image && product.image.includes('127.0.0.1:8000')) {
+          product.image = product.image.substring(21);
+        }
+      });
+    }
+    
+    return order;
+  }
+
   editOrder(data, id): Observable<string> {
     const addProductUrl = environment.apiUrl + 'order/' + id + '/update';
     return this.httpClient.put<string>(addProductUrl, data)

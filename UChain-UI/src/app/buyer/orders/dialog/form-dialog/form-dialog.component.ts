@@ -71,32 +71,43 @@ export class FormDialogComponent {
           }
         ]
       }
-      this.orderService.addOrder(data).subscribe(
-        _=> {
+      
+      // Use editOrder instead of addOrder to update existing order
+      this.orderService.editOrder(data, this.order.id).subscribe(
+        response => {
+            // Close the dialog with success result
+            this.dialogRef.close(1);
+            
             this.showNotification(
               'snackbar-success',
-              'Order Submitted Successfully...!!!',
+              'Order Updated Successfully!',
               'bottom',
               'center'
             );
+            
+            // Navigate back to the orders list after a short delay
+            setTimeout(() => {
+              window.location.href = '/#/buyer/orders/order';
+            }, 2000);
           },
-        _=> {
+        error => {
+          console.error('Failed to update order:', error);
           this.showNotification(
             'snackbar-danger',
-            'Ops! can not place order. Try Again...!!!',
+            'Failed to update order. Please try again!',
             'bottom',
             'center'
           );
         }
       );
-    }
+  }
 
-    showNotification(colorName, text, placementFrom, placementAlign) {
-      this.snackBar.open(text, '', {
-        duration: 2000,
-        verticalPosition: placementFrom,
-        horizontalPosition: placementAlign,
-        panelClass: colorName,
-      });
-    }
+  showNotification(colorName, text, placementFrom, placementAlign) {
+    this.snackBar.open(text, '', {
+      duration: 2000,
+      verticalPosition: placementFrom,
+      horizontalPosition: placementAlign,
+      panelClass: colorName,
+    });
+  }
 }

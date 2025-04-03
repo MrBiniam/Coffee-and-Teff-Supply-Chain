@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OrderProfileComponent } from './accepted_order-profile.component';
+import { AcceptedOrderProfileComponent } from './accepted_order-profile.component';
 
-describe('OrderProfileComponent', () => {
-  let component: OrderProfileComponent;
-  let fixture: ComponentFixture<OrderProfileComponent>;
+describe('AcceptedOrderProfileComponent', () => {
+  let component: AcceptedOrderProfileComponent;
+  let fixture: ComponentFixture<AcceptedOrderProfileComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ OrderProfileComponent ]
+      declarations: [ AcceptedOrderProfileComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(OrderProfileComponent);
+    fixture = TestBed.createComponent(AcceptedOrderProfileComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

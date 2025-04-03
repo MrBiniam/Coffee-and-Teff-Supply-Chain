@@ -11,7 +11,7 @@ import { OrderService } from 'src/app/buyer/orders/order.service';
 @Component({
   selector: 'app-order-profile',
   templateUrl: './order-profile.component.html',
-  styleUrls: ['./order-profile.component.sass']
+  styleUrls: ['./order-profile.component.scss']
 })
 export class OrderProfileComponent implements OnInit {
   order: Order = new Order();

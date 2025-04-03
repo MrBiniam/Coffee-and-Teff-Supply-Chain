@@ -87,9 +87,6 @@ export class OrderComponent implements OnInit {
               
               const order = this.orders[index];
               
-              // Explore ALL possible buyer ID fields (try different paths)
-              console.log(`ORDER ${order?.id} BUYER EXPLORATION:`);
-              
               // Try all possible fields where buyer info might be stored
               const possibleBuyerFields = [
                 'buyer',
@@ -114,6 +111,28 @@ export class OrderComponent implements OnInit {
               if (order['relationships'] && order['relationships']['buyer']) {
                 console.log('Found buyer in relationships:', order['relationships']['buyer']);
                 foundBuyerId = order['relationships']['buyer']['id'] || order['relationships']['buyer'];
+              }
+
+              // Do the same for driver fields
+              const possibleDriverFields = [
+                'driver',
+                'driver_id',
+                'delivery_agent',
+                'delivery_agent_id'
+              ];
+              
+              let foundDriverId = null;
+              possibleDriverFields.forEach(field => {
+                if (order[field] !== undefined && order[field] !== null) {
+                  console.log(`Found possible driver ID in field '${field}':`, order[field]);
+                  foundDriverId = order[field];
+                }
+              });
+              
+              // Also check relationships for driver
+              if (order['relationships'] && order['relationships']['driver']) {
+                console.log('Found driver in relationships:', order['relationships']['driver']);
+                foundDriverId = order['relationships']['driver']['id'] || order['relationships']['driver'];
               }
               
               // If we found a potential buyer ID, use it
@@ -151,38 +170,29 @@ export class OrderComponent implements OnInit {
                         console.log(`No profile image for buyer of order ${order.id}, using default`);
                       }
                     } else {
-                      // Set defaults if buyer data wasn't found
                       order.buyerName = 'Customer';
                       order.buyerImageUrl = 'assets/images/user/default.png';
-                      console.log(`No buyer data found for order ${order.id}, using defaults`);
                     }
                     
-                    // Process next order
-                    processNextOrder(index + 1);
+                    // Now check for driver information
+                    this.fetchDriverInfo(order, foundDriverId, index, processNextOrder);
                   },
                   (error) => {
-                    console.error(`Error fetching buyer for order ${order.id}:`, error);
-                    // Set defaults on error
+                    console.error(`Error fetching buyer data for order ${order.id}:`, error);
                     order.buyerName = 'Customer';
                     order.buyerImageUrl = 'assets/images/user/default.png';
                     
-                    // Process next order
-                    processNextOrder(index + 1);
+                    // Still proceed with driver information even if buyer fetch failed
+                    this.fetchDriverInfo(order, foundDriverId, index, processNextOrder);
                   }
                 );
               } else {
-                // No buyer ID found anywhere, use defaults
-                console.log(`No buyer ID found in any field for order ${order.id}`);
+                console.log(`No buyer ID found for order ${order.id}`);
                 order.buyerName = 'Customer';
                 order.buyerImageUrl = 'assets/images/user/default.png';
                 
-                // Generate rating for consistency
-                if (!this.buyerRatings.has(order.buyer)) {
-                  this.buyerRatings.set(order.buyer, 3);
-                }
-                
-                // Process next order
-                processNextOrder(index + 1);
+                // Still try to get driver information
+                this.fetchDriverInfo(order, foundDriverId, index, processNextOrder);
               }
             };
             
@@ -360,5 +370,62 @@ export class OrderComponent implements OnInit {
   refreshOrders() {
     console.log('Manually refreshing orders...');
     this.getOrder();
+  }
+
+  fetchDriverInfo(order, driverId, index, processNextOrder) {
+    if (driverId) {
+      console.log(`Fetching driver information for order ${order.id} with driver ID: ${driverId}`);
+      
+      // Use the OrderService to fetch driver information by ID
+      this.orderService.getOneUser(String(driverId)).subscribe(
+        (driver) => {
+          console.log(`Driver data for order ${order.id}:`, driver);
+          
+          if (driver) {
+            // Set driver name - use username if available, otherwise 'Not assigned yet'
+            order.driverName = driver.username || 'Not assigned yet';
+            console.log(`Setting driver name for order ${order.id}:`, order.driverName);
+            
+            // Handle profile image URL
+            if (driver.profile_image) {
+              // Format the profile image URL correctly
+              if (driver.profile_image.startsWith('http')) {
+                order.driverImageUrl = driver.profile_image;
+              } else {
+                order.driverImageUrl = 'http://127.0.0.1:8000' + driver.profile_image;
+              }
+              console.log(`Setting driver image for order ${order.id}:`, order.driverImageUrl);
+            } else {
+              // Use default image if no profile image available
+              order.driverImageUrl = 'assets/images/user/default.png';
+              console.log(`No profile image for driver of order ${order.id}, using default`);
+            }
+          } else {
+            order.driverName = 'Not assigned yet';
+            order.driverImageUrl = 'assets/images/user/default.png';
+            console.log(`No driver data found for order ${order.id}`);
+          }
+          
+          // Process next order
+          processNextOrder(index + 1);
+        },
+        (error) => {
+          console.error(`Error fetching driver for order ${order.id}:`, error);
+          // Set defaults on error
+          order.driverName = 'Not assigned yet';
+          order.driverImageUrl = 'assets/images/user/default.png';
+          
+          // Process next order
+          processNextOrder(index + 1);
+        }
+      );
+    } else {
+      console.log(`No driver ID found for order ${order.id}`);
+      order.driverName = 'Not assigned yet';
+      order.driverImageUrl = 'assets/images/user/default.png';
+      
+      // Process next order
+      processNextOrder(index + 1);
+    }
   }
 }

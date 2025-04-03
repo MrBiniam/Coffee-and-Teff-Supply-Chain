@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Order } from '../order.model';
 import { OrderService } from '../order.service';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -52,18 +53,27 @@ export class OrderComponent implements OnInit {
           
           if (isPending && isUsersOrder) {
             console.log('Order MATCHED criteria - adding to pending orders list');
-            // Fix image paths
+            // Process image paths for backend storage
             if (value.product && value.product.length > 0) {
               value.product.forEach(prod => {
-                if (prod.image && typeof prod.image === 'string') {
-                  // Remove double slashes if present
-                  if (prod.image.startsWith('//')) {
-                    prod.image = prod.image.substring(1);
-                  } else if (prod.image.includes('127.0.0.1:8000')) {
-                    prod.image = prod.image.substring(21);
-                  } else if (!prod.image.startsWith('http') && !prod.image.startsWith('/')) {
-                    prod.image = '/' + prod.image;
+                if (prod.image) {
+                  // Handle different image path scenarios
+                  if (typeof prod.image === 'string') {
+                    // Extract just the filename if it's a full URL
+                    if (prod.image.includes('http') || prod.image.includes('media')) {
+                      // Extract the filename from the path
+                      const pathParts = prod.image.split('/');
+                      const fileName = pathParts[pathParts.length - 1];
+                      // Store just the filename for use in template
+                      prod.imageFileName = fileName;
+                    } else {
+                      // If it's just a filename, use it directly
+                      prod.imageFileName = prod.image;
+                    }
                   }
+                } else {
+                  // If no image, use a default based on product ID
+                  prod.imageFileName = `${prod.id}.jpg`;
                 }
               });
             }

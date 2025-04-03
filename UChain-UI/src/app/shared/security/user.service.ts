@@ -27,7 +27,7 @@ export class UserService {
     return this.httpClient.get<User>(getOneUserUrl)
   }
   getUsers(){
-    const userUrl = environment.apiUrl + 'user/all'
+    const userUrl = environment.apiUrl + 'user/drivers'
     return this.httpClient.get<User[]>(userUrl)
   }
   updateUser(id,data:FormData){
@@ -87,5 +87,23 @@ export class UserService {
       }
     )
     return this.rate;
+  }
+
+  // Get seller details using seller ID
+  getSellerDetails(sellerId: number) {
+    console.log(`Fetching seller details for ID: ${sellerId}`);
+    return this.httpClient.get<any>(`${environment.apiUrl}user/${sellerId}`)
+  }
+
+  // Get buyer details using buyer ID
+  getBuyerDetails(buyerId: number) {
+    console.log(`Fetching buyer details for ID: ${buyerId}`);
+    return this.httpClient.get<any>(`${environment.apiUrl}user/${buyerId}`)
+  }
+  
+  // Get driver details using driver ID
+  getDriverDetails(driverId: number) {
+    console.log(`Fetching driver details for ID: ${driverId}`);
+    return this.httpClient.get<any>(`${environment.apiUrl}user/${driverId}`)
   }
 }

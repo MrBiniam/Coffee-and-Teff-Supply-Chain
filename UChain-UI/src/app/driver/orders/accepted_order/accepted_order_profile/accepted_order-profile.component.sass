@@ -1,0 +1,389 @@
+// Global Card Styling
+.shadow-effect
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15)
+  transition: transform 0.3s, box-shadow 0.3s
+  &:hover
+    transform: translateY(-5px)
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2)
+
+// Order Content Container
+.order-content-container
+  animation: fadeIn 0.5s ease-in-out
+  padding: 15px
+
+// Product Section Styling
+.product-card
+  border-radius: 15px
+  overflow: hidden
+  background: white
+  border: none
+  margin-bottom: 20px
+  max-width: 90%  
+  margin-left: auto  
+  margin-right: auto
+
+// New wrapper to control aspect ratio
+.product-image-wrapper
+  position: relative
+  width: 100%
+  padding-top: 60%  
+  overflow: hidden
+
+.product-image-container
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  display: flex
+  justify-content: center
+  align-items: center
+  background: linear-gradient(145deg, #f3f4f6, #ffffff)
+  img
+    width: 100%
+    height: 100%
+    object-fit: cover  
+    transition: transform 0.3s
+    padding: 0
+    &:hover
+      transform: scale(1.05)
+
+.product-details-card
+  border-radius: 15px
+  background: white
+  border: none
+  margin-bottom: 20px
+  min-height: calc(100% - 330px) 
+  max-width: 90%  
+  margin-left: auto  
+  margin-right: auto
+
+.product-header
+  background: linear-gradient(120deg, #2e7d32, #43a047)
+  color: white
+  padding: 15px
+  border-radius: 15px 15px 0 0
+  h2
+    margin: 0
+    font-weight: 700
+    text-transform: capitalize
+    font-size: 1.5rem  
+    letter-spacing: 0.5px
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+
+.product-details-body
+  padding: 15px
+  display: flex
+  flex-direction: column
+  flex: 1
+
+.product-detail-item
+  padding: 12px 0  
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08)
+  display: flex
+  align-items: center
+  justify-content: space-between
+  &:last-child
+    border-bottom: none
+
+.detail-label
+  display: flex
+  align-items: center
+  font-weight: 600
+  font-size: 0.95rem
+  color: #333333
+  i
+    margin-right: 8px
+    color: #5c6bc0
+    font-size: 20px
+  span
+    letter-spacing: 0.3px
+
+.detail-value
+  font-weight: 700
+  font-size: 1rem
+  color: #212121
+  text-align: right
+
+.price-value
+  color: #43a047
+  font-size: 1.1rem
+
+.total-price
+  background-color: #f1f8e9
+  padding: 12px  
+  border-radius: 8px
+  margin-top: auto
+
+.total-value
+  color: #2e7d32
+  font-size: 1.2rem
+  font-weight: 800
+
+// Description Card
+.description-card
+  border-radius: 15px
+  border: none
+  margin-bottom: 20px
+  overflow: hidden
+
+// Golden style for description
+.description-header
+  background: linear-gradient(120deg, #ffab00, #ffd740)
+  color: #212121
+  padding: 15px
+  border-radius: 15px 15px 0 0
+  h5
+    margin: 0
+    font-weight: 700
+    font-size: 1.2rem
+    display: flex
+    align-items: center
+    i
+      margin-right: 8px
+      font-size: 22px
+      color: #212121
+
+.description-body
+  padding: 15px
+  background: #fff8e1  
+
+.product-description
+  font-size: 1rem
+  line-height: 1.6
+  color: #212121
+  padding: 5px 0
+  font-weight: 500
+
+// Profiles Card
+.profiles-card
+  border-radius: 15px
+  border: none
+  margin-bottom: 20px
+  overflow: hidden
+
+.profiles-row
+  margin: 0
+
+.dashboard-section
+  padding: 0
+  border-radius: 15px
+  overflow: hidden
+  height: 100%
+  transition: transform 0.3s
+  &:hover
+    transform: translateY(-5px)
+
+.seller-dashboard .dashboard-header
+  background: linear-gradient(120deg, #f9a825, #ffd54f)
+  color: #212121
+
+.buyer-dashboard .dashboard-header
+  background: linear-gradient(120deg, #5c6bc0, #7986cb)
+  color: white
+
+.dashboard-header
+  padding: 15px
+  h5
+    margin: 0
+    font-weight: 600
+    font-size: 1.2rem
+    display: flex
+    align-items: center
+    i
+      margin-right: 8px
+      font-size: 22px
+
+.profile-container
+  padding: 20px
+  background: linear-gradient(170deg, #ffffff, #f8f9fa)
+  display: flex
+  flex-direction: column
+  align-items: center
+  text-align: center
+
+// Adjust profile images to a balanced size
+.profile-image-container
+  width: 100px
+  height: 100px
+  border-radius: 50%
+  overflow: hidden
+  margin-bottom: 15px
+  border: 3px solid white
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2)
+  img.profile-image
+    width: 100%
+    height: 100%
+    object-fit: cover
+
+.profile-header
+  width: 100%
+  padding: 12px
+  border-radius: 10px
+  margin-bottom: 15px
+  .user-name
+    font-size: 1.2rem
+    font-weight: 700
+    margin-bottom: 6px
+    color: white
+  .payment-method
+    font-size: 0.95rem
+    color: rgba(255, 255, 255, 0.95)
+    font-weight: 500
+
+.seller-profile-header
+  background: linear-gradient(120deg, #ff8f00, #ffb74d)
+  box-shadow: 0 4px 12px rgba(255, 143, 0, 0.3)
+
+.buyer-profile-header
+  background: linear-gradient(120deg, #5e35b1, #7e57c2)
+  box-shadow: 0 4px 12px rgba(94, 53, 177, 0.3)
+
+.profile-details
+  width: 100%
+  margin-bottom: 15px
+  .address, .phone
+    display: flex
+    align-items: center
+    justify-content: center
+    margin-bottom: 8px
+    color: #424242
+    font-size: 0.95rem
+    font-weight: 500
+    i
+      margin-right: 8px
+      color: #5c6bc0
+      font-size: 16px
+      background: #e8eaf6
+      padding: 5px
+      border-radius: 50%
+
+.profile-actions
+  .chat-button
+    background: linear-gradient(135deg, #ff5722, #ff8a65)
+    color: white
+    border: none
+    padding: 10px 18px
+    border-radius: 20px
+    font-weight: 600
+    font-size: 1rem
+    display: flex
+    align-items: center
+    justify-content: center
+    transition: transform 0.3s, box-shadow 0.3s
+    box-shadow: 0 5px 12px rgba(255, 87, 34, 0.4)
+    &:hover
+      transform: scale(1.05)
+      background: linear-gradient(135deg, #f4511e, #ff7043)
+      box-shadow: 0 6px 15px rgba(255, 87, 34, 0.5)
+    i
+      margin-right: 8px
+      font-size: 18px
+
+// Review Card
+.review-card
+  border-radius: 15px
+  border: none
+
+.review-header
+  background: linear-gradient(120deg, #ec407a, #f48fb1)
+  color: white
+  padding: 15px
+  border-radius: 15px 15px 0 0
+  h2
+    margin: 0
+    font-weight: 600
+    font-size: 1.2rem
+    display: flex
+    align-items: center
+    i
+      margin-right: 8px
+      font-size: 22px
+
+.review-body
+  padding: 15px
+
+.review-block
+  padding: 8px
+
+.review-item
+  display: flex
+  margin-bottom: 15px
+  padding-bottom: 15px
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08)
+  &:last-child
+    border-bottom: none
+    margin-bottom: 0
+
+.review-img
+  margin-right: 15px
+  img
+    width: 55px
+    height: 55px
+    border-radius: 50%
+    object-fit: cover
+    border: 3px solid white
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15)
+
+.review-content
+  flex: 1
+
+.reviewer-name
+  margin-bottom: 8px
+  font-weight: 700
+  font-size: 1.1rem
+  color: #333333
+  display: flex
+  justify-content: space-between
+  align-items: center
+
+.review-date
+  font-size: 0.85rem
+  color: #757575
+  font-weight: normal
+
+.rating-stars
+  margin-bottom: 10px
+  display: flex
+  .material-icons
+    font-size: 1.2rem
+    margin-right: 4px
+    color: #bdbdbd
+    &.golden-star
+      color: #ffc107
+      text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3)
+
+.review-text
+  margin: 0
+  line-height: 1.5
+  color: #424242
+  font-size: 1rem
+
+// Animation
+@keyframes fadeIn
+  from
+    opacity: 0
+    transform: translateY(20px)
+  to
+    opacity: 1
+    transform: translateY(0)
+
+// Responsive Adjustments
+@media (max-width: 992px)
+  .product-image-wrapper
+    padding-top: 60%
+
+@media (max-width: 768px)
+  .product-image-wrapper
+    padding-top: 60%
+  
+  .profile-image-container
+    width: 90px
+    height: 90px
+  
+  .profile-header .user-name
+    font-size: 1.1rem
+  
+  .chat-button
+    padding: 8px 15px
+    font-size: 0.9rem

@@ -11,100 +11,246 @@ import { User } from 'src/app/shared/security/user';
 import Swal from 'sweetalert2';
 import { delay } from 'rxjs/operators';
 import { MessageService } from 'src/app/shared/security/message_service';
+import { Location } from '@angular/common';
+
 
 @Component({
   selector: 'app-order-profile',
   templateUrl: './accepted_order-profile.component.html',
-  styleUrls: ['./accepted_order-profile.component.sass']
+  styleUrls: ['./accepted_order-profile.component.scss']
 })
 export class AcceptedOrderProfileComponent implements OnInit {
   order: Order = new Order();
   orderId: any;
-  rate: Rate[]
+  rate: Rate[] = [];
   stars: boolean[] = Array(5).fill(false);
-  buyer: User = new User()
-  driver: User = new User()
-  constructor(private router: Router,private messageService: MessageService,private orderService: OrderService,private userService: UserService, private route: ActivatedRoute,private snackBar: MatSnackBar,public dialog: MatDialog) {
-    this.orderId=this.route.snapshot.paramMap.get('id');
-    console.log(this.orderId)
+  buyer: User = new User();
+  driver: User = new User();
+  isLoading: boolean = true;
+  seller: any;
+  buyerDetails: any;
+
+  constructor(
+    private router: Router,
+    private messageService: MessageService,
+    private orderService: OrderService,
+    private userService: UserService, 
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar,
+    public dialog: MatDialog,
+    private location: Location
+  ) {
+    this.orderId = this.route.snapshot.paramMap.get('id');
+    console.log(this.orderId);
     this.getOrder(this.orderId);
   }
+  
   ngOnInit(): void {
+    // Initial setup if needed
   }
-  getComments(id){
+  
+  getComments(id) {
+    if (!id) return;
+    
     this.userService.getOneUser(id).subscribe(
-      data=>{
-        this.rate =this.userService.getSellerComments(data.username);
-      }
-    )
-  }
-  getBuyer(id){
-    this.userService.getOneUser(id).subscribe(
-      data=>{
-        this.buyer = data
-        if(this.buyer.profile_image.includes("127.0.0.1:8000")){
-          this.buyer.profile_image = this.buyer.profile_image.substring(21)
-        }
+      data => {
+        this.rate = this.userService.getSellerComments(data.username);
       },
-      _=>{
-        console.log("error here")
-      }
-    )
-  }
-  getDriver(id){
-    this.userService.getOneUser(id).subscribe(
-      data=>{
-        this.driver = data
-        if(this.driver.profile_image.includes("127.0.0.1:8000")){
-          this.driver.profile_image = this.driver.profile_image.substring(21)
-        }
-      },
-      _=>{
-        console.log("error here")
-      }
-    )
-  }
-  getOrder(id){
-    this.orderService.getOneOrder(id).subscribe(
-      data=>{
-          this.order = data;
-          this.getComments(data.product[0].seller)
-          this.getBuyer(data.buyer)
-          this.getDriver(data.driver)
-          if(this.order.product[0].image.includes("127.0.0.1:8000")){
-            this.order.product[0].image = this.order.product[0].image.substring(21)
-          }
-        }
-      , error =>{
-          console.log("Can't get Order")
+      error => {
+        console.error('Error fetching seller comments:', error);
+        this.showNotification(
+          'snackbar-danger',
+          'Failed to load seller comments',
+          'bottom',
+          'center'
+        );
       }
     );
   }
-  goToChat(username:string) {
+  
+  getBuyer(id) {
+    if (!id) return;
+    
+    this.userService.getOneUser(id).subscribe(
+      data => {
+        this.buyer = this.fixUserImagePath(data);
+      },
+      error => {
+        console.error('Error fetching buyer details:', error);
+        this.showNotification(
+          'snackbar-danger',
+          'Failed to load buyer details',
+          'bottom',
+          'center'
+        );
+      }
+    );
+  }
+  
+  getDriver(id) {
+    if (!id) return;
+    
+    this.userService.getOneUser(id).subscribe(
+      data => {
+        this.driver = this.fixUserImagePath(data);
+      },
+      error => {
+        console.error('Error fetching driver details:', error);
+        this.showNotification(
+          'snackbar-danger',
+          'Failed to load driver details',
+          'bottom',
+          'center'
+        );
+      }
+    );
+  }
+  
+  fixUserImagePath(user) {
+    if (user && user.profile_image) {
+      // Ensure the image path is correctly formatted for display
+      if (user.profile_image.includes('/')) {
+        // Path already contains slashes, use the last segment
+        user.profile_image = user.profile_image.split('/').pop();
+      }
+    }
+    return user;
+  }
+  
+  getOrder(id) {
+    if (!id) return;
+    
+    this.isLoading = true;
+    this.orderService.getOneOrder(id).subscribe(
+      data => {
+        this.isLoading = false;
+        this.order = data;
+        
+        // Get additional user details
+        if (this.order && this.order.buyer) {
+          this.getBuyer(this.order.buyer);
+        }
+        if (this.order && this.order.driver) {
+          this.getDriver(this.order.driver);
+        }
+      },
+      error => {
+        this.isLoading = false;
+        console.error('Error fetching order:', error);
+        this.showNotification(
+          'snackbar-danger',
+          'Failed to load order details. Please try again later.',
+          'bottom',
+          'center'
+        );
+      }
+    );
+  }
+  
+  // Method to suggest valid order IDs to the user
+  suggestValidOrderIds() {
+    this.orderService.getAllOrdersForSuggestion().subscribe(
+      (orders) => {
+        if (orders && orders.length > 0) {
+          // Sort orders by ID (descending) and take the first 5
+          const recentOrderIds = orders
+            .sort((a, b) => b.id - a.id)
+            .slice(0, 5)
+            .map(order => order.id);
+            
+          console.log('Valid recent order IDs:', recentOrderIds);
+          
+          if (recentOrderIds.length > 0) {
+            const message = `Try these valid order IDs instead: ${recentOrderIds.join(', ')}`;
+            this.showNotification(
+              'snackbar-info',
+              message,
+              'bottom',
+              'center'
+            );
+          }
+        }
+      },
+      (error) => {
+        console.error('Error fetching all orders for suggestions:', error);
+      }
+    );
+  }
+  
+  goToChat(username: string) {
+    // Navigate directly to chat without sending a hello message first
+    // This avoids the 500 error when the backend is not responding properly
+    this.router.navigate(['/apps/chat'], { 
+      queryParams: { to: username }
+    });
+    
+    // Show a toast notification instead of a modal
+    this.snackBar.open('Opening chat with ' + username, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
+  }
+  
+  // Method to navigate to the chat page and say hello
+  goToChatPage(username?: string) {
+    if (!username) {
+      this.router.navigate(['/apps/chat']);
+      return;
+    }
+    
+    // Show confirmation dialog with nicer styling
     Swal.fire({
       title: 'Are you sure?',
-      text: "Want Say Hello!",
+      text: "Want to start a conversation?",
       icon: 'success',
       showCancelButton: true,
       confirmButtonColor: '#00ff00',
-      cancelButtonColor: '#0f0',
+      cancelButtonColor: '#d33',
       confirmButtonText: 'Say Hello!'
     }).then(result => {
       if (result.value) {
         const data = {
           "receiver": username,
-          "content": "Hello"
-        }
-        this.messageService.sendMessage(data).subscribe(
-          data=>{
-            Swal.fire('Sent!', 'You have sayed Hello to. ' + username, 'success');
-            delay(2000)
-            this.router.navigate([`/apps/chat`]);
+          "content": "Hello! I would like to chat with you about your order."
+        };
+        
+        // Show sending indicator
+        Swal.fire({
+          title: 'Sending message...',
+          text: 'Please wait while we connect you to chat',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
           }
-        )
+        });
+        
+        this.messageService.sendMessage(data).subscribe(
+          response => {
+            Swal.fire('Sent!', 'You have said Hello to ' + username, 'success');
+            
+            // Force a data refresh in chat by setting a flag in localStorage
+            localStorage.setItem('FORCE_CHAT_REFRESH', 'true');
+            localStorage.setItem('CHAT_TARGET_USER', username);
+            localStorage.setItem('CHAT_REFRESH_TIME', new Date().getTime().toString());
+            
+            // Navigate to chat with the username as a query parameter
+            setTimeout(() => {
+              this.router.navigate(['/apps/chat'], { 
+                queryParams: { to: username },
+                state: { forceRefresh: true }
+              });
+            }, 1000);
+          },
+          error => {
+            console.error('Error sending message:', error);
+            Swal.fire('Error!', 'Failed to send message', 'error');
+          }
+        );
       }
     });
   }
+  
   showNotification(colorName, text, placementFrom, placementAlign) {
     this.snackBar.open(text, '', {
       duration: 2000,
@@ -112,5 +258,17 @@ export class AcceptedOrderProfileComponent implements OnInit {
       horizontalPosition: placementAlign,
       panelClass: colorName,
     });
+  }
+  
+  /**
+   * Navigate back to the previous page
+   */
+  goBack(): void {
+    this.location.back();
+  }
+  
+  // Method to retry fetching the order
+  retryFetchOrder() {
+    this.getOrder(this.orderId);
   }
 }

@@ -14,6 +14,7 @@ export class User {
    payment_method: string;
    account_number: string;
    profile_image: string;
+   imageFileName?: string; // Added for storing the extracted image filename
    buyer_profile: any;
    seller_profile: any;
    driver_profile: {

@@ -27,7 +27,7 @@
                     <div class="col-12 col-md-2 mb-0">
                       <div class="circular-image-container">
                         <img class="circular-image" 
-                          [src]="'http://127.0.0.1:8000/media/Products_Pictures/' + order.product[0].image.split('/').pop()" 
+                          [src]="'http://127.0.0.1:8000/media/Products_Pictures/' + (order.product[0].image?.split('/').pop() || order.product[0].id + '.jpg')" 
                           onerror="this.src='assets/images/products/p-13.jpg'">
                       </div>
                     </div>

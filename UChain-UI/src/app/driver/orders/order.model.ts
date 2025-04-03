@@ -14,6 +14,7 @@ export class Order{
                 quantity: string;
                 product_type: string;
                 image: string;
+                imageFileName?: string; // Added for storing extracted image filename
             }
         ];
         driver: number;

@@ -693,12 +693,20 @@ class MessageDestroyView(generics.DestroyAPIView):
 # view to see all messages to a user inbox
 class InboxAPIView(APIView):
     def get(self, request):
-        # Get all messages where the current user is the recipient
-        messages = Message.objects.filter(receiver=request.user)
-        serializer = MessageSerializer(messages, many=True)
-        for message in messages:
+        # Get all messages where the current user is either the sender or receiver
+        received_messages = Message.objects.filter(receiver=request.user)
+        sent_messages = Message.objects.filter(sender=request.user)
+        
+        # Combine both querysets
+        all_messages = received_messages.union(sent_messages).order_by('timestamp')
+        
+        # Mark received messages as read
+        for message in received_messages:
             message.is_read = True
             message.save()
+            
+        # Serialize and return all messages
+        serializer = MessageSerializer(all_messages, many=True)
         return Response(serializer.data)
 
 # view to send a rating to other user

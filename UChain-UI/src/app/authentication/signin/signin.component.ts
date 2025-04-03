@@ -65,6 +65,10 @@ export class SigninComponent implements OnInit {
         this.isLoginFailed = false;
         this.isLoggedIn = true;
         const role = this.tokenStorage.getAuthorities();
+        
+        // Store login timestamp to help components know we just logged in
+        const loginTime = new Date().getTime();
+        localStorage.setItem('LAST_LOGIN_TIME', loginTime.toString());
 
         // Check if there's a pending payment verification
         const pendingVerification = sessionStorage.getItem('pending_verification');
@@ -93,15 +97,24 @@ export class SigninComponent implements OnInit {
         } else if (role === 'BUYER') {
           localStorage.setItem('STATE', 'true');
           localStorage.setItem('ROLE', "BUYER")
-          this.router.navigate(['/buyer/dashboard/main']);
+          // Signal chat component that we're coming from login
+          this.router.navigate(['/buyer/dashboard/main'], { 
+            state: { fromLogin: true, signedInTime: new Date().getTime() } 
+          });
         } else if (role === 'SELLER') {
           localStorage.setItem('STATE', 'true');
           localStorage.setItem('ROLE', "SELLER")
-          this.router.navigate(['/seller/dashboard']);
+          // Signal chat component that we're coming from login
+          this.router.navigate(['/seller/dashboard'], { 
+            state: { fromLogin: true, signedInTime: new Date().getTime() } 
+          });
         } else if (role === 'DRIVER') {
           localStorage.setItem('STATE', 'true');
           localStorage.setItem('ROLE', "DRIVER")
-          this.router.navigate(['/driver/dashboard']);
+          // Signal chat component that we're coming from login
+          this.router.navigate(['/driver/dashboard'], { 
+            state: { fromLogin: true, signedInTime: new Date().getTime() } 
+          });
         }
       },
       error => {
