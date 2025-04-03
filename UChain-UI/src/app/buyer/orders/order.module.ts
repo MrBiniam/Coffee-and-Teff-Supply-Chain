@@ -26,7 +26,6 @@ import { DeleteComponent } from './dialog/delete/delete.component';
 import { AcceptedOrderComponent } from './accepted_order/accepted_order/accepted_order.component';
 import { AcceptedOrderProfileComponent } from './accepted_order/accepted_order_profile/accepted_order-profile.component';
 import { ShippedOrderComponent } from './shipped_order/shipped_order/shipped_order.component';
-import { ShippedOrderProfileComponent } from './shipped_order/shipped_order_profile/shipped_order-profile.component';
 import { DeliverOrderComponent } from './shipped_order/deliver_order/deliver_order.component';
 import { DeliveredOrderComponent } from './delivered_order/delivered_order/delivered_order.component';
 import { DeliveredOrderProfileComponent } from './delivered_order/delivered_order_profile/delivered_order-profile.component';
@@ -41,7 +40,6 @@ import { DeliveredOrderProfileComponent } from './delivered_order/delivered_orde
     AcceptedOrderComponent,
     AcceptedOrderProfileComponent,
     ShippedOrderComponent,
-    ShippedOrderProfileComponent,
     DeliverOrderComponent,
     DeliveredOrderComponent,
     DeliveredOrderProfileComponent

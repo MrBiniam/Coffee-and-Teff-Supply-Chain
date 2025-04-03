@@ -149,7 +149,7 @@ export class DeliverOrderComponent {
                 // Create a complete payload with all required fields
                 const updateData = {
                   quantity: orderToUpdate.quantity, // Required field
-                  status: 'Delivered', // Update status
+                  status: 'DELIVERED', // Final delivery status after buyer confirmation
                   order_date: currentDate,
                   delivered_date: currentDate // Add delivery timestamp
                 };
@@ -159,7 +159,7 @@ export class DeliverOrderComponent {
                   _ => {
                     this.showNotification(
                       'snackbar-success',
-                      'Order Delivered Successfully...!!!',
+                      'Order Confirmed as Delivered Successfully!',
                       'bottom',
                       'center'
                     );

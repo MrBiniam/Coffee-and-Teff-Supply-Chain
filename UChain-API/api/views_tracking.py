@@ -218,6 +218,9 @@ class UpdateOrderStatusView(APIView):
             if status_update.lower() == 'on_route':
                 # Keep the order status as SHIPPED when tracking status is on_route
                 order.status = 'SHIPPED'
+            elif status_update.lower() == 'delivered':
+                # Use a special status when driver marks as delivered but buyer hasn't confirmed
+                order.status = 'DRIVER_DELIVERED'
             else:
                 order.status = status_update.upper()
             order.save()

@@ -1,14 +1,13 @@
-import { OrderProfileComponent } from './order-profile/order-profile.component';
-import { Page404Component } from '../../authentication/page404/page404.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { OrderComponent } from './order/order.component';
 import { AcceptedOrderComponent } from './accepted_order/accepted_order/accepted_order.component';
 import { AcceptedOrderProfileComponent } from './accepted_order/accepted_order_profile/accepted_order-profile.component';
-import { ShippedOrderProfileComponent } from './shipped_order/shipped_order_profile/shipped_order-profile.component';
 import { ShippedOrderComponent } from './shipped_order/shipped_order/shipped_order.component';
-import { DeliveredOrderProfileComponent } from './delivered_order/delivered_order_profile/delivered_order-profile.component';
 import { DeliveredOrderComponent } from './delivered_order/delivered_order/delivered_order.component';
+import { DeliveredOrderProfileComponent } from './delivered_order/delivered_order_profile/delivered_order-profile.component';
+import { Page404Component } from '../../authentication/page404/page404.component';
+import { OrderProfileComponent } from './order-profile/order-profile.component';
 
 const routes: Routes = [
   {
@@ -26,10 +25,6 @@ const routes: Routes = [
   {
     path: 'shipped_order',
     component: ShippedOrderComponent,
-  },
-  {
-    path: 'shipped_order_profile/:id',
-    component: ShippedOrderProfileComponent,
   },
   {
     path: 'delivered_order',

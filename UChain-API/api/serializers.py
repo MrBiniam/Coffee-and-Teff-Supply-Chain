@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product, Order, Message, Rating
+from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product, Order, Message, Rating, TrackingLocation
 from django.contrib.auth.hashers import make_password
 
 # Base User Serializer to register a user
@@ -116,3 +116,20 @@ class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = ["id",'sender', 'receiver', 'rating_value', 'timestamp',"comment", "order"]
+
+# Serializer for Tracking Location
+class TrackingLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrackingLocation
+        fields = ['id', 'order', 'driver', 'latitude', 'longitude', 'timestamp', 'status']
+        read_only_fields = ['id', 'timestamp']
+
+# Detailed Tracking Location Serializer with nested objects
+class TrackingLocationDetailSerializer(serializers.ModelSerializer):
+    driver = CustomUserSerializer(read_only=True)
+    order = OrderSerializer(read_only=True)
+    
+    class Meta:
+        model = TrackingLocation
+        fields = ['id', 'order', 'driver', 'latitude', 'longitude', 'timestamp', 'status']
+        read_only_fields = ['id', 'timestamp']

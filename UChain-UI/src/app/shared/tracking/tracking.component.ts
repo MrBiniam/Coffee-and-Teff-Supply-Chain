@@ -169,15 +169,41 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
   
   loadTrackingHistory() {
     this.trackingService.getTrackingHistory(this.orderId).subscribe(
-      (data: TrackingLocation[]) => {
-        this.locationHistory = data;
+      (locations: TrackingLocation[]) => {
+        this.locationHistory = locations;
         console.log('Tracking history loaded:', this.locationHistory);
         
+        // Find the latest location update
         if (this.locationHistory.length > 0) {
-          const latestLocation = this.locationHistory[0]; // Most recent first
+          // Sort by timestamp to get the most recent
+          const sortedLocations = [...this.locationHistory].sort((a, b) => {
+            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+          });
           
-          // Update the map with the latest location
-          this.updateMapWithLocation(latestLocation);
+          const latestLocation = sortedLocations[0];
+          
+          // Update the map with the latest position
+          if (latestLocation.latitude && latestLocation.longitude) {
+            setTimeout(() => {
+              this.updateMapWithLocation(latestLocation);
+            }, 500);
+          }
+          
+          // Ensure status indicators are updated based on the latest status
+          if (latestLocation.status) {
+            console.log('Updating status based on tracking history:', latestLocation.status);
+            this.updateStatusIndicatorsFromTracking(latestLocation.status);
+            
+            // If the latest status is 'delivered', make sure it's reflected
+            if (latestLocation.status === 'delivered' && 
+                this.order.status !== 'DELIVERED' && 
+                this.order.status !== 'DRIVER_DELIVERED') {
+              // Update local order status for UI consistency
+              this.order.status = 'DRIVER_DELIVERED';
+              // Make sure status indicators are updated
+              this.updateStatusIndicators(this.order.status);
+            }
+          }
         }
       },
       error => {
@@ -324,6 +350,13 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
         { status: 'On the Way', completed: true },
         { status: 'Delivered', completed: false }
       ];
+    } else if (orderStatus === 'DRIVER_DELIVERED') {
+      this.statusUpdates = [
+        { status: 'Order Accepted', completed: true },
+        { status: 'Preparing for Shipment', completed: true },
+        { status: 'On the Way', completed: true },
+        { status: 'Delivered', completed: true }
+      ];
     } else if (orderStatus === 'DELIVERED') {
       this.statusUpdates = [
         { status: 'Order Accepted', completed: true },
@@ -345,6 +378,13 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
       this.statusUpdates[1].completed = true;
       this.statusUpdates[2].completed = true;
       this.statusUpdates[3].completed = true;
+      
+      // Additional logic for all users to see the delivered status
+      if (this.order.status !== 'DELIVERED' && this.order.status !== 'DRIVER_DELIVERED') {
+        this.order.status = 'DRIVER_DELIVERED';
+        // Update the status indicators for all users
+        this.updateStatusIndicators(this.order.status);
+      }
     }
   }
   

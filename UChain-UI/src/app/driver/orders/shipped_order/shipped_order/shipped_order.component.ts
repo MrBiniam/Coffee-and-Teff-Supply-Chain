@@ -33,7 +33,7 @@ export class ShippedOrderComponent implements OnInit {
           const status = value.status ? value.status.toLowerCase() : '';
           
           // Include both 'shipped' and 'on_route' statuses
-          if(value.driver!=null && value.driver==id && (status === 'shipped' || status === 'on_route')){
+          if(value.driver!=null && value.driver==id && (status === 'shipped' || status === 'on_route' || status === 'driver_delivered')){
             console.log(`Adding order #${value.id} with status '${value.status}' to shipped orders list`);
             if(value.product && value.product[0] && value.product[0].image){
               if(value.product[0].image.includes("127.0.0.1:8000")){
@@ -61,6 +61,6 @@ export class ShippedOrderComponent implements OnInit {
     });
   }
   orderDetail(id) {
-    this.router.navigate([`/driver/orders/shipped_order_profile/${id}`]);
+    this.router.navigate([`/tracking/${id}`]);
   }
 }

@@ -1,5 +1,6 @@
 from django.urls import path, include
 from . import views
+from . import views_tracking
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -51,5 +52,11 @@ urlpatterns = [
     
     # Driver selection endpoint
     path("select-driver/", views.SelectDriverView.as_view(), name="select-driver-view"),
-    path("driver-profile/<str:user_id>/", views.DriverProfileView.as_view(), name="driver-profile-view")
+    path("driver-profile/<str:user_id>/", views.DriverProfileView.as_view(), name="driver-profile-view"),
+    
+    # Tracking endpoints
+    path("api/tracking/update-location", views_tracking.UpdateTrackingLocationView.as_view(), name="update-tracking-location"),
+    path("api/tracking/location/<str:order_id>", views_tracking.GetOrderLocationView.as_view(), name="get-order-location"),
+    path("api/tracking/history/<str:order_id>", views_tracking.GetTrackingHistoryView.as_view(), name="get-tracking-history"),
+    path("api/tracking/status/<str:order_id>", views_tracking.UpdateOrderStatusView.as_view(), name="update-order-status")
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

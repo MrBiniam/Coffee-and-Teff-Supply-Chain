@@ -53,9 +53,11 @@ class Order(models.Model):
     PENDING = "Pending"
     SHIPPED = "Shipped"
     DELIVERED = "Delivered"
+    DRIVER_DELIVERED = "Driver_Delivered"
     STATUS_CHOICES = [
         (PENDING, 'Pending'),
         (SHIPPED, 'Shipped'),
+        (DRIVER_DELIVERED, 'Delivered by Driver'),
         (DELIVERED, 'Delivered')
     ]
     quantity = models.CharField(max_length=100)
@@ -85,3 +87,21 @@ class Rating(models.Model):
     sender = models.ForeignKey(CustomUser, related_name="sent_ratings",on_delete=models.CASCADE)
     receiver = models.ForeignKey(CustomUser, related_name="received_ratings", on_delete=models.CASCADE)
     order = models.ForeignKey(Order, related_name="ratings", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Rating {self.rating_value} from {self.sender.username} to {self.receiver.username}"
+
+# Model for tracking order location
+class TrackingLocation(models.Model):
+    order = models.ForeignKey(Order, related_name='tracking_locations', on_delete=models.CASCADE)
+    driver = models.ForeignKey(CustomUser, related_name='tracking_locations', on_delete=models.CASCADE)
+    latitude = models.DecimalField(max_digits=9, decimal_places=7)
+    longitude = models.DecimalField(max_digits=10, decimal_places=7)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=50, blank=True, null=True)
+    
+    def __str__(self):
+        return f"Tracking for Order {self.order.id} at {self.timestamp}"
+    
+    class Meta:
+        ordering = ['-timestamp']  # Most recent first
