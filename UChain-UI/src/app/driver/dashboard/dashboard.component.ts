@@ -72,10 +72,10 @@ export class DashboardComponent implements OnInit {
               this.acceptedOrders += 1;
               console.log(`Order #${value.id} counted as accepted order for driver ${id}`);
             } 
-            // Shipped orders have this driver and shipped status
-            else if(value.driver === id && status === 'shipped'){
+            // Shipped orders have this driver and shipped status or on_route status
+            else if(value.driver === id && (status === 'shipped' || status === 'on_route')){
               this.shippedOrders += 1;
-              console.log(`Order #${value.id} counted as shipped order for driver ${id}`);
+              console.log(`Order #${value.id} counted as shipped order for driver ${id} (status: ${status})`);
             } 
             // Delivered orders have this driver and delivered status
             else if(value.driver === id && status === 'delivered'){

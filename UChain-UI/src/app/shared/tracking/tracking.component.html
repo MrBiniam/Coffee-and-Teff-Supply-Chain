@@ -1,0 +1,175 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="block-header">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <ul class="breadcrumb breadcrumb-style">
+            <li class="breadcrumb-item">
+              <h4 class="page-title">Shipment Tracking</h4>
+            </li>
+            <li class="breadcrumb-item bcrumb-1">
+              <a routerLink="/dashboard">
+                <i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="breadcrumb-item bcrumb-2">
+              <a href="#" onClick="return false;">Orders</a>
+            </li>
+            <li class="breadcrumb-item active">Tracking</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Loading indicator -->
+    <div class="row clearfix" *ngIf="isLoading">
+      <div class="col-12 text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p class="mt-2">Loading shipment details...</p>
+      </div>
+    </div>
+    
+    <!-- Main content -->
+    <div class="row clearfix" *ngIf="!isLoading && order?.id">
+      <div class="col-12">
+        <div class="card shadow-effect">
+          <div class="header" style="background: linear-gradient(135deg, #2962ff, #0d47a1); color: white;">
+            <h2>
+              <i class="material-icons vertical-align-middle mr-2">local_shipping</i>
+              Order #{{order?.id}} Tracking
+            </h2>
+            <button 
+              class="btn btn-outline-light btn-sm float-right" 
+              (click)="goBack()">
+              <i class="material-icons vertical-align-middle mr-1">arrow_back</i> Back
+            </button>
+          </div>
+          <div class="body">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="card border shadow-sm">
+                  <div class="header" style="background: #f5f5f5;">
+                    <h2>Order Details</h2>
+                  </div>
+                  <div class="body">
+                    <div class="order-details">
+                      <p><strong>Order ID:</strong> {{order?.id}}</p>
+                      <p><strong>Status:</strong> <span class="badge badge-success">{{order?.status}}</span></p>
+                      <p><strong>Product:</strong> {{order?.product[0]?.name}}</p>
+                      <p><strong>Quantity:</strong> {{order?.quantity}}</p>
+                      <p><strong>Total Price:</strong> {{order?.product[0]?.price * order?.quantity | currency:'USD'}}</p>
+                      <p><strong>Order Date:</strong> {{order?.date_created | date:'medium'}}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-8">
+                <div class="card border shadow-sm">
+                  <div class="header" style="background: #f5f5f5;">
+                    <h2>Location Tracking</h2>
+                  </div>
+                  <div class="body">
+                    <div class="map-container" style="height: 350px;">
+                      <div class="map" style="height: 100%; width: 100%;" leaflet [leafletOptions]="options" (leafletMapReady)="onMapReady($event)"></div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                      <div class="col-md-4">
+                        <div class="card border">
+                          <div class="body p-3">
+                            <h5>Driver Info</h5>
+                            <p *ngIf="driverUser?.username"><strong>Name:</strong> {{driverUser?.name || driverUser?.username}}</p>
+                            <p *ngIf="driverUser?.email"><strong>Contact:</strong> {{driverUser?.email}}</p>
+                            <p *ngIf="!driverUser?.username" class="text-muted">Driver not assigned yet</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-4">
+                        <div class="card border">
+                          <div class="body p-3">
+                            <h5>Status Updates</h5>
+                            <ul class="p-0" style="list-style: none;">
+                              <li class="mb-2" *ngFor="let status of statusUpdates">
+                                <i class="material-icons {{status.completed ? 'text-success' : 'text-muted'}} mr-2">
+                                  {{status.completed ? 'check_circle' : 'radio_button_unchecked'}}
+                                </i> 
+                                {{status.status}}
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-4">
+                        <div class="card border">
+                          <div class="body p-3">
+                            <h5>Shipment Info</h5>
+                            <p><strong>Order Status:</strong> <span class="badge badge-success">{{order?.status}}</span></p>
+                            <p><strong>Last Update:</strong> 
+                              <span *ngIf="locationHistory && locationHistory.length > 0">
+                                {{locationHistory[0]?.timestamp | date:'medium'}}
+                              </span>
+                              <span *ngIf="!locationHistory || locationHistory.length === 0" class="text-muted">
+                                No updates yet
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Driver Controls - Only shown to drivers -->
+                <div class="card border shadow-sm mt-3" *ngIf="isDriver">
+                  <div class="header" style="background: #f5f5f5;">
+                    <h2>Driver Controls</h2>
+                  </div>
+                  <div class="body">
+                    <div class="row mt-3">
+                      <div class="col-12">
+                        <div class="button-group">
+                          <button class="btn btn-info mx-1" type="button" (click)="updateOrderStatus('picked_up')">
+                            <i class="material-icons mr-1">playlist_add_check</i> Picked Up
+                          </button>
+                          <button class="btn btn-warning mx-1" type="button" (click)="updateOrderStatus('on_route')">
+                            <i class="material-icons mr-1">directions_car</i> On Route
+                          </button>
+                          <button class="btn btn-success mx-1" type="button" (click)="updateOrderStatus('delivered')">
+                            <i class="material-icons mr-1">check_circle</i> Delivered
+                          </button>
+                        </div>
+                        <div class="alert alert-info mt-3" role="alert">
+                          <i class="material-icons vertical-align-middle mr-2">info</i>
+                          Your location is being shared while you are on this page.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Error state -->
+    <div class="row clearfix" *ngIf="!isLoading && !order?.id">
+      <div class="col-12">
+        <div class="card">
+          <div class="body">
+            <div class="alert alert-danger text-center">
+              <h4><i class="material-icons vertical-align-middle mr-2">error</i> Order Not Found</h4>
+              <p>The requested order information could not be found.</p>
+              <button class="btn btn-danger mt-3" (click)="goBack()">Go Back</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

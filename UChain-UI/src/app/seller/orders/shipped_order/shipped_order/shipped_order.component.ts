@@ -23,18 +23,38 @@ export class ShippedOrderComponent implements OnInit {
     this.orders = []
     this.orderService.getMyOrder().subscribe(
       data=>{
+        console.log('Processing orders for seller shipped orders view');
         data.forEach((value)=>{
-          if(value.driver!=null && value.product[0].seller==id && value.status=='Shipped'){
-            if(value.product[0].image.includes("127.0.0.1:8000")){
-              value.product[0].image = value.product[0].image.substring(21)
-            }
-            this.orders.push(value)
-            }
+          if (!value) {
+            console.log('Invalid order item');
+            return;
           }
-        );
+          
+          const status = value.status ? value.status.toLowerCase() : '';
+          
+          // Check if the product array exists and has elements
+          if (!value.product || !Array.isArray(value.product) || value.product.length === 0) {
+            console.warn(`Order #${value.id} has no valid product information`);
+            return;
+          }
+          
+          // Include both 'shipped' and 'on_route' statuses
+          if(value.driver!=null && value.product[0].seller==id && (status === 'shipped' || status === 'on_route')){
+            console.log(`Adding order #${value.id} with status '${value.status}' to shipped orders list`);
+            if(value.product[0].image){
+              if(value.product[0].image.includes("127.0.0.1:8000")){
+                value.product[0].image = value.product[0].image.substring(21);
+              }
+            } else {
+              console.warn(`Order #${value.id} has missing or invalid product image`);
+            }
+            this.orders.push(value);
+          }
+        });
+        console.log(`Total shipped orders found for seller: ${this.orders.length}`);
       }
       , error =>{
-          console.log("Can't get Product")
+          console.log("Can't get Product", error);
       }
     );
   }

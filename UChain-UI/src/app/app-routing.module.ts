@@ -5,6 +5,8 @@ import { Role } from "./shared/security/role";
 import { Page404Component } from "./authentication/page404/page404.component";
 import { AuthLayoutComponent } from "./layout/app-layout/auth-layout/auth-layout.component";
 import { MainLayoutComponent } from "./layout/app-layout/main-layout/main-layout.component";
+import { TrackingComponent } from "./shared/tracking/tracking.component";
+
 const routes: Routes = [
   {
     path: "",
@@ -44,6 +46,11 @@ const routes: Routes = [
         path: "apps",
         loadChildren: () =>
           import("./apps/apps.module").then((m) => m.AppsModule),
+      },
+      {
+        path: "tracking/:id",
+        component: TrackingComponent,
+        canActivate: [AuthGuard]
       },
     ],
   },

@@ -23,20 +23,36 @@ export class ShippedOrderComponent implements OnInit {
   getOrder(){
     const id = parseInt(this.tokenStorage.getId())
     this.orders = []
+    console.log('Fetching orders for buyer ID:', id)
     this.orderService.getMyOrder().subscribe(
       data=>{
+        console.log('All orders returned:', data)
         data.forEach((value)=>{
-          if(value.driver!=null && value.buyer==id && value.status=='Shipped'){
-            if(value.product[0].image.includes("127.0.0.1:8000")){
-              value.product[0].image =value.product[0].image.substring(21)
-            }
-            this.orders.push(value)
-            }
+          if (!value) {
+            console.log('Invalid order item');
+            return;
           }
-        );
+          
+          const status = value.status ? value.status.toLowerCase() : '';
+          console.log('Checking order:', value.id, 'Status:', value.status, 'Driver:', value.driver, 'Buyer:', value.buyer)
+          
+          // Include both 'shipped' and 'on_route' statuses
+          if(value.driver!=null && value.buyer==id && (status === 'shipped' || status === 'on_route')){
+            console.log(`Adding order #${value.id} with status '${value.status}' to shipped orders list`);
+            if(value.product && value.product[0] && value.product[0].image){
+              if(value.product[0].image.includes("127.0.0.1:8000")){
+                value.product[0].image = value.product[0].image.substring(21);
+              }
+            } else {
+              console.warn(`Order #${value.id} has missing or invalid product image`);
+            }
+            this.orders.push(value);
+          }
+        });
+        console.log('Final shipped orders list:', this.orders.length, 'orders')
       }
       , error =>{
-          console.log("Can't get Product")
+          console.log("Can't get Product", error)
       }
     );
   }

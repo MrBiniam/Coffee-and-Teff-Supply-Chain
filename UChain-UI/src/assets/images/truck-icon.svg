@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <g fill="#2d64bc" stroke="#000" stroke-width="1">
+    <rect x="1" y="12" width="18" height="10" rx="1" />
+    <rect x="19" y="16" width="10" height="6" rx="1" />
+    <rect x="19" y="12" width="4" height="4" />
+    <!-- Wheels -->
+    <circle cx="7" cy="25" r="3" fill="#333" />
+    <circle cx="23" cy="25" r="3" fill="#333" />
+    <!-- Windows -->
+    <rect x="14" y="14" width="4" height="3" fill="#a0d0ff" />
+  </g>
+</svg>

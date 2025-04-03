@@ -23,18 +23,32 @@ export class ShippedOrderComponent implements OnInit {
     this.orders = []
     this.orderService.getMyOrder().subscribe(
       data=>{
+        console.log('Processing orders for shipped orders view');
         data.forEach((value)=>{
-          if(value.driver!=null && value.driver==id && value.status=='Shipped'){
-            if(value.product[0].image.includes("127.0.0.1:8000")){
-              value.product[0].image =value.product[0].image.substring(21)
-            }
-            this.orders.push(value)
-            }
+          if(!value) {
+            console.log('Invalid order item');
+            return;
           }
-        );
+          
+          const status = value.status ? value.status.toLowerCase() : '';
+          
+          // Include both 'shipped' and 'on_route' statuses
+          if(value.driver!=null && value.driver==id && (status === 'shipped' || status === 'on_route')){
+            console.log(`Adding order #${value.id} with status '${value.status}' to shipped orders list`);
+            if(value.product && value.product[0] && value.product[0].image){
+              if(value.product[0].image.includes("127.0.0.1:8000")){
+                value.product[0].image = value.product[0].image.substring(21);
+              }
+            } else {
+              console.warn(`Order #${value.id} has missing or invalid product image`);
+            }
+            this.orders.push(value);
+          }
+        });
+        console.log(`Total shipped orders found: ${this.orders.length}`);
       }
       , error =>{
-          console.log("Can't get Product")
+          console.log("Can't get Product", error);
       }
     );
   }
