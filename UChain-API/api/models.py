@@ -105,3 +105,30 @@ class TrackingLocation(models.Model):
     
     class Meta:
         ordering = ['-timestamp']  # Most recent first
+
+# Model to store route information for deliveries
+class DeliveryRoute(models.Model):
+    """Model to store route information for deliveries"""
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='routes')
+    driver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='routes')
+    
+    # Starting point
+    start_latitude = models.FloatField()
+    start_longitude = models.FloatField()
+    start_address = models.CharField(max_length=255, null=True, blank=True)
+    
+    # Destination point
+    end_latitude = models.FloatField()
+    end_longitude = models.FloatField()
+    end_address = models.CharField(max_length=255, null=True, blank=True)
+    
+    # Route details
+    route_geometry = models.JSONField(null=True, blank=True)  # Store the GeoJSON route
+    distance_km = models.FloatField(null=True, blank=True)  # Distance in kilometers
+    estimated_time_min = models.IntegerField(null=True, blank=True)  # Estimated time in minutes
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Route for Order {self.order.id} by {self.driver.username}"

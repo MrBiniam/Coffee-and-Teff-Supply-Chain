@@ -58,7 +58,8 @@ class UpdateTrackingLocationView(APIView):
                 tracking_location.status = status_update
                 # Also update the order status if needed
                 if status_update == 'delivered':
-                    order.status = 'DELIVERED'
+                    # Use DRIVER_DELIVERED for collaborative confirmation flow
+                    order.status = 'DRIVER_DELIVERED'
                     order.save()
                 elif status_update == 'picked_up' or status_update == 'on_route':
                     order.status = 'SHIPPED'

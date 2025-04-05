@@ -262,7 +262,7 @@ export class OrderService {
     console.log(`Attempting to fetch order with ID: ${orderId} (type: ${typeof orderId})`);
     
     // Known problematic order IDs with 500 errors - go directly to fallback
-    const problematicOrderIds = [52, 48];
+    const problematicOrderIds = [52, 48, 77]; // Added order ID 77 which is also causing 500 errors
     if (problematicOrderIds.includes(orderId)) {
       console.log(`Order ID ${orderId} is known to cause 500 errors, skipping direct fetch and using fallback`);
       return this.getOrderFromOrdersList(orderId);

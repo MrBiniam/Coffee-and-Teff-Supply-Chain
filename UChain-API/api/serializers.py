@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product, Order, Message, Rating, TrackingLocation
+from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product, Order, Message, Rating, TrackingLocation, DeliveryRoute
 from django.contrib.auth.hashers import make_password
 
 # Base User Serializer to register a user
@@ -133,3 +133,17 @@ class TrackingLocationDetailSerializer(serializers.ModelSerializer):
         model = TrackingLocation
         fields = ['id', 'order', 'driver', 'latitude', 'longitude', 'timestamp', 'status']
         read_only_fields = ['id', 'timestamp']
+
+# Serializer for Delivery Route
+class DeliveryRouteSerializer(serializers.ModelSerializer):
+    """Serializer for the DeliveryRoute model"""
+    class Meta:
+        model = DeliveryRoute
+        fields = [
+            'id', 'order', 'driver', 
+            'start_latitude', 'start_longitude', 'start_address',
+            'end_latitude', 'end_longitude', 'end_address',
+            'route_geometry', 'distance_km', 'estimated_time_min',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']

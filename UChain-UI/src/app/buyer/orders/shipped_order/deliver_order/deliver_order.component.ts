@@ -149,7 +149,7 @@ export class DeliverOrderComponent {
                 // Create a complete payload with all required fields
                 const updateData = {
                   quantity: orderToUpdate.quantity, // Required field
-                  status: 'DELIVERED', // Final delivery status after buyer confirmation
+                  status: 'Delivered', // Fixed capitalization to match filtering logic
                   order_date: currentDate,
                   delivered_date: currentDate // Add delivery timestamp
                 };

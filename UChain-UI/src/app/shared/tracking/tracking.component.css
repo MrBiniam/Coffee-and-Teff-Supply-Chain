@@ -1,0 +1,29 @@
+/* Tracking component styles */
+.map-parent-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(95vh - 150px);
+  min-height: 600px;
+}
+
+.map-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.map {
+  height: 100% !important;
+  width: 100% !important;
+  z-index: 0;
+}
+
+/* Ensure cards take full height */
+.h-100 {
+  height: 100%;
+}
+
+/* Make button spacing consistent */
+.button-group .btn {
+  margin: 5px;
+}

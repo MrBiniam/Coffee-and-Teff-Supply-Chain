@@ -1,6 +1,7 @@
 from django.urls import path, include
 from . import views
 from . import views_tracking
+from . import views_route
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -56,7 +57,12 @@ urlpatterns = [
     
     # Tracking endpoints
     path("api/tracking/update-location", views_tracking.UpdateTrackingLocationView.as_view(), name="update-tracking-location"),
-    path("api/tracking/location/<str:order_id>", views_tracking.GetOrderLocationView.as_view(), name="get-order-location"),
-    path("api/tracking/history/<str:order_id>", views_tracking.GetTrackingHistoryView.as_view(), name="get-tracking-history"),
-    path("api/tracking/status/<str:order_id>", views_tracking.UpdateOrderStatusView.as_view(), name="update-order-status")
+    path("api/tracking/location/<int:order_id>", views_tracking.GetOrderLocationView.as_view(), name="get-order-location"),
+    path("api/tracking/history/<int:order_id>", views_tracking.GetTrackingHistoryView.as_view(), name="get-tracking-history"),
+    path("api/tracking/status/<int:order_id>", views_tracking.UpdateOrderStatusView.as_view(), name="update-order-status"),
+    
+    # Route endpoints
+    path("api/route/create", views_route.CreateRouteView.as_view(), name="create-route"),
+    path("api/route/save", views_route.SaveRouteView.as_view(), name="save-route"),
+    path("api/route/<int:order_id>", views_route.GetRouteView.as_view(), name="get-route")
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,65 @@
+<h2 mat-dialog-title>Set Delivery Route</h2>
+<mat-dialog-content>
+  <div class="route-dialog-content">
+    <div class="alert alert-info mb-3 d-flex align-items-center">
+      <i class="material-icons mr-2">directions</i>
+      <span>Create a delivery route by setting the pickup and delivery points</span>
+    </div>
+    
+    <form [formGroup]="routeForm">
+      <!-- Starting Point -->
+      <div class="mb-3">
+        <label class="d-flex align-items-center mb-2">
+          <i class="material-icons mr-2" style="color: #007bff;">place</i>
+          <span>Starting Point (Pickup Location)</span>
+        </label>
+        <mat-form-field appearance="outline" class="w-100">
+          <input matInput formControlName="startAddress" placeholder="Enter pickup location">
+          <mat-hint *ngIf="useCurrentPositionAsStart"><i class="material-icons align-text-bottom" style="font-size: 14px;">my_location</i> Using your current location</mat-hint>
+          <mat-error *ngIf="routeForm.get('startAddress').invalid">Starting point is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Destination -->
+      <div class="mb-3">
+        <label class="d-flex align-items-center mb-2">
+          <i class="material-icons mr-2" style="color: #dc3545;">flag</i>
+          <span>Destination (Delivery Location)</span>
+        </label>
+        <mat-form-field appearance="outline" class="w-100">
+          <input matInput formControlName="endAddress" placeholder="Enter delivery location" [matAutocomplete]="auto">
+          <mat-error *ngIf="routeForm.get('endAddress').invalid">Destination is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngFor="let result of searchResults" [value]="result.display_name" (click)="selectLocation(result, 'end')">
+          {{ result.display_name }}
+        </mat-option>
+      </mat-autocomplete>
+      
+      <!-- Hidden form fields for coordinates -->
+      <input type="hidden" formControlName="startLat">
+      <input type="hidden" formControlName="startLng">
+      <input type="hidden" formControlName="endLat">
+      <input type="hidden" formControlName="endLng">
+    </form>
+    
+    <div class="route-info-note mt-3 alert alert-light border">
+      <strong>What happens next:</strong>
+      <ul class="mb-0 pl-3 mt-1">
+        <li>A route will be calculated between these two points</li>
+        <li>The order status will update to "On the Way"</li>
+        <li>The route will appear on the tracking map</li>
+      </ul>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading" class="submit-button">
+    <mat-spinner diameter="20" *ngIf="loading" class="spinner-button"></mat-spinner>
+    <span *ngIf="!loading">Set Route</span>
+  </button>
+</mat-dialog-actions>
