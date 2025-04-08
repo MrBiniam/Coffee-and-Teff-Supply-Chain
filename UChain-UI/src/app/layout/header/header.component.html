@@ -28,30 +28,44 @@
         <!-- #START# Notifications-->
         <li class="nav-item" ngbDropdown>
           <button mat-icon-button ngbDropdownToggle class="nav-notification-icons">
-            <mat-icon>notifications_none</mat-icon>
-            <span class="label-count bg-orange"></span>
+            <mat-icon [ngClass]="{'text-warning': unreadCount > 0}">{{ unreadCount > 0 ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+            <span class="label-count bg-danger" *ngIf="unreadCount > 0">{{unreadCount}}</span>
           </button>
           <div ngbDropdownMenu class="notification-dropdown pullDown">
-            <div class="noti-list" style="position: relative; max-width: 600px; max-height: 250px;" [perfectScrollbar]>
+            <div class="notification-header d-flex justify-content-between p-3">
+              <span class="font-weight-bold">Notifications</span>
+              <a *ngIf="notifications.length > 0" (click)="markAllAsRead()" class="text-primary cursor-pointer">
+                Mark All Read
+              </a>
+            </div>
+            <div class="noti-list" style="position: relative; max-width: 800px; max-height: 250px;" [perfectScrollbar]>
               <ul class="menu">
-                <li>
-                  <a href="#" *ngFor="let notification of notifications" onClick="return false;">
-                    <span class="table-img msg-user">
-                      <img src="{{notification.userImg}}" alt="">
-                    </span>
-                    <span class="menu-info">
-                      <span class="menu-title">{{username}}</span>
-                      <span class="menu-desc">
-                        <i class="material-icons">access_time</i> {{notification.time}}
-                      </span>
-                      <span class="menu-desc">{{notification.message}}</span>
-                    </span>
-                  </a>
+                <li *ngIf="notifications.length === 0" class="text-center py-3">No notifications</li>
+                <li *ngFor="let notification of notifications">
+                  <div class="notification-item" [ngClass]="{'unread': !notification.is_read}">
+                    <div class="d-flex p-2">
+                      <div class="mr-3 notification-icon" [ngClass]="'bg-' + (notification.notification_type | lowercase)">
+                        <mat-icon>{{getNotificationIcon(notification.notification_type)}}</mat-icon>
+                      </div>
+                      <div class="notification-content flex-grow-1">
+                        <div class="d-flex align-items-center justify-content-between">
+                          <div class="notification-message">{{notification.message}}</div>
+                          <div class="notification-actions ml-3" *ngIf="!notification.is_read">
+                            <button mat-icon-button (click)="markAsRead(notification.id); $event.stopPropagation()" title="Mark as read" class="small-button">
+                              <mat-icon class="text-primary">done</mat-icon>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="notification-time">
+                          <i class="material-icons">access_time</i>
+                          {{notification.created_at | date:'medium'}}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </li>
               </ul>
             </div>
-            <a class="text-center d-block border-top py-1">Read
-              All Notifications</a>
           </div>
         </li>
         <!-- #END# Notifications-->

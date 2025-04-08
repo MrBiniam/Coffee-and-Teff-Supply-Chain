@@ -19,6 +19,10 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from .notification_views import NotificationService
+import logging
+
+logger = logging.getLogger(__name__)
 from django.http import JsonResponse, HttpResponse
 from rest_framework import viewsets, permissions, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -264,7 +268,11 @@ class OrderCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(buyer=self.request.user.buyerprofile)
+        # Save the order with the buyer profile
+        order = serializer.save(buyer=self.request.user.buyerprofile, status='Pending')
+        
+        # Create notifications for the new order
+        NotificationService.create_order_notification(order.id, 'Pending')
 
 # view to retrieve all orders
 class OrderListView(generics.ListAPIView):
@@ -349,9 +357,25 @@ class OrderUpdateView(generics.UpdateAPIView):
         elif user.is_driver and hasattr(user, 'driverprofile') and instance.driver != user.driverprofile:
             raise PermissionDenied("You are not authorized to update this order.")
         
+        # Save the old status for comparison after update
+        old_status = instance.status
+            
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        
+        # Check if status changed and trigger notifications
+        if 'status' in request.data and old_status != instance.status:
+            try:
+                # Import the notification service (add this import at the top of the file)
+                from .notification_views import NotificationService
+                
+                # Trigger notifications based on the new status
+                NotificationService.create_order_notification(instance.id, instance.status)
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error creating notification for order {instance.id}: {str(e)}")
 
         if getattr(instance, '_prefetched_objects_cache', None):
             # If 'prefetch_related' has been applied to a queryset, we need to
@@ -386,8 +410,24 @@ class SendMessageAPIView(APIView):
         request.data['sender'] = request.user
         serializer = MessageSerializer(data=request.data)
         if serializer.is_valid():
-            # Assuming sender is the current authenticated user
-            serializer.save()
+            # Save the message first
+            message = serializer.save()
+            
+            # Create a notification for the message recipient
+            try:
+                from .notification_views import NotificationService
+                
+                # Create the notification with the sender's username
+                NotificationService.create_notification(
+                    recipient_id=message.receiver.id,
+                    notification_type='message_received',
+                    message=f"{request.user.username} sent you a message",
+                    sender_name=request.user.username
+                )
+            except Exception as e:
+                # Log the error but continue - message should be sent even if notification fails
+                logger.error(f"Error creating message notification: {str(e)}")
+                
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     

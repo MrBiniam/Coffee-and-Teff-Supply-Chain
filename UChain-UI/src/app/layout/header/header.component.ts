@@ -6,24 +6,30 @@ import {
   OnInit,
   Renderer2,
   AfterViewInit,
+  OnDestroy
 } from '@angular/core';
 import { RightSidebarService } from '../../shared/services/rightsidebar.service';
 import { ConfigService } from '../../shared/services/config.service';
 import { AuthService } from 'src/app/shared/security/auth.service';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { Router } from '@angular/router';
+import { NotificationService } from '../../shared/services/notification.service';
+import { Subscription, interval } from 'rxjs';
+import { switchMap, startWith } from 'rxjs/operators';
 const document: any = window.document;
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.sass'],
+  styleUrls: ['./header.component.sass', './notification.styles.scss'],
 })
-export class HeaderComponent implements OnInit, AfterViewInit {
+export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   public config: any = {};
   userImg: string;
   homePage: string;
   isNavbarCollapsed = true;
+  unreadCount: number = 0;
+  private refreshSubscription: Subscription;
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
@@ -33,53 +39,11 @@ export class HeaderComponent implements OnInit, AfterViewInit {
     private authService: AuthService,
     private router: Router,
     private tokenStorage: TokenStorageService,
+    private notificationService: NotificationService
   ) {}
 
-  username= this.tokenStorage.getUsername();
-  notifications: any[] = [
-    {
-      userImg: 'assets/images/user/user1.jpg',
-      userName: 'Sarah Smith',
-      time: '14 mins ago',
-      message: 'Please check your mail',
-    },
-    {
-      userImg: 'assets/images/user/user2.jpg',
-      userName: 'Airi Satou',
-      time: '22 mins ago',
-      message: 'Work Completed !!!',
-    },
-    {
-      userImg: 'assets/images/user/user3.jpg',
-      userName: 'John Doe',
-      time: '3 hours ago',
-      message: 'kindly help me for code.',
-    },
-    {
-      userImg: 'assets/images/user/user4.jpg',
-      userName: 'Ashton Cox',
-      time: '5 hours ago',
-      message: 'Lets break for lunch...',
-    },
-    {
-      userImg: 'assets/images/user/user5.jpg',
-      userName: 'Sarah Smith',
-      time: '14 mins ago',
-      message: 'Please check your mail',
-    },
-    {
-      userImg: 'assets/images/user/user6.jpg',
-      userName: 'Airi Satou',
-      time: '22 mins ago',
-      message: 'Work Completed !!!',
-    },
-    {
-      userImg: 'assets/images/user/user7.jpg',
-      userName: 'John Doe',
-      time: '3 hours ago',
-      message: 'kindly help me for code.',
-    },
-  ];
+  username = this.tokenStorage.getUsername();
+  notifications: any[] = [];
   ngOnInit() {
     this.config = this.configService.configData;
     this.userImg = this.authService.getUserImg();
@@ -94,6 +58,28 @@ export class HeaderComponent implements OnInit, AfterViewInit {
     } else {
       this.homePage = 'admin/dashboard/main';
     }
+    
+    // Subscribe to unread count
+    this.notificationService.unreadCount$.subscribe(count => {
+      this.unreadCount = count;
+    });
+    
+    // Subscribe to notifications from service
+    this.notificationService.notifications$.subscribe(
+      notifications => {
+        this.notifications = notifications;
+      },
+      error => {
+        console.error('Error in notifications subscription', error);
+      }
+    );
+    
+    // Set up polling for notifications every 15 seconds
+    this.refreshSubscription = interval(15000).pipe(
+      startWith(0)
+    ).subscribe(() => {
+      this.notificationService.refreshNotifications();
+    });
   }
 
   ngAfterViewInit() {
@@ -202,5 +188,52 @@ export class HeaderComponent implements OnInit, AfterViewInit {
         this.router.navigate(['/authentication/signin']);
       }
     });
+  }
+  
+  ngOnDestroy() {
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
+  }
+  
+  markAllAsRead() {
+    this.notificationService.markAllAsRead().subscribe(() => {
+      this.notifications = this.notifications.map(notification => {
+        return { ...notification, is_read: true };
+      });
+    });
+  }
+  
+  markAsRead(id: number) {
+    this.notificationService.markAsRead(id).subscribe();
+  }
+  
+  getNotificationIcon(type: string): string {
+    switch(type) {
+      case 'order_placed': return 'add_shopping_cart';
+      case 'order_accepted': return 'check_circle';
+      case 'driver_assigned': return 'person';
+      case 'order_shipped': return 'local_shipping';
+      case 'order_delivered': return 'done_all';
+      case 'message_received': return 'chat';
+      default: return 'notifications';
+    }
+  }
+  
+  getNotificationTime(createdAt: string): string {
+    const created = new Date(createdAt);
+    const now = new Date();
+    const diffMs = now.getTime() - created.getTime();
+    const diffMins = Math.round(diffMs / 60000);
+    
+    if (diffMins < 60) {
+      return `${diffMins} mins ago`;
+    } else if (diffMins < 1440) {
+      const hours = Math.floor(diffMins / 60);
+      return `${hours} hours ago`;
+    } else {
+      const days = Math.floor(diffMins / 1440);
+      return `${days} days ago`;
+    }
   }
 }

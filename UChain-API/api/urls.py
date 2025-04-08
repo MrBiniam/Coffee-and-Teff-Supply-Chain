@@ -2,8 +2,14 @@ from django.urls import path, include
 from . import views
 from . import views_tracking
 from . import views_route
+from .notification_views import NotificationViewSet
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework.routers import DefaultRouter
+
+# Create a router for viewsets
+router = DefaultRouter()
+router.register(r'notifications', NotificationViewSet, basename='notification')
 
 # Defining url patterns
 urlpatterns = [
@@ -64,5 +70,8 @@ urlpatterns = [
     # Route endpoints
     path("api/route/create", views_route.CreateRouteView.as_view(), name="create-route"),
     path("api/route/save", views_route.SaveRouteView.as_view(), name="save-route"),
-    path("api/route/<int:order_id>", views_route.GetRouteView.as_view(), name="get-route")
+    path("api/route/<int:order_id>", views_route.GetRouteView.as_view(), name="get-route"),
+    
+    # Notification endpoints
+    path("api/", include(router.urls))
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

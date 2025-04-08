@@ -1,0 +1,158 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.notification-header {
+  border-bottom: 1px solid #e9ecef;
+  font-weight: bold;
+}
+
+// Wider dropdown for notifications
+.notification-dropdown {
+  min-width: 450px !important;
+  max-width: 500px !important;
+}
+
+// Notification item styling
+.notification-item {
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+  
+  &.unread {
+    background-color: #ffd700; // Solid gold background
+    border-left: 3px solid #e6c200; // Darker gold border for depth
+    
+    .notification-message {
+      font-weight: 600;
+      color: #000;
+    }
+    
+    .notification-time {
+      color: #333; // Darker text for better visibility on gold
+    }
+  }
+  
+  &:not(.unread) {
+    background-color: white;
+    border-left: 3px solid transparent;
+    
+    .notification-message {
+      color: #555;
+    }
+  }
+}
+
+.notification-message {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 8px;
+  max-width: 380px;
+  display: inline-block;
+}
+
+.notification-content {
+  width: 100%;
+}
+
+.notification-actions {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  
+  mat-icon {
+    color: white;
+    font-size: 18px;
+  }
+}
+
+.notification-content {
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+  
+  .notification-message {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 3px;
+  }
+  
+  .notification-time {
+    font-size: 12px;
+    color: #999;
+    display: flex;
+    align-items: center;
+    
+    i {
+      font-size: 14px;
+      margin-right: 5px;
+    }
+  }
+}
+
+.notification-actions {
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    opacity: 1;
+  }
+  
+  .small-button {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    padding: 0;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+  }
+}
+
+// Notification type colors
+.bg-order_placed { background-color: #4CAF50; }
+.bg-order_accepted { background-color: #2196F3; }
+.bg-driver_assigned { background-color: #FF9800; }
+.bg-order_shipped { background-color: #9C27B0; }
+.bg-order_delivered { background-color: #F44336; }
+.bg-message_received { background-color: #00BCD4; }
+
+// Animation for notification bell
+@keyframes bell-ring {
+  0% { transform: rotate(0); }
+  5% { transform: rotate(15deg); }
+  10% { transform: rotate(-15deg); }
+  15% { transform: rotate(10deg); }
+  20% { transform: rotate(-10deg); }
+  25% { transform: rotate(5deg); }
+  30% { transform: rotate(-5deg); }
+  35% { transform: rotate(0); }
+  100% { transform: rotate(0); }
+}
+
+.text-warning {
+  color: #ffd700 !important; // Gold color
+  animation: bell-ring 2s infinite;
+  text-shadow: 0px 0px 5px rgba(255, 215, 0, 0.5); // Golden glow
+}

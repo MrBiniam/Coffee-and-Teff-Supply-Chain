@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product, Order, Message, Rating, TrackingLocation, DeliveryRoute
+from .models import CustomUser, BuyerProfile, SellerProfile, DriverProfile, Product, Order, Message, Rating, TrackingLocation, DeliveryRoute, Notification
 from django.contrib.auth.hashers import make_password
 
 # Base User Serializer to register a user
@@ -147,3 +147,13 @@ class DeliveryRouteSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+# Serializer for Notification
+class NotificationSerializer(serializers.ModelSerializer):
+    """Serializer for the Notification model"""
+    class Meta:
+        model = Notification
+        fields = ['id', 'notification_type', 'message', 'related_order', 
+                 'sender_name', 'is_read', 'created_at']
+        read_only_fields = ['id', 'created_at']

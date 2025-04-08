@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .models import TrackingLocation, Order, CustomUser
 from .serializers import TrackingLocationSerializer, TrackingLocationDetailSerializer
+from .notification_views import NotificationService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -216,6 +217,7 @@ class UpdateOrderStatusView(APIView):
                 )
             
             # Update order status
+            old_status = order.status
             if status_update.lower() == 'on_route':
                 # Keep the order status as SHIPPED when tracking status is on_route
                 order.status = 'SHIPPED'
@@ -225,6 +227,15 @@ class UpdateOrderStatusView(APIView):
             else:
                 order.status = status_update.upper()
             order.save()
+            
+            # Create notifications if status has changed
+            if old_status != order.status:
+                try:
+                    # Use notification service to create appropriate notifications
+                    NotificationService.create_order_notification(order.id, order.status)
+                    logger.info(f"Created notification for order {order.id} status change to {order.status}")
+                except Exception as e:
+                    logger.error(f"Error creating notification: {str(e)}")
             
             # Create a tracking location entry with the new status
             # Get the driver's last known location
