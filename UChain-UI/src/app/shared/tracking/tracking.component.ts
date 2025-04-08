@@ -50,7 +50,7 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
       tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         minZoom: 5,
-        attribution: '© OpenStreetMap contributors'
+        attribution: ' OpenStreetMap contributors'
       })
     ],
     zoom: 15,
@@ -65,7 +65,7 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
   statusUpdates: { status: string, completed: boolean }[] = [
     { status: 'Order Accepted', completed: true },
     { status: 'Preparing for Shipment', completed: true },
-    { status: 'On the Way', completed: false },
+    { status: 'Picked Up & On the Way', completed: false },
     { status: 'Delivered', completed: false }
   ];
   
@@ -235,6 +235,12 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
         this.order = data; // Set the order property to match the template references
         
         console.log('Order details loaded, initial status:', this.currentOrder.status);
+        
+        // Check if order status is ON_ROUTE and ensure indicator is set correctly
+        if (this.currentOrder.status === 'ON_ROUTE' || this.currentOrder.status === 'PICKED_UP') {
+          // Pre-set the indicator here for immediate UI feedback
+          this.statusUpdates[2].completed = true; // "Picked Up & On the Way"
+        }
         
         // Immediately fetch tracking history to verify order status
         this.trackingService.getTrackingHistory(this.orderId).subscribe(
@@ -530,28 +536,37 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
       this.statusUpdates = [
         { status: 'Order Accepted', completed: true },
         { status: 'Preparing for Shipment', completed: false },
-        { status: 'On the Way', completed: false },
+        { status: 'Picked Up & On the Way', completed: false },
         { status: 'Delivered', completed: false }
       ];
     } else if (orderStatus === 'SHIPPED') {
       this.statusUpdates = [
         { status: 'Order Accepted', completed: true },
         { status: 'Preparing for Shipment', completed: true },
-        { status: 'On the Way', completed: true },
+        { status: 'Picked Up & On the Way', completed: false },
+        { status: 'Delivered', completed: false }
+      ];
+    } else if (orderStatus === 'PICKED_UP' || orderStatus === 'ON_ROUTE') {
+      // Combined condition for both statuses
+      console.log('Setting indicators for PICKED_UP or ON_ROUTE status');
+      this.statusUpdates = [
+        { status: 'Order Accepted', completed: true },
+        { status: 'Preparing for Shipment', completed: true },
+        { status: 'Picked Up & On the Way', completed: true },
         { status: 'Delivered', completed: false }
       ];
     } else if (orderStatus === 'DRIVER_DELIVERED') {
       this.statusUpdates = [
         { status: 'Order Accepted', completed: true },
         { status: 'Preparing for Shipment', completed: true },
-        { status: 'On the Way', completed: true },
+        { status: 'Picked Up & On the Way', completed: true },
         { status: 'Delivered', completed: true }
       ];
     } else if (orderStatus === 'DELIVERED' || orderStatus === 'Delivered') {
       this.statusUpdates = [
         { status: 'Order Accepted', completed: true },
         { status: 'Preparing for Shipment', completed: true },
-        { status: 'On the Way', completed: true },
+        { status: 'Picked Up & On the Way', completed: true },
         { status: 'Delivered', completed: true }
       ];
     }
@@ -559,12 +574,18 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
   
   updateStatusIndicatorsFromTracking(status: string) {
     // Update status indicators based on tracking status
-    if (status === 'picked_up') {
-      this.statusUpdates[1].completed = true;
-    } else if (status === 'on_route') {
-      this.statusUpdates[1].completed = true;
-      this.statusUpdates[2].completed = true;
+    console.log('Updating status indicators from tracking status:', status);
+    
+    if (status === 'picked_up' || status === 'on_route' || status === 'On the Way') {
+      console.log('Found picked_up or on_route status in tracking history, marking as picked up');
+      
+      // IMPORTANT FIX: Always trust tracking history for on_route/picked_up status
+      // This ensures that when a driver clicks the "Picked Up" button, the indicator
+      // persists after refresh even if the backend order status is still SHIPPED
+      this.statusUpdates[1].completed = true; // Preparing for Shipment
+      this.statusUpdates[2].completed = true; // Picked Up & On the Way
     } else if (status === 'delivered') {
+      console.log('Found delivered status in tracking history, marking all indicators as completed');
       this.statusUpdates[1].completed = true;
       this.statusUpdates[2].completed = true;
       this.statusUpdates[3].completed = true;
@@ -1069,6 +1090,11 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
 
             // Continue with updating order status to ON_ROUTE
             this.updateOrderToOnRoute();
+            
+            // Mark the "Picked Up & On the Way" status as completed
+            this.statusUpdates[0].completed = true; // Order Accepted
+            this.statusUpdates[1].completed = true; // Preparing for Shipment
+            this.statusUpdates[2].completed = true; // Picked Up & On the Way
           },
           error => {
             console.error('Error saving route:', error);
@@ -1079,6 +1105,11 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
 
             // Continue with updating order status even if route saving failed
             this.updateOrderToOnRoute();
+            
+            // Mark the "Picked Up & On the Way" status as completed even if save failed
+            this.statusUpdates[0].completed = true; // Order Accepted
+            this.statusUpdates[1].completed = true; // Preparing for Shipment
+            this.statusUpdates[2].completed = true; // Picked Up & On the Way
           }
         );
       } else {
@@ -1087,7 +1118,7 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
   }
-
+  
   // Helper method to update order status to ON_ROUTE after saving route
   private updateOrderToOnRoute(): void {
     // Update order status to ON_ROUTE
@@ -1187,6 +1218,127 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       );
   }
+  
+  updateStatus(newStatus: string) {
+    if (this.currentOrder) {
+      this.currentOrder.status = newStatus.toUpperCase();
+    }
+  }
+
+  getTrackingHistory() {
+    if (!this.orderId) return;
+    
+    this.trackingService.getTrackingHistory(this.orderId).subscribe(
+      (history: TrackingLocation[]) => {
+        this.locationHistory = history;
+        console.log('Tracking history loaded:', this.locationHistory);
+        
+        if (this.locationHistory && this.locationHistory.length > 0) {
+          // Sort by timestamp (newest first)
+          this.locationHistory.sort((a, b) => {
+            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+          });
+          
+          // Update map with the most recent location
+          if (this.map) {
+            setTimeout(() => {
+              this.updateMapWithLocation(this.locationHistory[0]);
+            }, 500);
+          }
+          
+          // Process tracking history to update status
+          this.processTrackingHistory();
+        }
+      },
+      error => {
+        console.error('Error getting tracking history:', error);
+      }
+    );
+  }
+
+  processTrackingHistory() {
+    if (!this.locationHistory || this.locationHistory.length === 0) return;
+    
+    // First, make sure the location history is properly sorted by timestamp (newest first)
+    this.locationHistory.sort((a, b) => {
+      const timeA = new Date(a.timestamp).getTime();
+      const timeB = new Date(b.timestamp).getTime();
+      return timeB - timeA; // Descending order (newest first)
+    });
+    
+    // Log the first few entries to verify sorting
+    console.log('Sorted tracking history (first 3 entries):', 
+      this.locationHistory.slice(0, 3).map(loc => {
+        return { 
+          status: loc.status, 
+          timestamp: loc.timestamp,
+          time: new Date(loc.timestamp).toLocaleTimeString() 
+        };
+      }));
+    
+    // Get the latest status entry (should be the first one after sorting)
+    const latestStatusEntry = this.locationHistory[0];
+    console.log('Latest status entry:', latestStatusEntry);
+    
+    if (!latestStatusEntry) return;
+    
+    // Check for delivered status first
+    if (latestStatusEntry.status === 'delivered') {
+      console.log('Found delivered status in latest tracking entry');
+      
+      // Always update order status to DRIVER_DELIVERED when we find a delivered status
+      this.currentOrder.status = 'DRIVER_DELIVERED';
+      if (this.order) {
+        this.order.status = 'DRIVER_DELIVERED';
+      }
+      
+      // Update status indicators and persist to backend
+      this.updateStatusIndicators('DRIVER_DELIVERED');
+      
+      // Log for troubleshooting
+      console.log('Order status updated to DRIVER_DELIVERED from tracking history');
+      return;
+    }
+    
+    // Only check the LATEST status, not any status in history
+    if (latestStatusEntry.status === 'on_route' || latestStatusEntry.status === 'picked_up') {
+      console.log('Latest status is on_route or picked_up');
+      
+      // MINIMAL FIX: Set the currentOrder.status to ON_ROUTE when we find on_route in tracking history
+      // This ensures the picked up indicator will persist after refresh
+      if (this.currentOrder && this.currentOrder.status === 'SHIPPED') {
+        this.currentOrder.status = 'ON_ROUTE';
+      }
+      
+      // Only update the status indicators based on the LATEST status
+      this.updateStatusIndicatorsFromTracking(latestStatusEntry.status);
+    } else {
+      // For any other status, just update indicators based on that status
+      console.log('Latest status is:', latestStatusEntry.status);
+      this.updateStatusIndicatorsFromTracking(latestStatusEntry.status);
+    }
+  }
+  
+  onWindowResize() {
+    // Debounce resize events to avoid performance issues
+    if (this.mapResizeTimeout) {
+      clearTimeout(this.mapResizeTimeout);
+    }
+    
+    this.mapResizeTimeout = setTimeout(() => {
+      this.invalidateMapSize();
+    }, 200);
+  }
+  
+  invalidateMapSize() {
+    if (this.map) {
+      // Use NgZone to ensure Angular detects the changes
+      this.zone.run(() => {
+        // Force map to recalculate its container size
+        this.map.invalidateSize(true);
+      });
+    }
+  }
 
   loadRouteData() {
     if (!this.orderId) return;
@@ -1247,210 +1399,8 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
-  onPickedUp() {
-    // Open dialog to get route information
-    const dialogRef = this.dialog.open(RouteInfoDialogComponent, {
-      width: '500px',
-      data: { orderId: this.orderId }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        // Create route object
-        const route: any = {
-          orderId: this.orderId,
-          startPoint: result.startPoint,
-          endPoint: result.endPoint
-        };
-
-        // Calculate route using OpenRouteService
-        this.trackingService.calculateRouteNew(route.startPoint, route.endPoint)
-          .subscribe(routeData => {
-            // Extract route geometry and summary
-            route.routeGeometry = routeData;
-            
-            // Extract distance and duration if available
-            if (routeData && routeData.features && routeData.features[0] && 
-                routeData.features[0].properties && routeData.features[0].properties.summary) {
-              const summary = routeData.features[0].properties.summary;
-              route.distance = summary.distance / 1000; // Convert to kilometers
-              route.estimatedTime = Math.round(summary.duration / 60); // Convert to minutes
-            }
-            
-            // Save route to backend
-            this.trackingService.saveRouteNew(route).subscribe(
-              savedRoute => {
-                console.log('Route saved:', savedRoute);
-                this.currentRoute = savedRoute;
-                
-                // Draw the route on the map
-                this.drawRoute(routeData);
-                
-                // Add markers for start and end points
-                const startCoords = [route.startPoint.latitude, route.startPoint.longitude];
-                const endCoords = [route.endPoint.latitude, route.endPoint.longitude];
-                
-                // Use divIcons for start and end points to avoid CSP issues
-                const startIcon = divIcon({
-                  className: 'custom-div-icon',
-                  html: `<div style="background-color:#4CAF50;height:42px;width:30px;text-align:center;border-radius:8px 8px 0 0;position:relative;">
-                        <i class="material-icons" style="color:#fff;font-size:20px;margin-top:5px;">play_arrow</i>
-                        <div style="width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:15px solid #4CAF50;position:absolute;bottom:-15px;left:0;"></div>
-                        </div>`,
-                  iconSize: [30, 42],
-                  iconAnchor: [15, 42],
-                  popupAnchor: [0, -40]
-                });
-
-                const endIcon = divIcon({
-                  className: 'custom-div-icon',
-                  html: `<div style="background-color:#F44336;height:42px;width:30px;text-align:center;border-radius:8px 8px 0 0;position:relative;">
-                        <i class="material-icons" style="color:#fff;font-size:20px;margin-top:5px;">location_on</i>
-                        <div style="width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:15px solid #F44336;position:absolute;bottom:-15px;left:0;"></div>
-                        </div>`,
-                  iconSize: [30, 42],
-                  iconAnchor: [15, 42],
-                  popupAnchor: [0, -40]
-                });
-
-                marker(startCoords, { icon: startIcon })
-                  .addTo(this.map)
-                  .bindPopup(`<b>Start:</b> ${route.startPoint.address || 'Starting Point'}`);
-
-                marker(endCoords, { icon: endIcon })
-                  .addTo(this.map)
-                  .bindPopup(`<b>Destination:</b> ${route.endPoint.address || 'Delivery Point'}`);
-
-                // Fit the map to show the entire route
-                this.map.fitBounds(this.routeLayer.getBounds(), { padding: [50, 50] });
-                
-                // Update order status to on_route
-                this.trackingService.updateOrderStatusNew(this.orderId, 'on_route')
-                  .subscribe(
-                    response => {
-                      console.log('Status updated to on_route:', response);
-                      this.updateStatus('on_route');
-                    },
-                    error => console.error('Error updating status:', error)
-                  );
-              },
-              error => console.error('Error saving route:', error)
-            );
-          }, error => console.error('Error calculating route:', error));
-      }
-    });
-  }
-
-  updateStatus(newStatus: string) {
-    if (this.currentOrder) {
-      this.currentOrder.status = newStatus.toUpperCase();
-    }
-  }
-
   initializeMap() {
     // This method will be called in ngOnInit to set up the map
     console.log('Map initialization will happen in ngAfterViewInit');
-  }
-
-  getTrackingHistory() {
-    if (!this.orderId) return;
-    
-    this.trackingService.getTrackingHistory(this.orderId).subscribe(
-      (history: TrackingLocation[]) => {
-        this.locationHistory = history;
-        console.log('Tracking history loaded:', this.locationHistory);
-        
-        if (this.locationHistory && this.locationHistory.length > 0) {
-          // Sort by timestamp (newest first)
-          this.locationHistory.sort((a, b) => {
-            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-          });
-          
-          // Update map with the most recent location
-          if (this.map) {
-            setTimeout(() => {
-              this.updateMapWithLocation(this.locationHistory[0]);
-            }, 500);
-          }
-          
-          // Process tracking history to update status
-          this.processTrackingHistory();
-        }
-      },
-      error => {
-        console.error('Error getting tracking history:', error);
-      }
-    );
-  }
-
-  processTrackingHistory() {
-    if (!this.locationHistory || this.locationHistory.length === 0) return;
-    
-    // First, make sure the location history is properly sorted by timestamp (newest first)
-    this.locationHistory.sort((a, b) => {
-      const timeA = new Date(a.timestamp).getTime();
-      const timeB = new Date(b.timestamp).getTime();
-      return timeB - timeA; // Descending order (newest first)
-    });
-    
-    // Log the first few entries to verify sorting
-    console.log('Sorted tracking history (first 3 entries):', 
-      this.locationHistory.slice(0, 3).map(loc => {
-        return { 
-          status: loc.status, 
-          timestamp: loc.timestamp,
-          time: new Date(loc.timestamp).toLocaleTimeString() 
-        };
-      }));
-    
-    // Check for a delivered status in the history (it should be the most recent if driver marked delivered)
-    const deliveredEntry = this.locationHistory.find(loc => loc.status === 'delivered');
-    
-    if (deliveredEntry) {
-      console.log('Found delivered status in tracking history:', deliveredEntry);
-      
-      // Always update order status to DRIVER_DELIVERED when we find a delivered status
-      this.currentOrder.status = 'DRIVER_DELIVERED';
-      if (this.order) {
-        this.order.status = 'DRIVER_DELIVERED';
-      }
-      
-      // Update status indicators and persist to backend
-      this.updateStatusIndicators('DRIVER_DELIVERED');
-      
-      // Log for troubleshooting
-      console.log('Order status updated to DRIVER_DELIVERED from tracking history');
-      return; // Exit early since we found a delivered status
-    }
-    
-    // If no delivered status found, use the latest status
-    const latestStatus = this.locationHistory[0]?.status;
-    
-    if (latestStatus) {
-      console.log('Using latest status from tracking history:', latestStatus);
-      // Update the status indicators based on the latest status
-      this.updateStatusIndicatorsFromTracking(latestStatus);
-    }
-  }
-  
-  onWindowResize() {
-    // Debounce resize events to avoid performance issues
-    if (this.mapResizeTimeout) {
-      clearTimeout(this.mapResizeTimeout);
-    }
-    
-    this.mapResizeTimeout = setTimeout(() => {
-      this.invalidateMapSize();
-    }, 200);
-  }
-  
-  invalidateMapSize() {
-    if (this.map) {
-      // Use NgZone to ensure Angular detects the changes
-      this.zone.run(() => {
-        // Force map to recalculate its container size
-        this.map.invalidateSize(true);
-      });
-    }
   }
 }

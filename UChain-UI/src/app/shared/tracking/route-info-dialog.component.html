@@ -1,9 +1,9 @@
 <h2 mat-dialog-title>Set Delivery Route</h2>
 <mat-dialog-content>
   <div class="route-dialog-content">
-    <div class="alert alert-info mb-3 d-flex align-items-center">
+    <div class="alert mb-3 d-flex align-items-center route-header">
       <i class="material-icons mr-2">directions</i>
-      <span>Create a delivery route by setting the pickup and delivery points</span>
+      <span>Plan Your Route</span>
     </div>
     
     <form [formGroup]="routeForm">
@@ -45,13 +45,10 @@
       <input type="hidden" formControlName="endLng">
     </form>
     
-    <div class="route-info-note mt-3 alert alert-light border">
-      <strong>What happens next:</strong>
-      <ul class="mb-0 pl-3 mt-1">
-        <li>A route will be calculated between these two points</li>
-        <li>The order status will update to "On the Way"</li>
-        <li>The route will appear on the tracking map</li>
-      </ul>
+    <div class="route-info-note mt-3">
+      <div style="text-align: center; font-size: 22px; font-weight: bold; color: #4B0082;">
+        U-Chain
+      </div>
     </div>
   </div>
 </mat-dialog-content>

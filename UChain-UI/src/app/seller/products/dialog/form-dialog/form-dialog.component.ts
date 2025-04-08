@@ -9,6 +9,7 @@ import {
 import { Product } from '../../product.model';
 import { ProductService } from '../../product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CustomValidators } from 'src/app/shared/validators/custom-validators';
 
 @Component({
   selector: 'app-form-dialog',
@@ -29,6 +30,12 @@ export class FormDialogComponent {
     // Set the defaults
     this.dialogTitle = data.product.name;
     this.product = data.product;
+    
+    // Format the quantity to uppercase if it exists
+    if (this.product.quantity) {
+      this.product.quantity = this.formatQuantity(this.product.quantity);
+    }
+    
     this.productForm = this.createContactForm();
   }
   formControl = new FormControl('', [
@@ -43,14 +50,16 @@ export class FormDialogComponent {
       : '';
   }
   createContactForm(): FormGroup {
+    // Determine if image should be required based on whether product already has an image
+    const imageValidators = this.product.image ? [] : [Validators.required];
+    
     return this.productForm = this.fb.group({
       name: [this.product.name, [Validators.required]],
       description: [this.product.description, [Validators.required]],
-      price: [this.product.price, [Validators.required]],
-      quantity: [this.product.quantity, [Validators.required]],
-      image: [null],  
-      product_type: [this.product.product_type, [Validators.required]],
-      
+      price: [this.product.price, [Validators.required, CustomValidators.positiveNumber()]],
+      quantity: [this.product.quantity, [Validators.required, CustomValidators.productQuantity()]],
+      image: [null, imageValidators],  
+      product_type: [this.product.product_type, [Validators.required]]
     });
   }
   submit() {
@@ -59,12 +68,23 @@ export class FormDialogComponent {
   onNoClick(): void {
     this.dialogRef.close();
   }
+  
+  // Helper function to format quantity to uppercase
+  formatQuantity(quantity: string): string {
+    if (!quantity) return quantity;
+    
+    // Convert 'kg' part to uppercase, preserving the number and any spaces
+    return quantity.replace(/kg$/i, 'KG');
+  }
   onSubmit() {
+    // Format quantity to uppercase
+    const quantityValue = this.formatQuantity(this.productForm.get('quantity').value);
+    
     const formData = new FormData();
     formData.append('name', this.productForm.get('name').value);
     formData.append('description', this.productForm.get('description').value);
     formData.append('price', this.productForm.get('price').value);
-    formData.append('quantity', this.productForm.get('quantity').value);
+    formData.append('quantity', quantityValue);
     formData.append('product_type', this.productForm.get('product_type').value);
     
     // Check if a new image was selected
@@ -82,7 +102,7 @@ export class FormDialogComponent {
       name: this.productForm.get('name').value,
       description: this.productForm.get('description').value,
       price: this.productForm.get('price').value,
-      quantity: this.productForm.get('quantity').value,
+      quantity: quantityValue,
       product_type: this.productForm.get('product_type').value
     };
 

@@ -157,17 +157,18 @@ export class CustomValidators {
   }
 
   /**
-   * Validates quantity is a positive number between 1 and 100
+   * Validates quantity format must be a number followed by 'kg' (case-insensitive)
+   * Valid formats: 100KG, 250 kg, 1 Kg
+   * Invalid formats: 100, 100L, 500 grams, etc.
    */
   static productQuantity(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
-      if (!control.value && control.value !== 0) {
+      if (!control.value) {
         return null;
       }
       
-      const numValue = Number(control.value);
-      // Ensure it's a positive number between 1 and 100
-      const valid = !isNaN(numValue) && numValue > 0 && numValue <= 100 && Number.isInteger(numValue);
+      // Check if the value matches the pattern: number + optional spaces + 'kg' (case insensitive)
+      const valid = /^\d+\s*kg$/i.test(control.value);
       return valid ? null : { 'productQuantity': { value: control.value } };
     };
   }

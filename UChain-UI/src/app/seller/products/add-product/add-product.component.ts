@@ -53,6 +53,14 @@ export class AddProductComponent implements OnInit {
     console.log('Form valid:', this.productForm.valid);
     console.log('Form errors:', this.formErrors);
   }
+  
+  // Helper function to format quantity to uppercase
+  formatQuantity(quantity: string): string {
+    if (!quantity) return quantity;
+    
+    // Convert 'kg' part to uppercase, preserving the number and any spaces
+    return quantity.replace(/kg$/i, 'KG');
+  }
 
   onSubmit() {
     // Check form validity one last time
@@ -73,7 +81,11 @@ export class AddProductComponent implements OnInit {
     formData.append('name', this.productForm.get('name').value);
     formData.append('description', this.productForm.get('description').value);
     formData.append('price', this.productForm.get('price').value);
-    formData.append('quantity', this.productForm.get('quantity').value);
+    
+    // Format quantity to uppercase before submitting
+    const quantityValue = this.formatQuantity(this.productForm.get('quantity').value);
+    formData.append('quantity', quantityValue);
+    
     formData.append('product_type', this.productForm.get('product_type').value);
     formData.append('location', this.productForm.get('location').value);
     

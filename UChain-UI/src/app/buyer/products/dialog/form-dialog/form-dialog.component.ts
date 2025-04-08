@@ -22,6 +22,7 @@ export class FormDialogComponent {
   dialogTitle: string;
   orderForm: FormGroup;
   product: Product;
+  maxQuantity: number = 100; // Default max quantity if parsing fails
   constructor(
     public dialogRef: MatDialogRef<FormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -34,29 +35,36 @@ export class FormDialogComponent {
     // Set the defaults
     this.dialogTitle = data.product.name;
     this.product = data.product;
+    
+    // Extract the numeric part from the quantity (e.g., "100KG" -> 100)
+    if (this.product.quantity && typeof this.product.quantity === 'string') {
+      const match = this.product.quantity.match(/^(\d+)/);
+      if (match && match[1]) {
+        this.maxQuantity = parseInt(match[1]);
+      }
+    }
+    
     this.orderForm = this.createContactForm();
   }
   formControl = new FormControl('', [
-    Validators.required,
-    // Validators.email,
+    Validators.required
   ]);
   getErrorMessage() {
     return this.formControl.hasError('required')
       ? 'Required field'
-      : this.formControl.hasError('email')
-      ? 'Not a valid email'
       : '';
   }
   createContactForm(): FormGroup {
-    // Extract numeric part of quantity if it's a string like "1kg"
-    let initialQuantity = this.product.quantity;
-    if (typeof initialQuantity === 'string') {
-      const numericMatch = initialQuantity.match(/^(\d+)/);
-      initialQuantity = numericMatch ? numericMatch[1] : '';
-    }
-    
     return this.orderForm = this.fb.group({
-      quantity: [initialQuantity, [Validators.required, CustomValidators.productQuantity()]],
+      quantity: [
+        1, // Default to 1 as the initial value
+        [
+          Validators.required,
+          Validators.min(1),
+          Validators.max(this.maxQuantity),
+          Validators.pattern('^[0-9]*$') // Only allow numbers
+        ]
+      ],
     });
   }
   submit() {
@@ -69,6 +77,18 @@ export class FormDialogComponent {
     // Get the product price (it's already a number, no need to parse)
     const productPrice = this.product.price || 0;
     const orderQuantity = parseInt(this.orderForm.value.quantity) || 1;
+    
+    // Validate that the quantity is within allowed range
+    if (orderQuantity < 1 || orderQuantity > this.maxQuantity) {
+      this.showNotification(
+        'snackbar-danger',
+        `Order quantity must be between 1 and ${this.maxQuantity}`,
+        'bottom',
+        'center'
+      );
+      return;
+    }
+    
     const totalPrice = isNaN(productPrice) ? 0 : orderQuantity * productPrice;
 
     const dialogRef = this.dialog.open(PayComponent, {
@@ -78,8 +98,8 @@ export class FormDialogComponent {
         price: totalPrice.toString() // Convert to string to match expected type
       },
     });
-    this.tokenStorageService.savePId(this.product.id.toString())
-    this.tokenStorageService.saveQuantity(this.orderForm.value.quantity)
+    this.tokenStorageService.savePId(this.product.id.toString());
+    this.tokenStorageService.saveQuantity(orderQuantity.toString());
     dialogRef.afterClosed().subscribe((result) => {
       if (result === 1) {
         // After dialog is closed we're doing frontend updates

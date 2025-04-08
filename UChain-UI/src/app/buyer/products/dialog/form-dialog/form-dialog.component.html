@@ -18,22 +18,35 @@
       <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
           <mat-form-field class="example-full-width mb-3">
-            <mat-label>Quantity (No Only Regrading described unit with the unit)</mat-label>
-            <input matInput formControlName="quantity" required type="number">
+            <mat-label>Order Quantity (Min: 1, Max: {{maxQuantity}})</mat-label>
+            <input 
+              matInput 
+              formControlName="quantity" 
+              required 
+              type="number"
+              min="1"
+              [max]="maxQuantity"
+            >
             <mat-error *ngIf="orderForm.get('quantity').hasError('required')">
               Quantity is required
             </mat-error>
+            <mat-error *ngIf="orderForm.get('quantity').hasError('min')">
+              Minimum order quantity is 1
+            </mat-error>
+            <mat-error *ngIf="orderForm.get('quantity').hasError('max')">
+              Maximum order quantity is {{maxQuantity}}
+            </mat-error>
             <mat-error *ngIf="orderForm.get('quantity').hasError('pattern')">
-              Please Enter Number Only
+              Please enter a valid number
             </mat-error>
           </mat-form-field>
         </div>
       </div>
       <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
-          <button class="mr-3" [disabled]="!orderForm.valid " mat-raised-button
+          <button class="mr-3" [disabled]="!orderForm.valid" mat-raised-button
             color="primary" [type]="submit" [mat-dialog-close]="1" (click)="onSubmit()">Order</button>
-          <button type="button" mat-button >Cancel</button>
+          <button type="button" mat-button (click)="onNoClick()">Cancel</button>
         </div>
       </div>
     </form>
