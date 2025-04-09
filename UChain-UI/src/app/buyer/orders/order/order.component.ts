@@ -91,11 +91,11 @@ export class OrderComponent implements OnInit {
   }
   
   orderDetail(id) {
-    this.router.navigate([`/buyer/orders/order-profile/${id}`]);
+    this.router.navigate([`/app/buyer/orders/order-profile/${id}`]);
   }
 
   viewProduct(productId) {
     console.log('Navigating to product profile:', productId);
-    this.router.navigate([`/buyer/products/product-profile/${productId}`]);
+    this.router.navigate([`/app/buyer/products/product-profile/${productId}`]);
   }
 }

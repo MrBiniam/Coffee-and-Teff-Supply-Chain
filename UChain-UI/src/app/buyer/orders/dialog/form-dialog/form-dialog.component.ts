@@ -87,7 +87,7 @@ export class FormDialogComponent {
             
             // Navigate back to the orders list after a short delay
             setTimeout(() => {
-              window.location.href = '/#/buyer/orders/order';
+              window.location.href = '/#/app/buyer/orders/order';
             }, 2000);
           },
         error => {

@@ -110,6 +110,6 @@ export class ShippedOrderComponent implements OnInit {
   }
   
   orderDetail(id) {
-    this.router.navigate([`/tracking/${id}`]);
+    this.router.navigate([`/app/tracking/${id}`]);
   }
 }

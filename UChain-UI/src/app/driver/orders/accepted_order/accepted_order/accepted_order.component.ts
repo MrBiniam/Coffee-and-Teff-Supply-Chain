@@ -179,7 +179,7 @@ export class AcceptedOrderComponent implements OnInit {
     });
   }
   orderDetail(id) {
-    this.router.navigate([`/driver/orders/accepted_order_profile/${id}`]);
+    this.router.navigate([`/app/driver/orders/accepted_order_profile/${id}`]);
   }
   shipOrder(order) {
     if (!order || !order.id) {
@@ -244,7 +244,7 @@ export class AcceptedOrderComponent implements OnInit {
             ).then(() => {
               // Navigate to shipped orders page after successful shipping
               setTimeout(() => {
-                this.router.navigate(['/driver/orders/shipped_order']);
+                this.router.navigate(['/app/driver/orders/shipped_order']);
               }, 1000);
             });
             

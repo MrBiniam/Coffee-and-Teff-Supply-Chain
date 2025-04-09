@@ -86,7 +86,7 @@ export class OrderProfileComponent implements OnInit {
   // Add a method to navigate to the product profile
   viewProduct(productId) {
     if (productId) {
-      this.router.navigate([`/buyer/products/product-profile/${productId}`]);
+      this.router.navigate([`/app/buyer/products/product-profile/${productId}`]);
     }
   }
   
@@ -110,7 +110,7 @@ export class OrderProfileComponent implements OnInit {
         
         // Navigate back to orders list
         setTimeout(() => {
-          this.router.navigate(['/buyer/orders/order']);
+          this.router.navigate(['/app/buyer/orders/order']);
         }, 1000);
       }
     });

@@ -284,14 +284,14 @@ export class PaymentSuccessComponent implements OnInit {
   goToSelectDriver() {
     // Set payment completed flag and redirect to driver selection page with success parameter
     localStorage.setItem('payment_completed', 'true');
-    this.router.navigate(['/buyer/drivers/select-driver'], { queryParams: { payment: 'success' } });
+    this.router.navigate(['/app/buyer/drivers/select-driver'], { queryParams: { payment: 'success' } });
   }
   
   /**
    * Navigate to products page
    */
   goToProducts() {
-    this.router.navigate(['/buyer/products/product']);
+    this.router.navigate(['/app/buyer/products/product']);
   }
   
   /**

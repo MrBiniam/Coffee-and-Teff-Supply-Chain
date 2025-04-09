@@ -1,0 +1,62 @@
+// Variables (using UChain color scheme)
+$primary-color: #8B4513; // Coffee brown
+$secondary-color: #DAA520; // Teff gold
+$accent-color: #2E8B57; // Ethiopian green
+$light-text: #fff;
+$dark-text: #333;
+
+.home-link-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 25px;
+  z-index: 5;
+}
+
+.home-button {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, $primary-color, darken($primary-color, 10%));
+  color: $light-text;
+  border-radius: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 2px solid rgba($secondary-color, 0.7);
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, $secondary-color, darken($secondary-color, 10%));
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  span {
+    font-size: 18px;
+    font-weight: 600;
+    margin-left: 8px;
+    letter-spacing: 0.5px;
+    background: linear-gradient(45deg, $light-text, rgba($secondary-color, 0.8));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mini-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover .mini-logo {
+    transform: rotate(15deg);
+  }
+}

@@ -112,7 +112,7 @@ export class AddProductComponent implements OnInit {
             'bottom',
             'center'
           );
-          this.router.navigate(['/seller/products/my-products']);
+          this.router.navigate(['/app/seller/products/my-products']);
         },
       error => {
         console.log(error);

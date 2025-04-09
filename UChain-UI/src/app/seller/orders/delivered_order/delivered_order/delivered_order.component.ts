@@ -47,7 +47,7 @@ export class DeliveredOrderComponent implements OnInit {
     });
   }
   orderDetail(id) {
-    this.router.navigate([`/seller/orders/delivered_order_profile/${id}`]);
+    this.router.navigate([`/app/seller/orders/delivered_order_profile/${id}`]);
   }
 
   getUserImageUrl(username: string, role: string): string {

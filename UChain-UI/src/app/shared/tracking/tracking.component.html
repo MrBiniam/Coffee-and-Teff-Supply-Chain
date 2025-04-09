@@ -42,25 +42,25 @@
             <a 
               *ngIf="isDriver"
               class="btn btn-outline-light btn-sm float-right" 
-              routerLink="/driver/orders/shipped_order">
+              routerLink="/app/driver/orders/shipped_order">
               <i class="material-icons vertical-align-middle mr-1">arrow_back</i> Back
             </a>
             <a 
               *ngIf="isBuyer"
               class="btn btn-outline-light btn-sm float-right" 
-              routerLink="/buyer/orders/shipped_order">
+              routerLink="/app/buyer/orders/shipped_order">
               <i class="material-icons vertical-align-middle mr-1">arrow_back</i> Back
             </a>
             <a 
               *ngIf="isSeller"
               class="btn btn-outline-light btn-sm float-right" 
-              routerLink="/seller/orders/shipped_order">
+              routerLink="/app/seller/orders/shipped_order">
               <i class="material-icons vertical-align-middle mr-1">arrow_back</i> Back
             </a>
             <a 
               *ngIf="!isDriver && !isBuyer && !isSeller"
               class="btn btn-outline-light btn-sm float-right" 
-              routerLink="/dashboard">
+              routerLink="/app/dashboard">
               <i class="material-icons vertical-align-middle mr-1">arrow_back</i> Back
             </a>
           </div>
@@ -216,10 +216,10 @@
             <div class="alert alert-danger text-center">
               <h4><i class="material-icons vertical-align-middle mr-2">error</i> Order Not Found</h4>
               <p>The requested order information could not be found.</p>
-              <a *ngIf="isDriver" routerLink="/driver/orders/shipped_order" class="btn btn-danger mt-3">Go Back</a>
-              <a *ngIf="isBuyer" routerLink="/buyer/orders/shipped_order" class="btn btn-danger mt-3">Go Back</a>
-              <a *ngIf="isSeller" routerLink="/seller/orders/shipped_order" class="btn btn-danger mt-3">Go Back</a>
-              <a *ngIf="!isDriver && !isBuyer && !isSeller" routerLink="/dashboard" class="btn btn-danger mt-3">Go Back</a>
+              <a *ngIf="isDriver" routerLink="/app/driver/orders/shipped_order" class="btn btn-danger mt-3">Go Back</a>
+              <a *ngIf="isBuyer" routerLink="/app/buyer/orders/shipped_order" class="btn btn-danger mt-3">Go Back</a>
+              <a *ngIf="isSeller" routerLink="/app/seller/orders/shipped_order" class="btn btn-danger mt-3">Go Back</a>
+              <a *ngIf="!isDriver && !isBuyer && !isSeller" routerLink="/app/dashboard" class="btn btn-danger mt-3">Go Back</a>
             </div>
           </div>
         </div>

@@ -49,7 +49,7 @@ export class ProductComponent implements OnInit {
   }
 
   productDetail(id) {
-    this.router.navigate([`/buyer/products/product-profile/${id}`]);
+    this.router.navigate([`/app/buyer/products/product-profile/${id}`]);
   }
 
   // Helper method to get the properly formatted image URL

@@ -100,7 +100,7 @@ export class DeliveredOrderComponent implements OnInit {
   }
   
   orderDetail(id) {
-    this.router.navigate([`/buyer/orders/delivered_order_profile/${id}`]);
+    this.router.navigate([`/app/buyer/orders/delivered_order_profile/${id}`]);
   }
 
   getUserImageUrl(username: string, role: string): string {

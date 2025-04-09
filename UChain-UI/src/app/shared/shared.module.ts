@@ -6,6 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { UChainHomesModule } from './uchain-homes/uchain-homes.module';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -17,13 +19,16 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
     MatButtonModule,
     MatIconModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    UChainHomesModule,
+    RouterModule
   ],
   exports: [
     SimpleConfirmComponent,
     MatDialogModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    UChainHomesModule
   ],
   entryComponents: [
     SimpleConfirmComponent

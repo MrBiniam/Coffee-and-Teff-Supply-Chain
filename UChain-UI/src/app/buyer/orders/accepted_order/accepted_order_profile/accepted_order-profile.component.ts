@@ -151,7 +151,7 @@ export class AcceptedOrderProfileComponent implements OnInit {
             
             // Navigate to chat with the username as a query parameter
             setTimeout(() => {
-              this.router.navigate(['/apps/chat'], { 
+              this.router.navigate(['/app/apps/chat'], { 
                 queryParams: { to: username },
                 state: { forceRefresh: true }
               });

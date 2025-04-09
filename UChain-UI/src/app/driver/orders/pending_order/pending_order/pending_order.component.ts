@@ -106,11 +106,11 @@ export class PendingOrderComponent implements OnInit {
   }
   
   orderDetail(id) {
-    this.router.navigate([`/driver/orders/order-profile/${id}`]);
+    this.router.navigate([`/app/driver/orders/order-profile/${id}`]);
   }
 
   viewProduct(productId) {
     console.log('Navigating to product profile:', productId);
-    this.router.navigate([`/driver/products/product-profile/${productId}`]);
+    this.router.navigate([`/app/driver/products/product-profile/${productId}`]);
   }
 }

@@ -6,20 +6,29 @@ import { Page404Component } from "./authentication/page404/page404.component";
 import { AuthLayoutComponent } from "./layout/app-layout/auth-layout/auth-layout.component";
 import { MainLayoutComponent } from "./layout/app-layout/main-layout/main-layout.component";
 import { TrackingComponent } from "./shared/tracking/tracking.component";
+import { UChainHomesComponent } from "./shared/uchain-homes/uchain-homes.component";
 
 const routes: Routes = [
   {
     path: "",
+    redirectTo: "home",
+    pathMatch: "full"
+  },
+  {
+    path: "home",
+    component: UChainHomesComponent
+  },
+  {
+    path: "app",
     component: MainLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: "", redirectTo: "/authentication/signin", pathMatch: "full" },
+      { path: "", redirectTo: "/app/buyer/dashboard/main", pathMatch: "full" },
       {
         path: "buyer",
         canActivate: [AuthGuard],
         data: {
-          role: Role.BUYER,
-        
+          role: Role.BUYER
         },
         loadChildren: () =>
           import("./buyer/buyer.module").then((m) => m.BuyerModule),
@@ -62,8 +71,13 @@ const routes: Routes = [
         (m) => m.AuthenticationModule
       ),
   },
+  // Redirect legacy routes to new app structure
+  { path: "buyer", redirectTo: "/app/buyer", pathMatch: "prefix" },
+  { path: "seller", redirectTo: "/app/seller", pathMatch: "prefix" },
+  { path: "driver", redirectTo: "/app/driver", pathMatch: "prefix" },
   { path: "**", component: Page404Component },
 ];
+
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],

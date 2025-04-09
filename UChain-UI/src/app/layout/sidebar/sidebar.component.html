@@ -21,7 +21,7 @@
         <li [class.active]="showMenu === sidebarItem.moduleName && sidebarItem.submenu.length != 0"
           *ngFor="let sidebarItem of sidebarItems" [routerLinkActive]="sidebarItem.submenu.length != 0 ? '' : 'active'">
           <div class="header" *ngIf="sidebarItem.groupTitle === true">{{sidebarItem.title}}</div>
-          <a [routerLink]="sidebarItem.class === '' ? [sidebarItem.path] : null" *ngIf="!sidebarItem.groupTitle;"
+          <a [routerLink]="sidebarItem.class === '' ? (sidebarItem.moduleName === 'logout' ? [sidebarItem.path] : ['/app' + sidebarItem.path]) : null" *ngIf="!sidebarItem.groupTitle;"
             [ngClass]="[sidebarItem.class]" (click)="callMenuToggle($event, sidebarItem.moduleName)" class="menu-top">
             <i [ngClass]="[sidebarItem.iconType]">{{sidebarItem.icon}}</i>
             <span class="hide-menu">{{sidebarItem.title}}
@@ -33,7 +33,7 @@
             <li [ngClass]="showSubMenu === sidebarSubItem.moduleName? 'activeSub':''"
               *ngFor="let sidebarSubItem of sidebarItem.submenu"
               [routerLinkActive]="sidebarSubItem.submenu.length > 0 ? '' : 'active'">
-              <a [routerLink]="sidebarSubItem.submenu.length > 0 ? null : [sidebarSubItem.path]"
+              <a [routerLink]="sidebarSubItem.submenu.length > 0 ? null : ['/app' + sidebarSubItem.path]"
                 (click)="callSubMenuToggle($event,sidebarSubItem.moduleName)" [ngClass]="[sidebarSubItem.class]">
                 {{sidebarSubItem.title}}
               </a>
@@ -42,7 +42,7 @@
                 <li *ngFor="let sidebarSubsubItem of sidebarSubItem.submenu"
                   [ngClass]="showSubSubMenu === sidebarSubsubItem.moduleName? 'activeSubSub':''"
                   [routerLinkActive]="sidebarSubsubItem.submenu.length > 0 ? '' : 'active'">
-                  <a [routerLink]="sidebarSubsubItem.submenu.length > 0 ? null : [sidebarSubsubItem.path]"
+                  <a [routerLink]="sidebarSubsubItem.submenu.length > 0 ? null : ['/app' + sidebarSubsubItem.path]"
                     [ngClass]="[sidebarSubsubItem.class]">
                     {{sidebarSubsubItem.title}}
                   </a>

@@ -1,6 +1,7 @@
 <div class="limiter">
   <div class="container-login100" style="background-image: url('assets/images/coffee.jpg'); background-size: cover;">
     <div class="wrap-login200">
+
       <form class="login100-form validate-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <span class="login100-form-title pb-5">
           Login
@@ -62,6 +63,12 @@
           </a>
         </div>
       </form>
+      <div class="home-link-container">
+        <a routerLink="/" class="home-button">
+          <img src="assets/images/logo.png" alt="UChain Logo" class="mini-logo">
+          <span>U-Chain</span>
+        </a>
+      </div>
     </div>
   </div>
 </div>

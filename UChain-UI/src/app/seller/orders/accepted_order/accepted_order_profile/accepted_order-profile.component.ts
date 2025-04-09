@@ -180,7 +180,7 @@ export class AcceptedOrderProfileComponent implements OnInit {
   goToChat(username: string) {
     // Navigate directly to chat without sending a hello message first
     // This avoids the 500 error when the backend is not responding properly
-    this.router.navigate(['/apps/chat'], { 
+    this.router.navigate(['/app/apps/chat'], { 
       queryParams: { to: username }
     });
     
@@ -195,7 +195,7 @@ export class AcceptedOrderProfileComponent implements OnInit {
   // Method to navigate to the chat page and say hello
   goToChatPage(username?: string) {
     if (!username) {
-      this.router.navigate(['/apps/chat']);
+      this.router.navigate(['/app/apps/chat']);
       return;
     }
     
@@ -236,7 +236,7 @@ export class AcceptedOrderProfileComponent implements OnInit {
             
             // Navigate to chat with the username as a query parameter
             setTimeout(() => {
-              this.router.navigate(['/apps/chat'], { 
+              this.router.navigate(['/app/apps/chat'], { 
                 queryParams: { to: username },
                 state: { forceRefresh: true }
               });

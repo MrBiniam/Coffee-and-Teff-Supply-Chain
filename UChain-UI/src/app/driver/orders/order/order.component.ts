@@ -105,6 +105,6 @@ export class OrderComponent implements OnInit {
   }
   
   orderDetail(id) {
-    this.router.navigate([`/driver/orders/order-profile/${id}`]);
+    this.router.navigate([`/app/driver/orders/order-profile/${id}`]);
   }
 }

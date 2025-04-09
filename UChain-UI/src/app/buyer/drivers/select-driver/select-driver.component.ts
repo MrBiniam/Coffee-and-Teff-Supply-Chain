@@ -460,7 +460,7 @@ export class SelectDriverComponent implements OnInit {
         console.log('Redirecting to buyer pending orders page in 2 seconds...');
         setTimeout(() => {
           // Use the full path to ensure proper routing without redirection to login
-          window.location.href = 'http://localhost:4200/#/buyer/orders/order';
+          window.location.href = 'http://localhost:4200/#/app/buyer/orders/order';
         }, 2000);
       },
       error: (error) => {

@@ -269,7 +269,7 @@ export class OrderComponent implements OnInit {
   }
 
   orderDetail(id) {
-    this.router.navigate([`/seller/orders/order-profile/${id}`]);
+    this.router.navigate([`/app/seller/orders/order-profile/${id}`]);
   }
 
   acceptOrder(id) {
@@ -330,7 +330,7 @@ export class OrderComponent implements OnInit {
             this.getOrder();
             setTimeout(() => {
               console.log('Redirecting to accepted orders page...');
-              this.router.navigate(['/seller/orders/accepted_order']);
+              this.router.navigate(['/app/seller/orders/accepted_order']);
             }, 1000);
           },
           (error) => {
@@ -349,7 +349,7 @@ export class OrderComponent implements OnInit {
                 console.log('Order status update successful via alternative URL!', altResponse);
                 this.snackBar.open('Order accepted successfully!', 'Close', { duration: 3000 });
                 this.getOrder();
-                setTimeout(() => this.router.navigate(['/seller/orders/accepted_order']), 1000);
+                setTimeout(() => this.router.navigate(['/app/seller/orders/accepted_order']), 1000);
               },
               (altError) => {
                 console.error('All order update attempts failed:', altError);

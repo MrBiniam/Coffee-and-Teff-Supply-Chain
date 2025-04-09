@@ -47,7 +47,7 @@ export class DeliveredOrderComponent implements OnInit {
     });
   }
   orderDetail(id) {
-    this.router.navigate([`/driver/orders/delivered_order_profile/${id}`]);
+    this.router.navigate([`/app/driver/orders/delivered_order_profile/${id}`]);
   }
 
   getUserImageUrl(username: string, role: string): string {

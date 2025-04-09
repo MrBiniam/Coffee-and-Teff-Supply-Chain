@@ -123,7 +123,7 @@ export class AcceptedOrderProfileComponent implements OnInit {
           response => {
             Swal.fire('Sent!', 'You have said Hello to ' + username, 'success');
             setTimeout(() => {
-              this.router.navigate(['/apps/chat'], { queryParams: { to: username } });
+              this.router.navigate(['/app/apps/chat'], { queryParams: { to: username } });
             }, 2000);
           },
           error => {

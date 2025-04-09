@@ -85,34 +85,34 @@ export class SigninComponent implements OnInit {
 
           // Navigate back to the product with tx_ref to complete verification
           if (pendingTxRef && pendingProductId) {
-            this.router.navigate(['/buyer/products/product', pendingProductId], {
+            this.router.navigate(['/app/buyer/products/product', pendingProductId], {
               queryParams: { tx_ref: pendingTxRef }
             });
           } else if (pendingProductId) {
-            this.router.navigate(['/buyer/products/product', pendingProductId]);
+            this.router.navigate(['/app/buyer/products/product', pendingProductId]);
           } else {
             // If we don't have product ID, redirect to orders page
-            this.router.navigate(['/buyer/orders/order']);
+            this.router.navigate(['/app/buyer/orders/order']);
           }
         } else if (role === 'BUYER') {
           localStorage.setItem('STATE', 'true');
           localStorage.setItem('ROLE', "BUYER")
           // Signal chat component that we're coming from login
-          this.router.navigate(['/buyer/dashboard/main'], { 
+          this.router.navigate(['/app/buyer/dashboard/main'], { 
             state: { fromLogin: true, signedInTime: new Date().getTime() } 
           });
         } else if (role === 'SELLER') {
           localStorage.setItem('STATE', 'true');
           localStorage.setItem('ROLE', "SELLER")
           // Signal chat component that we're coming from login
-          this.router.navigate(['/seller/dashboard'], { 
+          this.router.navigate(['/app/seller/dashboard'], { 
             state: { fromLogin: true, signedInTime: new Date().getTime() } 
           });
         } else if (role === 'DRIVER') {
           localStorage.setItem('STATE', 'true');
           localStorage.setItem('ROLE', "DRIVER")
           // Signal chat component that we're coming from login
-          this.router.navigate(['/driver/dashboard'], { 
+          this.router.navigate(['/app/driver/dashboard'], { 
             state: { fromLogin: true, signedInTime: new Date().getTime() } 
           });
         }

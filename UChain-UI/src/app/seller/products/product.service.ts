@@ -98,8 +98,8 @@ export class ProductService {
         const frontendBaseUrl = window.location.origin; // e.g., http://localhost:4200
         
         // Fix URL parameters to avoid encoding issues - use semicolon instead of ampersand
-        const callbackUrl = `${frontendBaseUrl}/#/buyer/payments/success?tx_ref=${tx_ref};product_id=${productId}`;
-        const returnUrl = `${frontendBaseUrl}/#/buyer/payments/success?tx_ref=${tx_ref};product_id=${productId}`;
+        const callbackUrl = `${frontendBaseUrl}/#/app/buyer/payments/success?tx_ref=${tx_ref};product_id=${productId}`;
+        const returnUrl = `${frontendBaseUrl}/#/app/buyer/payments/success?tx_ref=${tx_ref};product_id=${productId}`;
         
         // Now make the payment API call
         return this.httpClient.post<any>(verifyUrl, {
@@ -149,8 +149,8 @@ export class ProductService {
     const frontendBaseUrl = window.location.origin; // e.g., http://localhost:4200
     
     // Create the callback URL and return URL for Chapa - point to our new payment success page
-    const callbackUrl = `${frontendBaseUrl}/#/buyer/payments/success?tx_ref=${tx_ref}&product_id=${product.id}`;
-    const returnUrl = `${frontendBaseUrl}/#/buyer/payments/success?tx_ref=${tx_ref}&product_id=${product.id}`;
+    const callbackUrl = `${frontendBaseUrl}/#/app/buyer/payments/success?tx_ref=${tx_ref}&product_id=${product.id}`;
+    const returnUrl = `${frontendBaseUrl}/#/app/buyer/payments/success?tx_ref=${tx_ref}&product_id=${product.id}`;
     
     console.log('Initiating checkout for product:', product.id, 'Amount:', amount, 'Quantity:', quantity);
     

@@ -786,36 +786,42 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
     if (Array.isArray(userRole)) {
       if (userRole.includes('DRIVER')) {
         console.log('Navigating to driver shipped orders');
-        this.router.navigate(['/driver/orders/shipped_order']);
-        return;
-      } else if (userRole.includes('BUYER')) {
-        console.log('Navigating to buyer shipped orders');
-        this.router.navigate(['/buyer/orders/shipped_order']);
+        this.router.navigate(['/app/driver/orders/shipped_order']);
         return;
       } else if (userRole.includes('SELLER')) {
         console.log('Navigating to seller shipped orders');
-        this.router.navigate(['/seller/orders/shipped_order']);
-        return;
-      }
-    } else if (typeof userRole === 'string') {
-      if (userRole.includes('DRIVER')) {
-        console.log('Navigating to driver shipped orders (string)');
-        this.router.navigate(['/driver/orders/shipped_order']);
+        this.router.navigate(['/app/seller/orders/shipped_order']);
         return;
       } else if (userRole.includes('BUYER')) {
         console.log('Navigating to buyer shipped orders (string)');
-        this.router.navigate(['/buyer/orders/shipped_order']);
+        this.router.navigate(['/app/buyer/orders/shipped_order']);
         return;
-      } else if (userRole.includes('SELLER')) {
+      } else {
+        // Fallback to dashboard if role detection fails
+        console.log('No specific role detected in array, falling back to dashboard');
+        this.router.navigate(['/app/dashboard']);
+        return;
+      }
+    } else if (userRole) {
+      // Handle case where userRole is a string
+      if (userRole === 'DRIVER') {
+        console.log('Navigating to driver shipped orders (string)');
+        this.router.navigate(['/app/driver/orders/shipped_order']);
+        return;
+      } else if (userRole === 'SELLER') {
         console.log('Navigating to seller shipped orders (string)');
-        this.router.navigate(['/seller/orders/shipped_order']);
+        this.router.navigate(['/app/seller/orders/shipped_order']);
+        return;
+      } else if (userRole === 'BUYER') {
+        console.log('Navigating to buyer shipped orders (string)');
+        this.router.navigate(['/app/buyer/orders/shipped_order']);
         return;
       }
     }
     
     // Fallback to dashboard if role detection fails
     console.log('No specific role detected, falling back to dashboard');
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/app/dashboard']);
   }
   
   // New methods for route handling
@@ -1086,7 +1092,9 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
             // Update the route display
             this.currentRoute = result;
             this.drawRoute();
-            this.snackBar.open('Route saved successfully', 'OK', { duration: 3000 });
+            this.snackBar.open('Route saved successfully', 'OK', {
+              duration: 3000
+            });
 
             // Continue with updating order status to ON_ROUTE
             this.updateOrderToOnRoute();

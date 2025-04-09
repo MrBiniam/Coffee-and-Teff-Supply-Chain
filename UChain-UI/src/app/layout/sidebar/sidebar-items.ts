@@ -428,7 +428,7 @@ export const ROUTES: RouteInfo[] = [
     submenu: [],
   },
   {
-    path: '/authentication/signin',
+    path: '/home',
     title: 'Logout',
     moduleName: 'logout',
     iconType: 'material-icons-two-tone',

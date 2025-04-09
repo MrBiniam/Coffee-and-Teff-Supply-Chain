@@ -90,6 +90,6 @@ export class AcceptedOrderComponent implements OnInit {
     );
   }
   orderDetail(id) {
-    this.router.navigate([`/buyer/orders/accepted_order_profile/${id}`]);
+    this.router.navigate([`/app/buyer/orders/accepted_order_profile/${id}`]);
   }
 }

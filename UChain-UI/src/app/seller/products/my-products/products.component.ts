@@ -99,7 +99,7 @@ export class ProductsComponent implements OnInit {
   }
 
   productDetail(id) {
-    this.router.navigate([`/seller/products/product-profile/${id}`]);
+    this.router.navigate([`/app/seller/products/product-profile/${id}`]);
   }
   editProduct(product) {
     const dialogRef = this.dialog.open(FormDialogComponent, {

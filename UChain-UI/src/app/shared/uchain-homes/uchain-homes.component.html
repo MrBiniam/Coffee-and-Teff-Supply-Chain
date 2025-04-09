@@ -1,0 +1,280 @@
+<!-- Main Container -->
+<div class="uchain-homes-container">
+  <!-- Sticky Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <div class="container">
+      <div class="navbar-brand">
+        <span class="brand-text">U-Chain</span>
+      </div>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="navbar-right-section">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" (click)="scrollToSection('hero')">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" (click)="scrollToSection('about')">About Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" (click)="scrollToSection('services')">Services</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" (click)="scrollToSection('contact')">Contact</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link sign-in-btn" [routerLink]="['/authentication/signin']">Sign In</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link sign-up-btn" [routerLink]="['/authentication/signup']">Sign Up</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero" class="hero-section">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1>U-Chain</h1>
+        <h2>Ethiopia's Coffee & Teff Supply Chain System</h2>
+        <div class="hero-buttons">
+          <button class="btn get-started-btn" [routerLink]="['/authentication/signup']">Get Started</button>
+          <button class="btn learn-more-btn" (click)="scrollToSection('about')">Learn More</button>
+        </div>
+      </div>
+      <div class="logo-animation-container">
+        <div class="logo-animation">
+          <!-- Animated logo background -->
+          <img src="assets/images/logo.png" alt="UChain Logo" class="logo-image">
+        </div>
+        <div class="orbit-ring orbit-ring-1"></div>
+        <div class="orbit-ring orbit-ring-2"></div>
+        <div class="orbit-ring orbit-ring-3"></div>
+        <div class="particles-container">
+          <div class="particle particle-1"></div>
+          <div class="particle particle-2"></div>
+          <div class="particle particle-3"></div>
+          <div class="particle particle-4"></div>
+          <div class="particle particle-5"></div>
+          <div class="particle particle-6"></div>
+        </div>
+        <div class="glow-effect"></div>
+      </div>
+      <div class="hero-images">
+        <!-- Teff overlay image with smooth transition -->
+        <div class="overlay-image teff-overlay"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Us Section -->
+  <section id="about" class="about-section">
+    <div class="container">
+      <div class="section-title">
+        <h2>About Us</h2>
+      </div>
+      <div class="row">
+        <div class="col-lg-6 col-md-12">
+          <div class="about-content">
+            <p class="vision-text">
+              U-Chain is a next-generation supply chain system built to transform Ethiopia's Coffee and Teff market through transparency, technology, and trust.
+            </p>
+            <div class="vision-goals">
+              <h3>Vision and Goals</h3>
+              <ul>
+                <li>Empower farmers and suppliers</li>
+                <li>Connect all stakeholders through a unified platform</li>
+                <li>Promote local trade through smart contracts, real-time tracking, and digital payments</li>
+                <li>Define and protect Ethiopia's agricultural heritage</li>
+              </ul>
+            </div>
+            <div class="team-section">
+              <h3>Our Team</h3>
+              <div class="team-university">
+                <div class="university-logo">
+                  <img src="assets/images/dilla university.jpg" alt="Dilla University">
+                </div>
+                <p>U-Chain is proudly built by graduating Computer Science students of Dilla University:</p>
+              </div>
+              <div class="team-members-list">
+                <div class="team-member biniam-special"><a href="https://biniamshimeles.vercel.app/" target="_blank">Biniam Shimeles</a></div>
+                <div class="team-member">Chala Garbole</div>
+                <div class="team-member">Eyerus Getahun</div>
+                <div class="team-member">Abel Yonas</div>
+                <div class="team-member">Abrham Dagnachew</div>
+              </div>
+            </div>
+            <div class="affiliation">
+              <p>
+                U-Chain is a flagship system of <a href="https://digitalaksumite.vercel.app/" target="_blank">Digital Aksumite</a> — a company dedicated to creating tools that define, protect, and guide our society.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+          <div class="video-container">
+            <!-- UChain Video -->
+            <div class="video-placeholder">
+              <img src="assets/images/logo.png" alt="UChain Video">
+              <div class="play-button">
+                <i class="material-icons">play_arrow</i>
+              </div>
+            </div>
+            
+            <!-- Digital Aksumite Video -->
+            <div class="video-box">
+              <h3 class="video-title">Digital Aksumite</h3>
+              <video controls class="digital-aksumite-video">
+                <source src="assets/images/Digital Aksumite.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="services-section">
+    <div class="container">
+      <div class="section-title">
+        <h2>Our Core Services</h2>
+      </div>
+      <div class="row">
+        <!-- Service Card 1 -->
+        <div class="col-lg-3 col-md-6 service-card">
+          <div class="service-icon">
+            <i class="material-icons">link</i>
+          </div>
+          <h3>Supply Chain Management</h3>
+          <p>Digitized control across the entire supply chain.</p>
+        </div>
+        
+        <!-- Service Card 2 -->
+        <div class="col-lg-3 col-md-6 service-card">
+          <div class="service-icon">
+            <i class="material-icons">store</i>
+          </div>
+          <h3>Unified Marketplace</h3>
+          <p>Connect buyers, sellers, and suppliers in one trusted platform.</p>
+        </div>
+        
+        <!-- Service Card 3 -->
+        <div class="col-lg-3 col-md-6 service-card">
+          <div class="service-icon">
+            <i class="material-icons">payment</i>
+          </div>
+          <h3>Integrated Payments</h3>
+          <p>Secure and simple digital transactions.</p>
+        </div>
+        
+        <!-- Service Card 4 -->
+        <div class="col-lg-3 col-md-6 service-card">
+          <div class="service-icon">
+            <i class="material-icons">gps_fixed</i>
+          </div>
+          <h3>Real-Time Tracking</h3>
+          <p>Live shipment tracking for full transparency.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="contact-section">
+    <div class="container">
+      <div class="section-title">
+        <h2>Contact Us</h2>
+      </div>
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="contact-info">
+            <h3>Get In Touch</h3>
+            <p>Have questions about UChain? We're here to help you understand how our platform can transform your supply chain.</p>
+            
+            <div class="contact-details">
+              <div class="contact-item">
+                <i class="material-icons">location_on</i>
+                <div>
+                  <h4>Location</h4>
+                  <p>Addis Ababa, Ethiopia</p>
+                </div>
+              </div>
+              
+              <div class="contact-item">
+                <i class="material-icons">email</i>
+                <div>
+                  <h4>Email</h4>
+                  <p>info@uchain-ethiopia.com</p>
+                </div>
+              </div>
+              
+              <div class="contact-item">
+                <i class="material-icons">phone</i>
+                <div>
+                  <h4>Phone</h4>
+                  <p>+251 911 234 567</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-6">
+          <div class="contact-form">
+            <h3>Send Us a Message</h3>
+            <form (submit)="$event.preventDefault()">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Your Name" required>
+              </div>
+              <div class="form-group">
+                <input type="email" class="form-control" placeholder="Your Email" required>
+              </div>
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Subject">
+              </div>
+              <div class="form-group">
+                <textarea class="form-control" rows="5" placeholder="Your Message" required></textarea>
+              </div>
+              <button type="button" class="btn submit-btn">Send Message</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer class="footer-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 col-md-6">
+          <div class="footer-links">
+            <a href="javascript:void(0)" (click)="scrollToSection('hero')">Home</a> |
+            <a href="javascript:void(0)" (click)="scrollToSection('about')">About</a> |
+            <a href="javascript:void(0)" (click)="scrollToSection('services')">Services</a> |
+            <a href="javascript:void(0)" (click)="scrollToSection('contact')">Contact</a>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6">
+          <div class="social-icons">
+            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>© 2025 U-Chain | Built with <span class="heart">❤️</span> by Digital Aksumite</p>
+      </div>
+    </div>
+  </footer>
+</div>
