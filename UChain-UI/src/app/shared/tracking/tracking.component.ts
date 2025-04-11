@@ -83,6 +83,9 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
   private mapResizeTimeout: any;
   followDriver: boolean = true; // Whether to center the map on driver's position
   
+  // Driver icon for map marker
+  driverIcon: Icon;
+  
   constructor(
     private activatedRoute: ActivatedRoute,
     private route: ActivatedRoute,
@@ -207,23 +210,43 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
         .addTo(this.map)
         .bindPopup('<div style="text-align: center;"><b>Dilla University</b><br><small>Reference point</small></div>');
       
-      // Display the most recent location if available
-      if (this.locationHistory && this.locationHistory.length > 0) {
-        const latest = this.locationHistory[0];
-        this.updateMapWithLocation(latest);
+      // Process tracking history after map is ready
+      this.processTrackingDataAfterMapReady();
+      
+      // Start tracking location if user is the driver
+      if (this.isDriver) {
+        this.startDriverLocationTracking();
+      } else {
+        // Start fetching location updates if user is buyer or seller
+        this.startFetchingLocationUpdates();
       }
+      
+      // Check if a route already exists for this order
+      this.loadRouteForOrder();
     }, 300);
-    
-    // Start tracking location if user is the driver
-    if (this.isDriver) {
-      this.startDriverLocationTracking();
+  }
+  
+  // New method to process tracking data after map is ready
+  processTrackingDataAfterMapReady() {
+    // First check if we have tracking history
+    if (this.locationHistory && this.locationHistory.length > 0) {
+      console.log('Processing tracking history after map is ready');
+      
+      // Sort by timestamp to get the most recent
+      const sortedLocations = [...this.locationHistory].sort((a, b) => {
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+      });
+      
+      const latestLocation = sortedLocations[0];
+      
+      // Update the map with the latest position
+      if (latestLocation && latestLocation.latitude && latestLocation.longitude) {
+        console.log('Updating map with location after map ready:', latestLocation);
+        this.updateMapWithLocation(latestLocation);
+      }
     } else {
-      // Start fetching location updates if user is buyer or seller
-      this.startFetchingLocationUpdates();
+      console.log('No tracking history to process after map ready');
     }
-    
-    // Check if a route already exists for this order
-    this.loadRouteForOrder();
   }
   
   loadOrderDetails() {
@@ -388,44 +411,53 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     
     try {
-      const position = latLng(location.latitude, location.longitude);
+      // Create driver icon if it doesn't exist
+      if (!this.driverIcon) {
+        this.driverIcon = divIcon({
+          className: 'driver-div-icon',
+          html: `<div style="background-color:#4CAF50;border-radius:50%;width:36px;height:36px;text-align:center;line-height:36px;box-shadow:0 2px 5px rgba(0,0,0,0.3);">
+                <i class="material-icons" style="color:white;font-size:20px;line-height:36px;">directions_car</i>
+                </div>`,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18],
+          popupAnchor: [0, -18]
+        });
+      }
       
-      // Create or update driver marker with better error handling
-      if (this.driverMarker && this.map.hasLayer(this.driverMarker)) {
-        // If marker exists and is on the map, just update its position
-        this.driverMarker.setLatLng(position);
+      const latlng = latLng(location.latitude as any, location.longitude as any);
+      
+      // Check if marker already exists
+      if (this.driverMarker) {
+        // Update existing marker position
+        this.driverMarker.setLatLng(latlng);
+        console.log('Updated existing driver marker position');
       } else {
-        // If previous marker is not valid or not on map, clean up and create new
-        if (this.driverMarker) {
-          try { this.driverMarker.remove(); } catch (e) { /* ignore removal errors */ }
+        // Create a new marker
+        try {
+          // Make sure the map is available and properly initialized
+          if (this.map && this.map.getContainer()) {
+            this.driverMarker = marker(latlng, { icon: this.driverIcon })
+              .addTo(this.map)
+              .bindPopup(`<div style="text-align:center;">
+                <b>Driver Location</b><br>
+                <small>Last updated: ${new Date(location.timestamp).toLocaleTimeString()}</small>
+              </div>`);
+              
+            console.log('Driver marker created successfully');
+            
+            // Center the map on the driver's position if followDriver is enabled
+            if (this.followDriver) {
+              this.map.setView(latlng, this.map.getZoom());
+            }
+          } else {
+            console.log('Map container not found in DOM, skipping marker creation');
+          }
+        } catch (err) {
+          console.log('Error adding marker to map:', err);
         }
-
-        // Create a new driver marker using divIcon to avoid CSP issues
-        const driverIcon = divIcon({
-          className: 'custom-div-icon',
-          html: `<div style="background-color:#FF9800;height:24px;width:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><i class="material-icons" style="color:#fff;font-size:16px;">local_shipping</i></div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12],
-          popupAnchor: [0, -12]
-        });
-
-        // Create and add the marker to the map
-        this.driverMarker = marker(position, {
-          icon: driverIcon,
-          title: 'Driver Location'
-        });
-
-        // Make sure the map is available before adding the marker
-        this.driverMarker.addTo(this.map);
-        this.driverMarker.bindPopup('Driver Current Location');
       }
-      
-      // Only center map if followDriver is enabled
-      if (this.followDriver) {
-        this.map.setView(position, this.map.getZoom() || 15);
-      }
-    } catch (error) {
-      console.error('Error updating map with location:', error);
+    } catch (err) {
+      console.log('Error updating driver marker:', err);
     }
   }
   
@@ -1376,33 +1408,27 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   
   getOrderLocation() {
-    if (!this.orderId) return;
+    if (!this.orderId) {
+      return;
+    }
     
-    this.trackingService.getOrderLocationNew(Number(this.orderId)).subscribe(
-      (location: any) => {
-        if (location && location.latitude && location.longitude) {
-          console.log('Retrieved current location for order:', location);
-          // Convert to TrackingLocation format if needed
-          const trackingLocation: TrackingLocation = {
-            latitude: location.latitude,
-            longitude: location.longitude,
-            timestamp: new Date(location.timestamp || new Date()),
-            status: location.status || this.currentOrder?.status?.toLowerCase() || 'unknown',
-            orderId: this.orderId,
-            driverId: location.driverId || ''
-          };
-          this.updateMapWithLocation(trackingLocation);
+    this.trackingService.getLocationForOrder(this.orderId).subscribe(
+      (location: TrackingLocation) => {
+        console.log('Retrieved current location for order:', location);
+        
+        // Store the latest location
+        this.driverLocation = location;
+        
+        // Only update the map if it's already initialized
+        if (this.map && this.map.getContainer()) {
+          this.updateMapWithLocation(location);
         } else {
-          console.log('No tracking location available for this order yet');
+          console.log('Map not ready yet, location will be processed after map initialization');
         }
       },
       error => {
-        // Silently handle 404 errors - normal for new orders
-        if (error.status !== 404) {
-          console.error('Error getting order location:', error);
-        }
-        // Always try to get tracking history even if current location fails
-        this.getTrackingHistory();
+        console.log('Error retrieving location, will use tracking history:', error);
+        // If location endpoint fails, we'll rely on the tracking history loaded separately
       }
     );
   }

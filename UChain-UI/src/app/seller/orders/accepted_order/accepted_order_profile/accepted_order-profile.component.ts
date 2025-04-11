@@ -135,14 +135,23 @@ export class AcceptedOrderProfileComponent implements OnInit {
         }
       },
       error => {
-        this.isLoading = false;
+        // Don't show a notification for 500 errors as the fallback mechanism will handle it
         console.error('Error fetching order:', error);
-        this.showNotification(
-          'snackbar-danger',
-          'Failed to load order details. Please try again later.',
-          'bottom',
-          'center'
-        );
+        
+        // Only if the order isn't found through the fallback, then we'll show the loading
+        // indicator as false after a brief delay, allowing the fallback to try first
+        setTimeout(() => {
+          if (!this.order || !this.order.id) {
+            this.isLoading = false;
+            // Only show the error notification if we still don't have an order after fallback
+            this.showNotification(
+              'snackbar-danger',
+              'Failed to load order details. Please try again later.',
+              'bottom',
+              'center'
+            );
+          }
+        }, 1000);
       }
     );
   }
