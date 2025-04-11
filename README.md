@@ -20,7 +20,7 @@ A blockchain-inspired platform for transparent and efficient supply chain manage
 2. **Angular CLI**:  
    Run `ng version` to check if installed.  
    If missing, run:  
-   `npm install -g @angular/cli`.
+   `npm install -g @angular/cli`
 
 3. **Python**:  
    Run `python --version` to check if installed.  
@@ -29,7 +29,7 @@ A blockchain-inspired platform for transparent and efficient supply chain manage
 4. **Django**:  
    Run `python -m django --version` to check if installed.  
    If missing, run:  
-   `pip install django`.
+   `pip install django`
 
 5. **MySQL**:  
    Run `mysql --version` to check if installed.  
@@ -38,9 +38,9 @@ A blockchain-inspired platform for transparent and efficient supply chain manage
 6. **MySQL Connector**:  
    Run `pip show mysqlclient` to check if installed.  
    If missing, run:  
-   `pip install mysqlclient`.  
+   `pip install mysqlclient`
    If errors occur, use:  
-   `pip install pymysql`.
+   `pip install pymysql`
 
 7. **Git**:  
    Run `git --version` to check if installed.  
