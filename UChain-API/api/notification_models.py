@@ -12,6 +12,8 @@ class Notification(models.Model):
         ('order_shipped', 'Order Shipped'),
         ('order_delivered', 'Order Delivered'),
         ('message_received', 'Message Received'),
+        ('new_product', 'New Product Available'),
+        ('payment_received', 'Payment Received'),
     ]
     
     recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='notifications')

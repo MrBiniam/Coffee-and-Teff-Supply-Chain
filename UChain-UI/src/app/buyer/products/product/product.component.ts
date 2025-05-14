@@ -22,7 +22,17 @@ export class ProductComponent implements OnInit {
   getProduct() {
     this.productService.getMyProduct().subscribe(
       data => {
-        this.products = data;
+        // Sort products by ID in descending order, so newer products appear first
+        // Assuming that newer products have higher IDs
+        this.products = data.sort((a, b) => {
+          // Get numeric ID values
+          const idA = typeof a.id === 'number' ? a.id : parseInt(a.id as string, 10);
+          const idB = typeof b.id === 'number' ? b.id : parseInt(b.id as string, 10);
+          // Sort in descending order (newest first)
+          return idB - idA;
+        });
+
+        console.log('Products sorted with newest first:', this.products);
 
         // Fix image paths for all products
         this.products.forEach(product => {

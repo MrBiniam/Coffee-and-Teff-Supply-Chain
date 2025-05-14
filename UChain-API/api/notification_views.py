@@ -125,6 +125,15 @@ class NotificationService:
                     sender_name=order.driver.user.username if order.driver else "System"
                 )
                 
+                # Send payment notification to seller
+                NotificationService.create_notification(
+                    recipient_id=product.seller.user.id,
+                    notification_type='payment_received',
+                    message=f"Your payment for {product.name} is also done",
+                    related_order_id=order.id,
+                    sender_name="System"
+                )
+                
                 # Notify driver that order is delivered (if there is a driver)
                 if order.driver:
                     NotificationService.create_notification(
@@ -134,8 +143,43 @@ class NotificationService:
                         related_order_id=order.id,
                         sender_name="System"
                     )
+                    
+                    # Send payment notification to driver
+                    NotificationService.create_notification(
+                        recipient_id=order.driver.user.id,
+                        notification_type='payment_received',
+                        message=f"Your payment for delivering {product.name} is also done",
+                        related_order_id=order.id,
+                        sender_name="System"
+                    )
                 
             return True
             
         except Order.DoesNotExist:
+            return False
+
+    @staticmethod
+    def create_new_product_notification(product):
+        """Create notifications for all buyers when a new product is added"""
+        try:
+            # Get all users who are buyers
+            buyers = CustomUser.objects.filter(is_buyer=True)
+            
+            product_type = product.product_type if hasattr(product, 'product_type') and product.product_type else "product"
+            product_name = product.name if hasattr(product, 'name') and product.name else "Product"
+            
+            # Create a notification for each buyer
+            for buyer in buyers:
+                message = f"New {product_type} available: {product_name}"
+                Notification.objects.create(
+                    recipient=buyer,
+                    notification_type='new_product',
+                    message=message,
+                    sender_name=product.seller.user.username if hasattr(product, 'seller') and product.seller else "A seller"
+                )
+            
+            print(f"Created notifications for {len(buyers)} buyers about new product: {product_name}")
+            return True
+        except Exception as e:
+            print(f"Error creating new product notifications: {str(e)}")
             return False

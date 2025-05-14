@@ -42,6 +42,14 @@ def home(request):
     return render(request, 'home.html')  # Replace 'home.html' with your template
 
 
+# Custom base class for registration views to bypass authentication completely
+class UnauthenticatedAPIView(APIView):
+    permission_classes = [AllowAny]
+    
+    def get_authenticators(self):
+        return []  # No authentication for registration
+
+
 def debug_chapa_call(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -86,7 +94,8 @@ except Exception as e:
 '''
 
 # View to create a buyer user
-class BuyerCreateView(APIView):
+@method_decorator(csrf_exempt, name='dispatch')
+class BuyerCreateView(UnauthenticatedAPIView):
     def post(self, request):
         try:
             user_serializer = CustomUserSerializer(data=request.data)
@@ -125,21 +134,28 @@ class BuyerCreateView(APIView):
                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # View for Login a user
-class UserLoginView(APIView):
+@method_decorator(csrf_exempt, name='dispatch')
+class UserLoginView(UnauthenticatedAPIView):
     
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
 
-        if username is None and password is None:
+        if username is None or password is None:  # Changed 'and' to 'or' for correct validation
             return Response({"error": "Please provide both username and password"}, status=status.HTTP_400_BAD_REQUEST)
         
         user = authenticate(username=username, password=password)
-        user_serializer = CustomUserSerializer(user)
         if not user:
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        # Only serialize the user after confirming it's not None
+        user_serializer = CustomUserSerializer(user)
         token, created = Token.objects.get_or_create(user=user)
-        return Response({"status": "successful", "token": token.key, "user": user_serializer.data}, status=status.HTTP_201_CREATED)
+        
+        # For debugging
+        print(f"Login successful for user: {username}, token: {token.key}")
+        
+        return Response({"status": "successful", "token": token.key, "user": user_serializer.data}, status=status.HTTP_200_OK)  # Changed to 200 OK
 
 # view to list a specific user
 class UserRetrieveView(generics.RetrieveAPIView):
@@ -160,7 +176,8 @@ class DriverRetrieveView(generics.RetrieveAPIView):
     lookup_field = "pk"
 
 # View to create a seller user
-class SellerCreateView(APIView):
+@method_decorator(csrf_exempt, name='dispatch')
+class SellerCreateView(UnauthenticatedAPIView):
     def post(self, request):
         user_serializer = CustomUserSerializer(data=request.data)
         if user_serializer.is_valid():
@@ -179,7 +196,8 @@ class SellerCreateView(APIView):
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # View to create a driver user
-class DriverCreateView(APIView):
+@method_decorator(csrf_exempt, name='dispatch')
+class DriverCreateView(UnauthenticatedAPIView):
     def post(self, request):
         user_serializer = CustomUserSerializer(data=request.data)
         if user_serializer.is_valid():
@@ -204,7 +222,15 @@ class ProductCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(seller=self.request.user.sellerprofile)
+        # Save the product
+        product = serializer.save(seller=self.request.user.sellerprofile)
+        
+        # Create notifications for all buyers about the new product
+        try:
+            from .notification_views import NotificationService
+            NotificationService.create_new_product_notification(product)
+        except Exception as e:
+            print(f"Error creating notifications for new product: {str(e)}")
 
 # view to list products
 class ProductListView(APIView):

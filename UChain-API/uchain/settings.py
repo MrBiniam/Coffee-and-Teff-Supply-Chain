@@ -46,13 +46,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    'corsheaders.middleware.CorsMiddleware',  # Moved to the top to process CORS headers first
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",  # Temporarily disabled for debugging
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'corsheaders.middleware.CorsMiddleware',  # Make sure this line is here
-    'django.middleware.common.CommonMiddleware',
 ]
 
 # Add this line to allow all origins during development
@@ -157,6 +156,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         # Add other authentication classes here if needed
     ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Allow unauthenticated access by default
+    ],
 }
 
 # Chapa Payment Gateway Configuration

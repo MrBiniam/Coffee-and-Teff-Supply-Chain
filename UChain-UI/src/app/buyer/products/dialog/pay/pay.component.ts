@@ -11,7 +11,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./pay.component.sass'],
 })
 export class PayComponent {
-  username: string
+  username: string;
+  totalAmount: string = '';  // Initialize with empty string to avoid TypeScript error
   constructor(
     public dialogRef: MatDialogRef<PayComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -19,7 +20,22 @@ export class PayComponent {
     private snackBar: MatSnackBar,
     private tokenStorageService: TokenStorageService,
     private router: Router,
-  ) {}
+  ) {
+    try {
+      // Calculate total amount with service fee when component is created
+      // Make sure data and price exist before using them
+      if (this.data && this.data.price) {
+        this.totalAmount = (parseFloat(this.data.price) + 200).toString();
+        console.log('Calculated totalAmount:', this.totalAmount);
+      } else {
+        console.error('Missing price data:', this.data);
+        this.totalAmount = '0';
+      }
+    } catch (error) {
+      console.error('Error calculating totalAmount:', error);
+      this.totalAmount = '0';
+    }
+  }
   onNoClick(): void {
     this.dialogRef.close();
   }

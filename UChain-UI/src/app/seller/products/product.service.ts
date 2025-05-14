@@ -101,10 +101,10 @@ export class ProductService {
         const callbackUrl = `${frontendBaseUrl}/#/app/buyer/payments/success?tx_ref=${tx_ref};product_id=${productId}`;
         const returnUrl = `${frontendBaseUrl}/#/app/buyer/payments/success?tx_ref=${tx_ref};product_id=${productId}`;
         
-        // Now make the payment API call
+        // Now make the payment API call with service fee
         return this.httpClient.post<any>(verifyUrl, {
           "email": this.tokenStorage.getEmail() || "UChain@gmail.com",
-          "amount": price,
+          "amount": (parseFloat(price) + 200).toString(), // Add 200 birr service fee
           "first_name": username,
           "last_name": "",
           "tx_ref": tx_ref,
@@ -159,7 +159,7 @@ export class ProductService {
     localStorage.setItem('verifying_product_id', product.id?.toString() || '0');
     
     return this.httpClient.post<any>(this.apiUrl + 'pay/', {
-      "amount": amount,
+      "amount": (parseFloat(amount) + 200).toString(), // Add 200 birr service fee
       "currency": "ETB",
       "email": this.tokenStorage.getEmail() || "test@example.com",
       "first_name": this.tokenStorage.getUsername() || "John",
