@@ -59,6 +59,7 @@
                         <h5 class="details-title">Order Details</h5>
                         <div class="order-info"><i class="far fa-comment-dots"></i> Quantity: {{order.quantity || 'Not specified'}} </div>
                         <div class="order-info"><i class="far fa-money-bill-alt"></i> Price per Unit: {{order.product[0]?.price || 'Not specified'}}</div>
+                        <div class="order-info"><i class="fas fa-money-check-alt"></i> Total Price: {{(+order.quantity) * order.product[0]?.price || order.product[0]?.price}}</div>
                         <div class="order-info"><i class="far fa-clock"></i> Date: {{order.order_date | date: 'MMM dd, yyyy' || 'Not specified'}}</div>
                         <div class="order-info"><i class="fas fa-user"></i> Seller: {{order.seller_name || 'Unknown Seller'}}</div>
                         <div class="order-info"><i class="fas fa-user"></i> Buyer: {{order.buyer_name || 'Unknown Buyer'}}</div>

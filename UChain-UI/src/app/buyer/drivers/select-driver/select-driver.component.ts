@@ -17,6 +17,7 @@ import { catchError, switchMap } from 'rxjs/operators';
 export class SelectDriverComponent implements OnInit {
   drivers: User[] = [];
   driverRatings: { [key: string]: number } = {}; // Store ratings by driver ID
+  driverRates: { [key: string]: number } = {}; // Store price per km for each driver
   loading = true;
   error = '';
   hasPaymentInfo = false;
@@ -241,6 +242,9 @@ export class SelectDriverComponent implements OnInit {
       // Generate random ratings
       this.driverRatings[driver.id] = this.driverService.generateRandomRating();
       
+      // Generate random rates per kilometer (between 2 and 5 birr)
+      this.driverRates[driver.id] = Number((Math.random() * 3 + 2).toFixed(1));
+      
       // Get the driver profile from database if it doesn't exist
       if (!driver.driver_profile && driver.is_driver) {
         console.log('Fetching driver profile for driver:', driver.id);
@@ -356,6 +360,7 @@ export class SelectDriverComponent implements OnInit {
     // Generate random ratings for the sample drivers
     this.drivers.forEach(driver => {
       this.driverRatings[driver.id] = this.driverService.generateRandomRating();
+      this.driverRates[driver.id] = Number((Math.random() * 3 + 2).toFixed(1));
     });
     
     this.loading = false;

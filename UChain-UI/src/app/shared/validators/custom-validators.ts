@@ -10,7 +10,8 @@ export class CustomValidators {
         return null; // Don't validate empty values to allow required validator to trigger
       }
       
-      const valid = /^[A-Za-z]+$/.test(control.value);
+      // Updated to allow alphanumeric characters but must start with a letter
+      const valid = /^[A-Za-z][A-Za-z0-9]*$/.test(control.value);
       return valid ? null : { 'onlyLetters': { value: control.value } };
     };
   }
@@ -68,7 +69,8 @@ export class CustomValidators {
         return null;
       }
       
-      const valid = /^\d{10,}$/.test(control.value);
+      // Updated to allow between 10 and 13 digits
+      const valid = /^\d{10,13}$/.test(control.value);
       return valid ? null : { 'accountNumber': { value: control.value } };
     };
   }

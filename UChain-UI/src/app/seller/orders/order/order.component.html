@@ -79,7 +79,7 @@
                         <div class="mb-2"><strong>Type:</strong> {{order.product[0].product_type}}</div>
                         <div class="mb-2"><strong>Quantity:</strong> {{order.quantity}}</div>
                         <div class="mb-2"><strong>Price per Unit:</strong> {{order.product[0].price}}</div>
-                        <div class="mb-2"><strong>Total Price:</strong> {{(+order.quantity) * order.product[0].price || order.product[0].price}}</div>
+                        <div class="mb-2"><strong>Total Price:</strong> {{(+order.quantity) * (+order.product[0].price)}}</div>
                         <div class="mb-2"><strong>Order Date:</strong> {{order.order_date | date: 'MM/dd/yyyy'}}</div>
                         
                         <!-- Buyer info without rating stars -->

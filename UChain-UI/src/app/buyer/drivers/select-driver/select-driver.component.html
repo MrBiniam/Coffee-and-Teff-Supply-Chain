@@ -83,6 +83,12 @@
                         <i class="material-icons">phone</i>
                         <span>{{ driver.phone_number }}</span>
                       </div>
+                      
+                      <!-- Driver Rate per Kilometer -->
+                      <div class="mb-2">
+                        <i class="material-icons">monetization_on</i>
+                        <span class="rate-per-km">{{ driverRates[driver.id] || 3 }} Birr / km</span>
+                      </div>
                     </div>
                     
                     <!-- Action Section -->
