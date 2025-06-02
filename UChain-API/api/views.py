@@ -398,10 +398,51 @@ class OrderUpdateView(generics.UpdateAPIView):
                 
                 # Trigger notifications based on the new status
                 NotificationService.create_order_notification(instance.id, instance.status)
+                
+                # Update product quantity when order is delivered
+                if instance.status == Order.DELIVERED or instance.status == Order.DRIVER_DELIVERED:
+                    # Get the order quantity
+                    order_quantity_str = instance.quantity
+                    
+                    # Try to extract the numeric part from the quantity string
+                    import re
+                    numeric_match = re.search(r'(\d+)', order_quantity_str)
+                    if numeric_match:
+                        ordered_quantity = int(numeric_match.group(1))
+                        
+                        # Update each product's quantity
+                        for product in instance.product.all():
+                            # Get current product quantity
+                            product_quantity_str = product.quantity
+                            
+                            # Try to extract the numeric part and unit from the product quantity
+                            product_match = re.search(r'(\d+)\s*([a-zA-Z]*)', product_quantity_str)
+                            if product_match:
+                                current_quantity = int(product_match.group(1))
+                                unit = product_match.group(2)
+                                
+                                # Calculate new quantity (ensure it doesn't go below 0)
+                                new_quantity = max(0, current_quantity - ordered_quantity)
+                                
+                                # Update product quantity
+                                if unit:
+                                    product.quantity = f"{new_quantity} {unit}"
+                                else:
+                                    product.quantity = str(new_quantity)
+                                
+                                # Save the updated product
+                                product.save()
+                                
+                                # Log the inventory update
+                                logger.info(f"Updated inventory for product {product.id}: {product.name} - Old quantity: {product_quantity_str}, New quantity: {product.quantity}")
+                                
+                                # If inventory reaches zero, log a warning
+                                if new_quantity == 0:
+                                    logger.warning(f"Product {product.id}: {product.name} is now out of stock!")
             except Exception as e:
                 import logging
                 logger = logging.getLogger(__name__)
-                logger.error(f"Error creating notification for order {instance.id}: {str(e)}")
+                logger.error(f"Error processing order {instance.id}: {str(e)}")
 
         if getattr(instance, '_prefetched_objects_cache', None):
             # If 'prefetch_related' has been applied to a queryset, we need to
