@@ -1,10 +1,10 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
 import {
-  FormControl,
+  UntypedFormControl,
   Validators,
-  FormGroup,
-  FormBuilder,
+  UntypedFormGroup,
+  UntypedFormBuilder,
 } from '@angular/forms';
 import { Order } from '../../order.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -18,7 +18,7 @@ import { OrderService } from '../../order.service';
 export class DeliverOrderComponent {
   dialogTitle: string;
   dialogSubTitle: string;
-  deliverForm: FormGroup;
+  deliverForm: UntypedFormGroup;
   order: Order;
   username: string;
   ratingTarget: string; // 'seller' or 'driver'
@@ -27,7 +27,7 @@ export class DeliverOrderComponent {
     public dialogRef: MatDialogRef<DeliverOrderComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public orderService: OrderService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private snackBar: MatSnackBar
   ) {
     // Set the defaults
@@ -46,7 +46,7 @@ export class DeliverOrderComponent {
     this.getUserToRate();
   }
   
-  formControl = new FormControl('', [
+  formControl = new UntypedFormControl('', [
     Validators.required,
     // Validators.email,
   ]);
@@ -59,7 +59,7 @@ export class DeliverOrderComponent {
       : '';
   }
   
-  createContactForm(): FormGroup {
+  createContactForm(): UntypedFormGroup {
     return this.deliverForm = this.fb.group({
       receiver: [this.username],
       rating_value: ['',[Validators.required]],

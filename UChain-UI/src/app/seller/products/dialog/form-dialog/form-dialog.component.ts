@@ -1,10 +1,10 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
 import {
-  FormControl,
+  UntypedFormControl,
   Validators,
-  FormGroup,
-  FormBuilder,
+  UntypedFormGroup,
+  UntypedFormBuilder,
 } from '@angular/forms';
 import { Product } from '../../product.model';
 import { ProductService } from '../../product.service';
@@ -18,13 +18,13 @@ import { CustomValidators } from 'src/app/shared/validators/custom-validators';
 })
 export class FormDialogComponent {
   dialogTitle: string;
-  productForm: FormGroup;
+  productForm: UntypedFormGroup;
   product: Product;
   constructor(
     public dialogRef: MatDialogRef<FormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public productService: ProductService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private snackBar: MatSnackBar
   ) {
     // Set the defaults
@@ -38,7 +38,7 @@ export class FormDialogComponent {
     
     this.productForm = this.createContactForm();
   }
-  formControl = new FormControl('', [
+  formControl = new UntypedFormControl('', [
     Validators.required,
     // Validators.email,
   ]);
@@ -49,7 +49,7 @@ export class FormDialogComponent {
       ? 'Not a valid email'
       : '';
   }
-  createContactForm(): FormGroup {
+  createContactForm(): UntypedFormGroup {
     // Determine if image should be required based on whether product already has an image
     const imageValidators = this.product.image ? [] : [Validators.required];
     

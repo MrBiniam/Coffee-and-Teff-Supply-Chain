@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,13 +14,13 @@ import { UserService } from 'src/app/shared/security/user.service';
   styleUrls: ['./settings.component.sass']
 })
 export class SettingsComponent implements OnInit {
-  registerFormBuyer: FormGroup;
+  registerFormBuyer: UntypedFormGroup;
   id = this.tokenStorageService.getId();
   user: User = new User();
   showDeleteConfirmation = false;
   
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,

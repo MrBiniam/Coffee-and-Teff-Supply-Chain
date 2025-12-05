@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ProductService } from '../product.service';
@@ -13,10 +13,10 @@ import { CustomValidators } from 'src/app/shared/validators/custom-validators';
   styleUrls: ['./add-product.component.sass'],
 })
 export class AddProductComponent implements OnInit {
-  productForm: FormGroup;
+  productForm: UntypedFormGroup;
   formErrors = {};
 
-  constructor(private http:HttpClient, private fb: FormBuilder, private router: Router, private productService: ProductService, private snackBar: MatSnackBar) {
+  constructor(private http:HttpClient, private fb: UntypedFormBuilder, private router: Router, private productService: ProductService, private snackBar: MatSnackBar) {
     this.productForm = this.fb.group({
       name: ['', [Validators.required, CustomValidators.productTitle()]], // Only letters
       description: ['', [Validators.required, CustomValidators.productDescription()]], // Only letters, multiple sentences

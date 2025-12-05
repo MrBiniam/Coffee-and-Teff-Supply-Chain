@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MessageService } from 'src/app/shared/security/message_service';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { UserService } from 'src/app/shared/security/user.service';
@@ -15,8 +15,8 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./chat.component.scss']
 })
 export class ChatComponent implements OnInit, AfterViewChecked {
-  hideRequiredControl = new FormControl(false);
-  floatLabelControl = new FormControl('auto');
+  hideRequiredControl = new UntypedFormControl(false);
+  floatLabelControl = new UntypedFormControl('auto');
   
   // User and message properties
   users: User[] = [];

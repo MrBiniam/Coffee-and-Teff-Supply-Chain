@@ -1,10 +1,10 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
 import {
-  FormControl,
+  UntypedFormControl,
   Validators,
-  FormGroup,
-  FormBuilder,
+  UntypedFormGroup,
+  UntypedFormBuilder,
 } from '@angular/forms';
 import { Order } from '../../order.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -18,13 +18,13 @@ import { OrderService } from 'src/app/buyer/orders/order.service';
 })
 export class FormDialogComponent {
   dialogTitle: string;
-  orderForm: FormGroup;
+  orderForm: UntypedFormGroup;
   order: Order;
   constructor(
     public dialogRef: MatDialogRef<FormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public orderService: OrderService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private snackBar: MatSnackBar
   ) {
     // Set the defaults
@@ -32,7 +32,7 @@ export class FormDialogComponent {
     this.order = data.order;
     this.orderForm = this.createContactForm();
   }
-  formControl = new FormControl('', [
+  formControl = new UntypedFormControl('', [
     Validators.required,
     // Validators.email,
   ]);
@@ -43,7 +43,7 @@ export class FormDialogComponent {
       ? 'Not a valid email'
       : '';
   }
-  createContactForm(): FormGroup {
+  createContactForm(): UntypedFormGroup {
     return this.orderForm = this.fb.group({
       quantity: [this.order.quantity, [Validators.required]],
     });

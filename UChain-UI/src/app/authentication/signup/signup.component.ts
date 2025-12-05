@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { AuthService } from 'src/app/shared/security/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomValidators } from 'src/app/shared/validators/custom-validators';
@@ -11,15 +11,15 @@ import { CustomValidators } from 'src/app/shared/validators/custom-validators';
   styleUrls: ['./signup.component.scss'],
 })
 export class SignupComponent implements OnInit {
-  registerFormBuyer: FormGroup;
-  registerFormSeller: FormGroup;
-  registerFormDriver: FormGroup;
+  registerFormBuyer: UntypedFormGroup;
+  registerFormSeller: UntypedFormGroup;
+  registerFormDriver: UntypedFormGroup;
   submitted = false;
   hide = true;
   chide = true;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
@@ -71,7 +71,7 @@ export class SignupComponent implements OnInit {
   }
 
   tabs = ['Buyer', 'Seller', 'Driver'];
-  selected = new FormControl(0);
+  selected = new UntypedFormControl(0);
 
   addTab(selectAfterAdding: boolean) {
     this.tabs.push('New');
