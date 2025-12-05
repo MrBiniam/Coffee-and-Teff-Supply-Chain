@@ -13,9 +13,10 @@ import { AuthService } from 'src/app/shared/security/auth.service';
 import { Role } from '../../shared/security/role';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 @Component({
-  selector: 'app-sidebar',
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.sass'],
+    selector: 'app-sidebar',
+    templateUrl: './sidebar.component.html',
+    styleUrls: ['./sidebar.component.sass'],
+    standalone: false
 })
 export class SidebarComponent implements OnInit {
   public sidebarItems: any[];

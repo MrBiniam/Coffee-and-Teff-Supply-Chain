@@ -7,9 +7,10 @@ import { TokenStorageService } from 'src/app/shared/security/token-storage.servi
 import { AuthLoginInfo } from 'src/app/shared/security/login-info';
 
 @Component({
-  selector: 'app-signin',
-  templateUrl: './signin.component.html',
-  styleUrls: ['./signin.component.scss'],
+    selector: 'app-signin',
+    templateUrl: './signin.component.html',
+    styleUrls: ['./signin.component.scss'],
+    standalone: false
 })
 export class SigninComponent implements OnInit {
   isLoggedIn = false;

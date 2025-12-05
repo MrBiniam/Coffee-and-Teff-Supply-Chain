@@ -7,9 +7,10 @@ import { environment } from 'src/environments/environment';
 import { DriverService } from '../../drivers/driver.service';
 
 @Component({
-  selector: 'app-payment-success',
-  templateUrl: './payment-success.component.html',
-  styleUrls: ['./payment-success.component.scss']
+    selector: 'app-payment-success',
+    templateUrl: './payment-success.component.html',
+    styleUrls: ['./payment-success.component.scss'],
+    standalone: false
 })
 export class PaymentSuccessComponent implements OnInit {
   // Payment details

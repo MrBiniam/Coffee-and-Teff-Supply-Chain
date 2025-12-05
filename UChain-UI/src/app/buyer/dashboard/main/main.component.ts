@@ -5,9 +5,10 @@ import { OrderService } from "../../orders/order.service";
 import { Data } from "../dashboard2/data";
 
 @Component({
-  selector: "app-main",
-  templateUrl: "./main.component.html",
-  styleUrls: ["./main.component.scss"],
+    selector: "app-main",
+    templateUrl: "./main.component.html",
+    styleUrls: ["./main.component.scss"],
+    standalone: false
 })
 export class MainComponent implements OnInit {
   newOrders: number = 0

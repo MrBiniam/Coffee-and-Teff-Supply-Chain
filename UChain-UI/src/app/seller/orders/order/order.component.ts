@@ -10,9 +10,10 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-product',
-  templateUrl: './order.component.html',
-  styleUrls: ['./order.component.sass']
+    selector: 'app-product',
+    templateUrl: './order.component.html',
+    styleUrls: ['./order.component.sass'],
+    standalone: false
 })
 export class OrderComponent implements OnInit {
   orders: Order[] = [];

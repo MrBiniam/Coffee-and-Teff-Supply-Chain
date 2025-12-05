@@ -12,9 +12,10 @@ import { OrderService } from 'src/app/buyer/orders/order.service';
 
 
 @Component({
-  selector: 'app-form-dialog',
-  templateUrl: './form-dialog.component.html',
-  styleUrls: ['./form-dialog.component.sass'],
+    selector: 'app-form-dialog',
+    templateUrl: './form-dialog.component.html',
+    styleUrls: ['./form-dialog.component.sass'],
+    standalone: false
 })
 export class FormDialogComponent {
   dialogTitle: string;

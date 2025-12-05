@@ -11,9 +11,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { OrderService } from '../../order.service';
 
 @Component({
-  selector: 'app-deliver_order',
-  templateUrl: './deliver_order.component.html',
-  styleUrls: ['./deliver_order.component.sass'],
+    selector: 'app-deliver_order',
+    templateUrl: './deliver_order.component.html',
+    styleUrls: ['./deliver_order.component.sass'],
+    standalone: false
 })
 export class DeliverOrderComponent {
   dialogTitle: string;

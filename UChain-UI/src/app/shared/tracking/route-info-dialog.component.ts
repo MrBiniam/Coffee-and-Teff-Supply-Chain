@@ -6,9 +6,10 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { TrackingService, RoutePoint } from './tracking.service';
 
 @Component({
-  selector: 'app-route-info-dialog',
-  templateUrl: './route-info-dialog.component.html',
-  styleUrls: ['./route-info-dialog.component.scss']
+    selector: 'app-route-info-dialog',
+    templateUrl: './route-info-dialog.component.html',
+    styleUrls: ['./route-info-dialog.component.scss'],
+    standalone: false
 })
 export class RouteInfoDialogComponent implements OnInit {
   routeForm: UntypedFormGroup;

@@ -4,8 +4,8 @@ import { environment } from 'src/environments/environment';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-fix-order-status',
-  template: `
+    selector: 'app-fix-order-status',
+    template: `
     <div class="container-fluid">
       <div class="card">
         <div class="card-header">
@@ -59,7 +59,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
         </div>
       </div>
     </div>
-  `
+  `,
+    standalone: false
 })
 export class FixOrderStatusComponent implements OnInit {
   apiUrl = environment.apiUrl;

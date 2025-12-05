@@ -10,9 +10,10 @@ import { of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-select-driver',
-  templateUrl: './select-driver.component.html',
-  styleUrls: ['./select-driver.component.scss']
+    selector: 'app-select-driver',
+    templateUrl: './select-driver.component.html',
+    styleUrls: ['./select-driver.component.scss'],
+    standalone: false
 })
 export class SelectDriverComponent implements OnInit {
   drivers: User[] = [];

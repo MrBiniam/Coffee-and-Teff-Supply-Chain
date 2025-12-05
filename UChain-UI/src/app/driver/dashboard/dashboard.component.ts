@@ -3,9 +3,10 @@ import { OrderService } from 'src/app/buyer/orders/order.service';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.sass'],
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.sass'],
+    standalone: false
 })
 export class DashboardComponent implements OnInit {
 

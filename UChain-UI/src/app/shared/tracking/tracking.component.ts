@@ -16,8 +16,9 @@ import { RouteInfoDialogComponent } from './route-info-dialog.component';
 import { NgZone } from '@angular/core';
 
 @Component({
-  selector: 'app-tracking',
-  templateUrl: './tracking.component.html'
+    selector: 'app-tracking',
+    templateUrl: './tracking.component.html',
+    standalone: false
 })
 export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() orderId: any; // Can be string or number depending on context

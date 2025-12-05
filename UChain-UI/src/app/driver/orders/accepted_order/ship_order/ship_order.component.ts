@@ -5,9 +5,10 @@ import { TokenStorageService } from 'src/app/shared/security/token-storage.servi
 import { OrderService } from 'src/app/buyer/orders/order.service';
 
 @Component({
-  selector: 'app-ship_order',
-  templateUrl: './ship_order.component.html',
-  styleUrls: ['./ship_order.component.sass'],
+    selector: 'app-ship_order',
+    templateUrl: './ship_order.component.html',
+    styleUrls: ['./ship_order.component.sass'],
+    standalone: false
 })
 export class ShipOrderComponent {
   constructor(

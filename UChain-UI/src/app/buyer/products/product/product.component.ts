@@ -5,9 +5,10 @@ import { ProductService } from 'src/app/seller/products/product.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-product',
-  templateUrl: './product.component.html',
-  styleUrls: ['./product.component.sass']
+    selector: 'app-product',
+    templateUrl: './product.component.html',
+    styleUrls: ['./product.component.sass'],
+    standalone: false
 })
 export class ProductComponent implements OnInit {
   products: Product[] = [];

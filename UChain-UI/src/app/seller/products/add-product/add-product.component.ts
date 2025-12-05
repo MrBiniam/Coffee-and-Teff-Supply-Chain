@@ -8,9 +8,10 @@ import { CustomValidators } from 'src/app/shared/validators/custom-validators';
 
 
 @Component({
-  selector: 'app-add-patient',
-  templateUrl: './add-product.component.html',
-  styleUrls: ['./add-product.component.sass'],
+    selector: 'app-add-patient',
+    templateUrl: './add-product.component.html',
+    styleUrls: ['./add-product.component.sass'],
+    standalone: false
 })
 export class AddProductComponent implements OnInit {
   productForm: UntypedFormGroup;

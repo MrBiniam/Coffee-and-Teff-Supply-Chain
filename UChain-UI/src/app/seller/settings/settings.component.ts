@@ -9,9 +9,10 @@ import { User } from 'src/app/shared/security/user';
 import { UserService } from 'src/app/shared/security/user.service';
 
 @Component({
-  selector: 'app-settings',
-  templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.sass']
+    selector: 'app-settings',
+    templateUrl: './settings.component.html',
+    styleUrls: ['./settings.component.sass'],
+    standalone: false
 })
 export class SettingsComponent implements OnInit {
   registerFormSeller: UntypedFormGroup;

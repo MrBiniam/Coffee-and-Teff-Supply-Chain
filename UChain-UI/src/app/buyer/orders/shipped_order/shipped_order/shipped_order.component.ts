@@ -9,9 +9,10 @@ import { DeliverOrderComponent } from '../deliver_order/deliver_order.component'
 import { SimpleConfirmComponent } from '../../../../shared/simple-confirm/simple-confirm.component';
 
 @Component({
-  selector: 'app-shipped_order',
-  templateUrl: './shipped_order.component.html',
-  styleUrls: ['./shipped_order.component.sass']
+    selector: 'app-shipped_order',
+    templateUrl: './shipped_order.component.html',
+    styleUrls: ['./shipped_order.component.sass'],
+    standalone: false
 })
 export class ShippedOrderComponent implements OnInit {
   orders: Order[] = []

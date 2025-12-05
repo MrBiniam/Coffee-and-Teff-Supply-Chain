@@ -2,8 +2,8 @@ import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-simple-confirm',
-  template: `
+    selector: 'app-simple-confirm',
+    template: `
     <div class="confirm-dialog">
       <h2>{{data.title || 'Confirm'}}</h2>
       
@@ -25,7 +25,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
       </button>
     </div>
   `,
-  styles: [`
+    styles: [`
     .confirm-dialog {
       position: relative;
       padding: 20px;
@@ -71,7 +71,8 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
       border: none;
       cursor: pointer;
     }
-  `]
+  `],
+    standalone: false
 })
 export class SimpleConfirmComponent {
   constructor(

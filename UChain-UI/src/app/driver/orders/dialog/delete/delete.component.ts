@@ -5,9 +5,10 @@ import { TokenStorageService } from 'src/app/shared/security/token-storage.servi
 import { OrderService } from 'src/app/buyer/orders/order.service';
 
 @Component({
-  selector: 'app-delete',
-  templateUrl: './delete.component.html',
-  styleUrls: ['./delete.component.sass'],
+    selector: 'app-delete',
+    templateUrl: './delete.component.html',
+    styleUrls: ['./delete.component.sass'],
+    standalone: false
 })
 export class DeleteComponent {
   constructor(

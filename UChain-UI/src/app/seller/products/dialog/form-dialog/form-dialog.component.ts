@@ -12,9 +12,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomValidators } from 'src/app/shared/validators/custom-validators';
 
 @Component({
-  selector: 'app-form-dialog',
-  templateUrl: './form-dialog.component.html',
-  styleUrls: ['./form-dialog.component.sass'],
+    selector: 'app-form-dialog',
+    templateUrl: './form-dialog.component.html',
+    styleUrls: ['./form-dialog.component.sass'],
+    standalone: false
 })
 export class FormDialogComponent {
   dialogTitle: string;

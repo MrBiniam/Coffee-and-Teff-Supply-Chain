@@ -5,9 +5,10 @@ import { Product } from '../product.model';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-seller-product-profile',
-  templateUrl: './product-profile.component.html',
-  styleUrls: ['./product-profile.component.sass']
+    selector: 'app-seller-product-profile',
+    templateUrl: './product-profile.component.html',
+    styleUrls: ['./product-profile.component.sass'],
+    standalone: false
 })
 export class SellerProductProfileComponent implements OnInit {
   product: Product = new Product();

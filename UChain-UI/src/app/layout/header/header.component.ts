@@ -19,9 +19,10 @@ import { switchMap, startWith } from 'rxjs/operators';
 const document: any = window.document;
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.sass', './notification.styles.scss'],
+    selector: 'app-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.sass', './notification.styles.scss'],
+    standalone: false
 })
 export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   public config: any = {};

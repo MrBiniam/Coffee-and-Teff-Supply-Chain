@@ -12,9 +12,10 @@ import { TokenStorageService } from 'src/app/shared/security/token-storage.servi
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-patient-profile',
-  templateUrl: './product-profile.component.html',
-  styleUrls: ['./product-profile.component.sass']
+    selector: 'app-patient-profile',
+    templateUrl: './product-profile.component.html',
+    styleUrls: ['./product-profile.component.sass'],
+    standalone: false
 })
 export class ProductProfileComponent implements OnInit {
   product: Product = new Product();

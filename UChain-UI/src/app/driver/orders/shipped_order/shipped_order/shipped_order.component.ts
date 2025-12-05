@@ -7,9 +7,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { OrderService } from 'src/app/buyer/orders/order.service';
 
 @Component({
-  selector: 'app-shipped_order',
-  templateUrl: './shipped_order.component.html',
-  styleUrls: ['./shipped_order.component.sass']
+    selector: 'app-shipped_order',
+    templateUrl: './shipped_order.component.html',
+    styleUrls: ['./shipped_order.component.sass'],
+    standalone: false
 })
 export class ShippedOrderComponent implements OnInit {
   orders: Order[] = []
