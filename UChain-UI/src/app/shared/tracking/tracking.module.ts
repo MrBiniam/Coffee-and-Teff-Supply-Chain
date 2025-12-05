@@ -16,33 +16,30 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TrackingService } from './tracking.service';
 
 @NgModule({
-  declarations: [
-    TrackingComponent,
-    RouteInfoDialogComponent
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    RouterModule,
-    LeafletModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule
-  ],
-  exports: [
-    TrackingComponent
-  ],
-  providers: [
-    TrackingService
-  ],
-  entryComponents: [
-    RouteInfoDialogComponent
-  ]
+    declarations: [
+        TrackingComponent,
+        RouteInfoDialogComponent
+    ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        RouterModule,
+        LeafletModule,
+        MatButtonModule,
+        MatIconModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        MatProgressSpinnerModule,
+        MatSnackBarModule
+    ],
+    exports: [
+        TrackingComponent
+    ],
+    providers: [
+        TrackingService
+    ]
 })
 export class TrackingModule { }

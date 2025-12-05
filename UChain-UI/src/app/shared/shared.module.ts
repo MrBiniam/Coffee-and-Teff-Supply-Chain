@@ -10,29 +10,26 @@ import { UChainHomesModule } from './uchain-homes/uchain-homes.module';
 import { RouterModule } from '@angular/router';
 
 @NgModule({
-  declarations: [
-    SimpleConfirmComponent
-  ],
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    FormsModule,
-    ReactiveFormsModule,
-    UChainHomesModule,
-    RouterModule
-  ],
-  exports: [
-    SimpleConfirmComponent,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    UChainHomesModule
-  ],
-  entryComponents: [
-    SimpleConfirmComponent
-  ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    declarations: [
+        SimpleConfirmComponent
+    ],
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        FormsModule,
+        ReactiveFormsModule,
+        UChainHomesModule,
+        RouterModule
+    ],
+    exports: [
+        SimpleConfirmComponent,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        UChainHomesModule
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SharedModule {}
