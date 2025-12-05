@@ -32,7 +32,7 @@ import { MatListModule } from "@angular/material/list";
 import { MatButtonToggleModule } from "@angular/material/button-toggle";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { HttpClientModule } from "@angular/common/http";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import { ClickOutsideModule } from "ng-click-outside";
 import { httpInterceptorProviders } from './shared/security/auth-interceptor';
 import { ProductService } from "./seller/products/product.service";
@@ -48,8 +48,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true,
   wheelPropagation: false,
 };
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         AppComponent,
         HeaderComponent,
         PageLoaderComponent,
@@ -58,13 +57,11 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         AuthLayoutComponent,
         MainLayoutComponent,
     ],
-    imports: [
-        BrowserModule,
+    bootstrap: [AppComponent], imports: [BrowserModule,
         BrowserAnimationsModule,
         LeafletModule,
         AppRoutingModule,
         NgbModule,
-        HttpClientModule,
         ReactiveFormsModule,
         PerfectScrollbarModule,
         MatIconModule,
@@ -80,9 +77,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         ClickOutsideModule,
         NgxMaskModule.forRoot(),
         SharedModule,
-        TrackingModule
-    ],
-    providers: [httpInterceptorProviders,
+        TrackingModule], providers: [httpInterceptorProviders,
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         {
             provide: PERFECT_SCROLLBAR_CONFIG,
@@ -96,8 +91,5 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         ProductService,
         OrderService,
         UserService,
-        MessageService
-    ],
-    bootstrap: [AppComponent]
-})
+        MessageService, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {}

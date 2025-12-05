@@ -4,9 +4,9 @@
  *  Description: This scss file for style related to calendar app
  */
 
-@import '~@fullcalendar/core/main.css';
-@import '~@fullcalendar/daygrid/main.css';
-@import '~@fullcalendar/timegrid/main.css';
+@import '@fullcalendar/core/main.css';
+@import '@fullcalendar/daygrid/main.css';
+@import '@fullcalendar/timegrid/main.css';
 
 #event_title {
   font-size: 1.2rem;
