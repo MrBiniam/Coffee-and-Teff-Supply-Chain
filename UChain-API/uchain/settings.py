@@ -12,20 +12,42 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+
+def load_env_file(env_path: Path) -> None:
+    """
+    Minimal .env loader to avoid external dependencies.
+    Supports KEY=VALUE lines and ignores comments/blank lines.
+    """
+    if not env_path.exists():
+        return
+
+    for line in env_path.read_text().splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key, value = stripped.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip())
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+ENV_PATH = BASE_DIR / ".env"
+load_env_file(ENV_PATH)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-2-4oc8tw2bejz6&&0u^*rp4ll+k2r&n(+^)4nrmi)ly%d$#jpa"
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY", "django-insecure-2-4oc8tw2bejz6&&0u^*rp4ll+k2r&n(+^)4nrmi)ly%d$#jpa"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
 
-ALLOWED_HOSTS = []
+allowed_hosts_raw = os.environ.get("DJANGO_ALLOWED_HOSTS")
+ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_raw.split(",") if h.strip()] if allowed_hosts_raw else []
 
 
 # Application definition
@@ -78,18 +100,17 @@ TEMPLATES = [
 WSGI_APPLICATION = "uchain.wsgi.application"
 
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'uchain',
-        'USER': 'root',
-        'PASSWORD': 'verona2914',
-        'HOST': 'localhost',   # Or the hostname where your MySQL server is running
-        'PORT': '3306',        # MySQL default port is 3306
+        'NAME': os.environ.get('DB_NAME', 'uchain'),
+        'USER': os.environ.get('DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'verona2914'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
     }
 }
 
@@ -116,7 +137,9 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Keep ModelBackend as fallback
 ]
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:4200',
+    origin.strip()
+    for origin in os.environ.get('CORS_ORIGIN_WHITELIST', 'http://localhost:4200').split(',')
+    if origin.strip()
 ]
 AUTH_USER_MODEL = 'api.CustomUser'
 # Internationalization
@@ -134,11 +157,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -162,7 +183,7 @@ REST_FRAMEWORK = {
 }
 
 # Chapa Payment Gateway Configuration
-CHAPA_SECRET_KEY = 'CHASECK_TEST-eTExMhRkuBgrH6SMnNgZnQWvdeIif5lf'
-CHAPA_PUBLIC_KEY = 'CHAPUBK_TEST-aVejExSBQLcKVflvyjbZSlk0fRzcxELh'
-CHAPA_API_VERSION = 'v1'
-CHAPA_API_URL = 'https://api.chapa.co'
+CHAPA_SECRET_KEY = os.environ.get('CHAPA_SECRET_KEY', 'CHASECK_TEST-eTExMhRkuBgrH6SMnNgZnQWvdeIif5lf')
+CHAPA_PUBLIC_KEY = os.environ.get('CHAPA_PUBLIC_KEY', 'CHAPUBK_TEST-aVejExSBQLcKVflvyjbZSlk0fRzcxELh')
+CHAPA_API_VERSION = os.environ.get('CHAPA_API_VERSION', 'v1')
+CHAPA_API_URL = os.environ.get('CHAPA_API_URL', 'https://api.chapa.co')
