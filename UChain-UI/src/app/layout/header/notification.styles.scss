@@ -7,10 +7,25 @@
   font-weight: bold;
 }
 
-// Wider dropdown for notifications
+// Container li for notification and user menus should be relative
+.nav-item {
+  position: relative;
+}
+
+// Floating dropdown panel for notifications and user menu
 .notification-dropdown {
-  min-width: 450px !important;
-  max-width: 500px !important;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1050;
+  min-width: 320px;
+  max-width: 420px;
+  max-height: 320px;
+  margin-top: 6px;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
 }
 
 // Notification item styling

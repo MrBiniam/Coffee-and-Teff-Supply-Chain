@@ -550,8 +550,18 @@ class Payment(APIView):
         try:
             # Get the current date and time
             now = datetime.now()
-            # Format the date and time
-            tx_ref = request.data.get('tx_ref', 'tx_uchainappsmartsupplychainmanagementpaytxref' + now.strftime("%Y%m%d%H%M%S"))
+            timestamp = now.strftime("%Y%m%d%H%M%S")
+
+            # Use tx_ref from the request when provided, but enforce Chapa's 50-char limit
+            incoming_tx_ref = request.data.get('tx_ref')
+            base_tx_ref = incoming_tx_ref if incoming_tx_ref else f"tx_uchainapp_{timestamp}"
+
+            # Chapa requires tx_ref to be at most 50 characters long
+            if len(base_tx_ref) <= 50:
+                tx_ref = base_tx_ref
+            else:
+                # Generate a compact, unique tx_ref that respects the limit
+                tx_ref = f"UCHAIN-{timestamp}"
             
             # Log the request data for debugging
             print("Payment initialization request:", request.data)
@@ -819,12 +829,79 @@ class InboxAPIView(APIView):
 # view to send a rating to other user
 class RatingSendAPIView(APIView):
     def post(self, request):
-        request.data['sender'] = request.user
-        serializer = RatingSerializer(data=request.data)
+        """Create a rating and, if appropriate, finalize the order as Delivered.
+
+        Flow:
+        - Buyer opens the "Delivered?" dialog from the shipped orders page.
+        - Frontend posts a rating to this endpoint.
+        - If the underlying Order is currently in a driver-delivered state
+          (driver marked delivered but buyer hasn't confirmed), we promote
+          the order status to DELIVERED so that buyer, seller and driver all
+          see the order in their delivered lists.
+        """
+
+        # Use a mutable copy to avoid side effects on request.data
+        data = request.data.copy()
+        # RatingSerializer expects a slug (username) for sender
+        if isinstance(request.user, CustomUser):
+            data['sender'] = request.user.username
+        else:
+            data['sender'] = str(request.user)
+
+        serializer = RatingSerializer(data=data)
         if serializer.is_valid():
-            # Assuming sender is the current authenticated user
-            serializer.save()
+            rating = serializer.save()
+
+            try:
+                order = rating.order
+            except AttributeError:
+                order = None
+
+            # If we have an order, promote it to fully DELIVERED when the buyer
+            # confirms via rating and the order is still in an in-transit state
+            # (SHIPPED or DRIVER_DELIVERED). This guards against cases where
+            # background tracking updates may have reverted DRIVER_DELIVERED
+            # back to SHIPPED before the rating was submitted.
+            if order is not None:
+                try:
+                    from .models import Order as OrderModel
+
+                    current_status = (order.status or '').upper()
+
+                    # Values that mean the order is still in transit but ready
+                    # to be finalized once the buyer confirms
+                    promotable_statuses = {
+                        getattr(OrderModel, 'DRIVER_DELIVERED', 'Driver_Delivered').upper(),
+                        getattr(OrderModel, 'SHIPPED', 'Shipped').upper(),
+                        'DRIVER_DELIVERED',
+                        'SHIPPED',
+                    }
+
+                    # Final delivered value from the model (fallback to literal)
+                    final_delivered = getattr(OrderModel, 'DELIVERED', 'Delivered')
+
+                    if current_status in promotable_statuses and current_status != final_delivered.upper():
+                        old_status = order.status
+
+                        # Promote to final delivered state
+                        order.status = final_delivered
+                        order.save(update_fields=['status'])
+
+                        # Create delivered notifications for buyer, seller, and driver
+                        try:
+                            from .notification_views import NotificationService
+                            NotificationService.create_order_notification(order.id, order.status)
+                        except Exception as notify_error:
+                            print(f"Error creating delivered notifications after rating: {notify_error}")
+
+                        print(f"Order {order.id} status promoted from {old_status} to {order.status} after rating")
+
+                except Exception as order_update_error:
+                    # Log but don't block rating creation if status promotion fails
+                    print(f"Error promoting order status after rating: {order_update_error}")
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # view to list all rating related to a reciever

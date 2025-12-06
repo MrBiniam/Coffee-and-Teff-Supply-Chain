@@ -1,2 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @import "leaflet/dist/leaflet.css";
+
+// Global SweetAlert2 styles for all confirmation / chat modals
+// This restores the full-screen centered modal appearance for Swal.fire dialogs
+@import "sweetalert2/src/sweetalert2.scss";

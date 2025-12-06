@@ -57,14 +57,29 @@ class UpdateTrackingLocationView(APIView):
             # Update status if provided
             if status_update:
                 tracking_location.status = status_update
-                # Also update the order status if needed
-                if status_update == 'delivered':
-                    # Use DRIVER_DELIVERED for collaborative confirmation flow
-                    order.status = 'DRIVER_DELIVERED'
-                    order.save()
-                elif status_update == 'picked_up' or status_update == 'on_route':
-                    order.status = 'SHIPPED'
-                    order.save()
+
+                # Also update the order status if needed, but never downgrade a
+                # fully delivered order back to an in-transit status. Periodic
+                # location pings may continue to send 'on_route' even after the
+                # buyer has confirmed delivery, so we guard against that here.
+                normalized_status = status_update.lower()
+
+                # Get canonical status values from the Order model
+                final_delivered = getattr(Order, "DELIVERED", "Delivered")
+                driver_delivered = getattr(Order, "DRIVER_DELIVERED", "Driver_Delivered")
+                shipped_status = getattr(Order, "SHIPPED", "Shipped")
+
+                current_status = (order.status or "").upper()
+
+                # Only update when the order is not already in a delivered state
+                if current_status not in {final_delivered.upper(), driver_delivered.upper()}:
+                    if normalized_status == 'delivered':
+                        # Use DRIVER_DELIVERED for collaborative confirmation flow
+                        order.status = driver_delivered
+                        order.save()
+                    elif normalized_status in ('picked_up', 'on_route'):
+                        order.status = shipped_status
+                        order.save()
             
             tracking_location.save()
             
