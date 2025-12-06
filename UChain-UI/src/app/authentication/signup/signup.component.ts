@@ -25,9 +25,14 @@ export class SignupComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    // Ensure forms exist before first template render to prevent null access
+    this.initForms();
+  }
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  private initForms() {
     this.registerFormBuyer = this.formBuilder.group({
       username: ['', [Validators.required, CustomValidators.onlyLetters()]],
       phone_number: ['', [Validators.required, CustomValidators.phoneNumber()]],
@@ -87,6 +92,28 @@ export class SignupComponent implements OnInit {
 
   get f() {
     return this.registerFormBuyer.controls;
+  }
+
+  onProfileImageChange(event: Event, profile: string) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+
+    const file = input.files[0];
+
+    let registerForm: UntypedFormGroup | null = null;
+    if (profile === 'buyer') {
+      registerForm = this.registerFormBuyer;
+    } else if (profile === 'seller') {
+      registerForm = this.registerFormSeller;
+    } else if (profile === 'driver') {
+      registerForm = this.registerFormDriver;
+    }
+
+    if (registerForm) {
+      registerForm.get('profile_image')?.setValue(file);
+    }
   }
 
   signUpProcess(formData: FormData, profile: string) {
@@ -175,29 +202,20 @@ export class SignupComponent implements OnInit {
 
     // Handle profile image upload
     const profileImageControl = registerForm.get('profile_image');
-    if (profileImageControl && profileImageControl.value) {
-      let fileToUpload = null;
-      
-      // Handle different file input structures
-      if (profileImageControl.value._files && profileImageControl.value._files.length > 0) {
-        // ngx-mat-file-input format
-        fileToUpload = profileImageControl.value._files[0];
-      } else if (profileImageControl.value instanceof File) {
-        // Direct File object
-        fileToUpload = profileImageControl.value;
-      } else if (typeof profileImageControl.value === 'object') {
-        // Try to extract file from other possible formats
-        fileToUpload = profileImageControl.value.files?.[0] || null;
-      }
-      
-      if (fileToUpload) {
-        formData.append('profile_image', fileToUpload, fileToUpload.name);
-        console.log('Added profile image to form data:', fileToUpload.name);
-      } else {
-        console.warn('Could not extract profile image file from form control');
-      }
+    const value = profileImageControl?.value;
+    let fileToUpload: File | null = null;
+
+    if (value instanceof File) {
+      fileToUpload = value;
+    } else if (value?.files?.[0]) {
+      fileToUpload = value.files[0];
+    }
+
+    if (fileToUpload) {
+      formData.append('profile_image', fileToUpload, fileToUpload.name);
+      console.log('Added profile image to form data:', fileToUpload.name);
     } else {
-      console.warn('No profile image selected');
+      console.warn('No profile image selected or unable to extract file');
     }
 
     console.log(`Sending ${profile} registration data to server`);

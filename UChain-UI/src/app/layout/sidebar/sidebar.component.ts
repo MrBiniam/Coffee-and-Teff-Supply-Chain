@@ -91,7 +91,7 @@ export class SidebarComponent implements OnInit {
       
       // Fix for profile image URL - ensure it's a complete, absolute URL
       if (this.userImg) {
-        // Remove any existing protocol and host
+        // Remove any existing protocol and host for relative backend paths
         if (this.userImg.startsWith('/')) {
           // It's already a relative path, just add the backend URL
           this.userImg = 'http://127.0.0.1:8000' + this.userImg;
@@ -100,8 +100,8 @@ export class SidebarComponent implements OnInit {
           this.userImg = 'http://127.0.0.1:8000/media/profile_images/' + this.userImg;
         }
       } else {
-        // Use default image if no profile image is available
-        this.userImg = 'assets/images/user/default.png';
+        // Use an existing default avatar from assets when no profile image is available
+        this.userImg = 'assets/images/user/user1.jpg';
       }
 
       this.sidebarItems = ROUTES.filter(

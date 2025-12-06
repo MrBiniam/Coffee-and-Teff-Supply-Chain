@@ -3,20 +3,44 @@ import { TokenStorageService } from "src/app/shared/security/token-storage.servi
 import { Order } from "../../orders/order.model";
 import { OrderService } from "../../orders/order.service";
 import { Data } from "../dashboard2/data";
+import {
+  ApexAxisChartSeries,
+  ApexChart,
+  ApexXAxis,
+  ApexDataLabels,
+  ApexTooltip,
+  ApexYAxis,
+  ApexStroke,
+  ApexLegend,
+} from "ng-apexcharts";
+
+export type BuyerAreaChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  xaxis: ApexXAxis;
+  yaxis: ApexYAxis;
+  stroke: ApexStroke;
+  tooltip: ApexTooltip;
+  dataLabels: ApexDataLabels;
+  legend: ApexLegend;
+  colors: string[];
+};
 
 @Component({
-    selector: "app-main",
-    templateUrl: "./main.component.html",
-    styleUrls: ["./main.component.scss"],
-    standalone: false
+  selector: "app-main",
+  templateUrl: "./main.component.html",
+  styleUrls: ["./main.component.scss"],
+  standalone: false
 })
 export class MainComponent implements OnInit {
   newOrders: number = 0
-  acceptedOrders: number= 0
-  shippedOrders:number =0
+  acceptedOrders: number = 0
+  shippedOrders: number = 0
   deliveredOrders: number = 0
   data: Data = new Data()
-  constructor(private tokenStorage: TokenStorageService, private orderService: OrderService) {}
+  apexAreaChartOptions: Partial<BuyerAreaChartOptions>;
+
+  constructor(private tokenStorage: TokenStorageService, private orderService: OrderService) { }
   // area chart start
   public areaChartOptions = {
     responsive: true,
@@ -283,6 +307,75 @@ export class MainComponent implements OnInit {
         { data: [30, 45, 51, 22, 79, 35, 82], label: "AB Coffee" },
         { data: [30, 45, 51, 22, 79, 35, 82], label: "C Coffee" },
       ];
+
+      // Configure Apex area chart options for coffee price estimation
+      this.apexAreaChartOptions = {
+        series: [
+          { name: "AA COFFEE", data: aaCoffeeData },
+          { name: "AB COFFEE", data: abCoffeeData },
+          { name: "C COFFEE", data: cCoffeeData },
+        ],
+        chart: {
+          height: 350,
+          type: "area",
+          toolbar: { show: false },
+          foreColor: "#9aa0ac",
+        },
+        xaxis: {
+          type: "category",
+          categories: [
+            "Day 1",
+            "Day 2",
+            "Day 3",
+            "Day 4",
+            "Day 5",
+            "Day 6",
+            "Day 7",
+          ],
+          labels: {
+            style: {
+              colors: "#9aa0ac",
+            },
+          },
+        },
+        yaxis: {
+          labels: {
+            style: {
+              colors: "#9aa0ac",
+            },
+            formatter: function (val: number) {
+              return Math.round(val).toString();
+            },
+          },
+        },
+        tooltip: {
+          theme: "dark",
+          marker: { show: true },
+          x: { show: true },
+          y: {
+            formatter: function (val: number) {
+              return Math.round(val).toString();
+            },
+          },
+        },
+        legend: {
+          position: "top",
+          horizontalAlign: "right",
+          offsetY: 0,
+          offsetX: -5,
+          labels: {
+            colors: "#9aa0ac",
+          },
+        },
+        colors: ["#00E396", "#775DD0", "#FF9800"],
+        stroke: {
+          width: 3,
+          curve: "smooth",
+        },
+        dataLabels: {
+          enabled: false,
+        },
+      };
     } catch (error) {
       console.error("Error initializing chart data:", error);
       // Provide default empty data in case of errors

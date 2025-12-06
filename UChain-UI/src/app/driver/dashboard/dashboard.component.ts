@@ -16,7 +16,7 @@ export class DashboardComponent implements OnInit {
   shippedOrders: number=0
   deliveredOrders: number=0
   username: string = this.tokenStorage.getUsername()
-  profileImage: string = this.tokenStorage.getProfileImage()
+  profileImage: string = this.tokenStorage.getProfileImage() || 'assets/images/user/user1.jpg'
 
   constructor(private orderService: OrderService,private tokenStorage: TokenStorageService) {}
 

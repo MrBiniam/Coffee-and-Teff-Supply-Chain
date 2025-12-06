@@ -82,7 +82,8 @@ export class TokenStorageService {
         sessionStorage.setItem('PROFILE_KEY', imagePath);
       }
     }
-    if (!imagePath) {
+    // Treat empty, 'null', or 'undefined' as no image
+    if (!imagePath || imagePath === 'null' || imagePath === 'undefined') {
       return null;
     }
     

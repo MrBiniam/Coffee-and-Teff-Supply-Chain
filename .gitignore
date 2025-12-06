@@ -1,4 +1,5 @@
 # Node/Angular specific ignores
+node_modules/
 UChain-UI/node_modules/
 UChain-UI/dist/
 UChain-UI/.angular/
@@ -22,9 +23,9 @@ UChain-API/db.sqlite3
 UChain-API/db.sqlite3-journal
 UChain-API/local_settings.py
 
-# Media and static files (uncomment if you want to ignore these)
-# UChain-API/media/
-# UChain-API/static/
+# Media and static files (ignore uploaded and generated backend assets)
+UChain-API/media/
+UChain-API/static/
 
 # IDE specific files
 .idea/

@@ -58,6 +58,16 @@ export class SettingsComponent implements OnInit {
       profile_image: ['']
     });
   }
+
+  onProfileImageChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+
+    const file = input.files[0];
+    this.registerFormBuyer.get('profile_image')?.setValue(file);
+  }
   
   getUser() {
     this.userService.getOneUser(this.id).subscribe(
@@ -106,15 +116,17 @@ export class SettingsComponent implements OnInit {
       formData.append('payment_method', this.registerFormBuyer.get('payment_method').value);
       formData.append('account_number', this.registerFormBuyer.get('account_number').value);
       
-      // Handle the file upload properly
+      // Handle the file upload properly for native file input
       const profileImageControl = this.registerFormBuyer.get('profile_image');
-      if (profileImageControl && profileImageControl.value) {
-        const files = profileImageControl.value;
-        if (files instanceof File) {
-          formData.append('profile_image', files);
-        } else if (files && files.files && files.files.length) {
-          formData.append('profile_image', files.files[0]);
-        }
+      const value = profileImageControl?.value;
+      const file =
+        value instanceof File
+          ? value
+          : value?.files?.[0]
+            ? value.files[0]
+            : null;
+      if (file) {
+        formData.append('profile_image', file, file.name);
       }
 
       this.userService.updateUser(this.id, formData).subscribe(

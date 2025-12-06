@@ -125,14 +125,14 @@
           </div>
           <div class="row">
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
-              <mat-form-field class="example-full-width mb-3">
-                <ngx-mat-file-input formControlName="profile_image" placeholder="Upload Picture">
-                </ngx-mat-file-input>
-                <mat-icon matSuffix>cloud_upload</mat-icon>
-                <mat-error *ngIf="registerFormDriver.get('profile_image').hasError('required')">
+              <div class="example-full-width mb-3">
+                <label>Upload Picture</label>
+                <input type="file" formControlName="profile_image" (change)="onProfileImageChange($event)" />
+                <mat-icon>cloud_upload</mat-icon>
+                <div *ngIf="registerFormDriver.get('profile_image').hasError('required')">
                   Profile Image is required
-                </mat-error>
-              </mat-form-field>
+                </div>
+              </div>
             </div>
           </div>
           <div class="row">

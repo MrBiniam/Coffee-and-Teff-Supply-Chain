@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TrackingComponent } from './tracking.component';
 import { RouteInfoDialogComponent } from './route-info-dialog.component';
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -25,7 +24,6 @@ import { TrackingService } from './tracking.service';
         FormsModule,
         ReactiveFormsModule,
         RouterModule,
-        LeafletModule,
         MatButtonModule,
         MatIconModule,
         MatDialogModule,

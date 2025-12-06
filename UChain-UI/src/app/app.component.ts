@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import {
   Event,
   Router,
   NavigationStart,
   NavigationEnd,
 } from '@angular/router';
-import { NgxSpinnerService } from "ngx-spinner";
 import { PlatformLocation } from '@angular/common';
 @Component({
     selector: 'app-root',
@@ -15,10 +14,9 @@ import { PlatformLocation } from '@angular/common';
 })
 export class AppComponent {
   currentUrl: string;
-  constructor(public _router: Router, location: PlatformLocation, private spinner: NgxSpinnerService) {
+  constructor(public _router: Router, location: PlatformLocation) {
     this._router.events.subscribe((routerEvent: Event) => {
       if (routerEvent instanceof NavigationStart) {
-        this.spinner.show();
         // location.onPopState(() => {
         //   window.location.reload();
         // });
@@ -27,9 +25,9 @@ export class AppComponent {
         );
       }
       if (routerEvent instanceof NavigationEnd) {
-        this.spinner.hide();
-      }
+        }
       window.scrollTo(0, 0);
     });
   }
 }
+

@@ -34,7 +34,7 @@ export class ShippedOrderComponent implements OnInit {
           const status = value.status ? value.status.toLowerCase() : '';
           
           // Check if the product array exists and has elements
-          if (!value.product || !Array.isArray(value.product) || value.product.length === 0) {
+          if (!value.product || !Array.isArray(value.product) || !value.product.length) {
             console.warn(`Order #${value.id} has no valid product information`);
             return;
           }

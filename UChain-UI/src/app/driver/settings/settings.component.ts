@@ -54,6 +54,16 @@ export class SettingsComponent implements OnInit {
     this.getUser();
   }
 
+  onProfileImageChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+
+    const file = input.files[0];
+    this.registerFormDriver.get('profile_image')?.setValue(file);
+  }
+
   ngOnInit(): void {
   }
   
@@ -116,15 +126,17 @@ export class SettingsComponent implements OnInit {
       // Add car model to form data
       formData.append('car_model', this.registerFormDriver.get('car_model').value);
       
-      // Handle file upload
+      // Handle file upload for native file input
       const profileImageControl = this.registerFormDriver.get('profile_image');
-      if (profileImageControl && profileImageControl.value) {
-        const files = profileImageControl.value;
-        if (files instanceof File) {
-          formData.append('profile_image', files);
-        } else if (files && files.files && files.files.length) {
-          formData.append('profile_image', files.files[0]);
-        }
+      const value = profileImageControl?.value;
+      const file =
+        value instanceof File
+          ? value
+          : value?.files?.[0]
+            ? value.files[0]
+            : null;
+      if (file) {
+        formData.append('profile_image', file, file.name);
       }
 
       // Log the formData contents for debugging (this is TypeScript compatible)

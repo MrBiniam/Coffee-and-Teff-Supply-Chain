@@ -1,5 +1,5 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Component, Inject } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import {
   UntypedFormControl,
   Validators,
@@ -21,6 +21,8 @@ export class FormDialogComponent {
   dialogTitle: string;
   productForm: UntypedFormGroup;
   product: Product;
+  selectedImageName = '';
+  @ViewChild('imageInput') imageInput: ElementRef<HTMLInputElement>;
   constructor(
     public dialogRef: MatDialogRef<FormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -31,6 +33,7 @@ export class FormDialogComponent {
     // Set the defaults
     this.dialogTitle = data.product.name;
     this.product = data.product;
+    this.selectedImageName = this.product.image ? this.product.image.split('/').pop() : '';
     
     // Format the quantity to uppercase if it exists
     if (this.product.quantity) {
@@ -77,6 +80,19 @@ export class FormDialogComponent {
     // Convert 'kg' part to uppercase, preserving the number and any spaces
     return quantity.replace(/kg$/i, 'KG');
   }
+
+  onImageChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+    const file = input.files[0];
+    this.productForm.get('image')?.setValue(file);
+    this.selectedImageName = file.name;
+  }
+  triggerImageInput() {
+    this.imageInput?.nativeElement.click();
+  }
   onSubmit() {
     // Format quantity to uppercase
     const quantityValue = this.formatQuantity(this.productForm.get('quantity').value);
@@ -88,10 +104,17 @@ export class FormDialogComponent {
     formData.append('quantity', quantityValue);
     formData.append('product_type', this.productForm.get('product_type').value);
     
-    // Check if a new image was selected
+    // Check if a new image was selected (native file input)
     const imageControl = this.productForm.get('image');
-    if (imageControl && imageControl.value && imageControl.value._files && imageControl.value._files[0]) {
-      formData.append('image', imageControl.value._files[0]);
+    const value = imageControl?.value;
+    const file =
+      value instanceof File
+        ? value
+        : value?.files?.[0]
+          ? value.files[0]
+          : null;
+    if (file) {
+      formData.append('image', file, file.name);
     } else {
       // If no new image was selected, don't modify the existing image
       console.log('No new image selected, keeping existing image');

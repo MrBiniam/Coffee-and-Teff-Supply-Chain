@@ -4,10 +4,7 @@
  *  Description: This scss file for tables style classes
  */
 
-// ngx-datatables material theme import
-@import '~swimlane/ngx-datatable/index.css';
-@import '~swimlane/ngx-datatable/themes/material.scss';
-@import '~swimlane/ngx-datatable/assets/icons.css';
+// ngx-datatables styles removed due to incompatibility/missing package after Angular upgrade
 
 .table {
   tbody {
@@ -687,3 +684,4 @@ tr.group:hover {
     font-weight: 500;
   }
 }
+

@@ -9,7 +9,7 @@
         <span class="logo-name" style="color: rgb(51, 159, 51);">U-Chain</span>
       </a>
     </div>
-    <div class="collapse navbar-collapse" [ngbCollapse]="isNavbarCollapsed">
+    <div class="collapse navbar-collapse" [class.collapse]="isNavbarCollapsed">
       <ul class="pull-left collapse-menu-icon">
         <li>
           <button mat-icon-button (click)="callSidemenuCollapse()" class="sidemenu-collapse">
@@ -26,19 +26,19 @@
         </li>
         <!-- #END# Full Screen Button -->
         <!-- #START# Notifications-->
-        <li class="nav-item" ngbDropdown>
-          <button mat-icon-button ngbDropdownToggle class="nav-notification-icons">
+        <li class="nav-item">
+          <button mat-icon-button class="nav-notification-icons" (click)="toggleNotifications(); $event.stopPropagation()">
             <mat-icon [ngClass]="{'text-warning': unreadCount > 0}">{{ unreadCount > 0 ? 'notifications_active' : 'notifications_none' }}</mat-icon>
             <span class="label-count bg-danger" *ngIf="unreadCount > 0">{{unreadCount}}</span>
           </button>
-          <div ngbDropdownMenu class="notification-dropdown pullDown">
+          <div *ngIf="showNotifications" class="notification-dropdown pullDown" (click)="$event.stopPropagation()">
             <div class="notification-header d-flex justify-content-between p-3">
               <span class="font-weight-bold">Notifications</span>
               <a *ngIf="notifications.length > 0" (click)="markAllAsRead()" class="text-primary cursor-pointer">
                 Mark All Read
               </a>
             </div>
-            <div class="noti-list" style="position: relative; max-width: 800px; max-height: 250px;" [perfectScrollbar]>
+            <div class="noti-list" style="position: relative; max-width: 800px; max-height: 250px; overflow: auto;">
               <ul class="menu">
                 <li *ngIf="notifications.length === 0" class="text-center py-3">No notifications</li>
                 <li *ngFor="let notification of notifications">
@@ -69,12 +69,13 @@
           </div>
         </li>
         <!-- #END# Notifications-->
-        <li class="nav-item user_profile" ngbDropdown>
-          <a href="#" onClick="return false;" ngbDropdownToggle role="button" class="nav-notification-icons pt-0">
+        <li class="nav-item user_profile">
+          <a href="#" onClick="return false;" role="button" class="nav-notification-icons pt-0"
+             (click)="toggleUserMenu(); $event.preventDefault(); $event.stopPropagation()">
             <b>{{username}}</b>
           </a>
-          <div ngbDropdownMenu class="notification-dropdown pullDown">
-            <div class="noti-list" style="position: relative; max-width: 600px; max-height: 300px;" [perfectScrollbar]>
+          <div *ngIf="showUserMenu" class="notification-dropdown pullDown" (click)="$event.stopPropagation()">
+            <div class="noti-list" style="position: relative; max-width: 600px; max-height: 300px; overflow: auto;">
               <ul class="menu">
                 <li class="body">
                   <ul class="user_dw_menu">
