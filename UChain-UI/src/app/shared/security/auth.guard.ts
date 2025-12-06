@@ -2,13 +2,18 @@ import { Injectable } from '@angular/core';
 import { Route, UrlSegment, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { TokenStorageService } from './token-storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard
    {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private tokenStorage: TokenStorageService
+  ) {}
 
   canActivate(
     next: ActivatedRouteSnapshot,
@@ -51,6 +56,15 @@ export class AuthGuard
   }
 
   checkUserLogin(route: ActivatedRouteSnapshot, url: any): boolean {
+    if (!this.authService.isLoggedIn()) {
+      const token = this.tokenStorage.getToken();
+      const authorities = this.tokenStorage.getAuthorities();
+      if (token && authorities) {
+        localStorage.setItem('STATE', 'true');
+        localStorage.setItem('ROLE', authorities);
+      }
+    }
+
     if (this.authService.isLoggedIn()) {
       const userRole = this.authService.getRole();
       if (route.data.role && route.data.role.indexOf(userRole) === -1) {
