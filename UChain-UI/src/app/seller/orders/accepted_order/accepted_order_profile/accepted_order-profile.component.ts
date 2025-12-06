@@ -15,9 +15,10 @@ import { Location } from '@angular/common';
 
 
 @Component({
-  selector: 'app-order-profile',
-  templateUrl: './accepted_order-profile.component.html',
-  styleUrls: ['./accepted_order-profile.component.scss']
+    selector: 'app-order-profile',
+    templateUrl: './accepted_order-profile.component.html',
+    styleUrls: ['./accepted_order-profile.component.scss'],
+    standalone: false
 })
 export class AcceptedOrderProfileComponent implements OnInit {
   order: Order = new Order();

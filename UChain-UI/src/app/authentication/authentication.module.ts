@@ -16,7 +16,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MaterialFileInputModule } from 'ngx-material-file-input';
 @NgModule({
   declarations: [
     Page500Component,
@@ -37,9 +36,7 @@ import { MaterialFileInputModule } from 'ngx-material-file-input';
     MatSelectModule,
     MatSnackBarModule,
     MatCheckboxModule,
-    MaterialFileInputModule,
   ],
-  providers: [httpInterceptorProviders]
+  providers: [httpInterceptorProviders],
 })
-
 export class AuthenticationModule {}

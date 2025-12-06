@@ -15,17 +15,17 @@ const httpOptions = {
 export class AuthService {
   isLogin = false;
   roleAs: string
-  private loginUrl = 'http://127.0.0.1:8000/user/login ';
+  private loginUrl =  'http://127.0.0.1:8000/user/login';
   
  
   constructor(private http: HttpClient) {
   }
  
   attemptAuth(formData: FormData): Observable<JwtResponse> {
-    console.log(formData);
-    return this.http.post<JwtResponse>(this.loginUrl, formData);
-  }
- 
+  const username = (formData.get('username') || '') as string;
+  const password = (formData.get('password') || '') as string;
+  return this.http.post<JwtResponse>(this.loginUrl, { username, password }, httpOptions);
+}
   signUp(formData: FormData, profile: string): Observable<any> {
     console.log(`Signing up as ${profile}`, formData);
     const signupUrl = 'http://127.0.0.1:8000/'+profile+'/register';

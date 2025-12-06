@@ -1,23 +1,51 @@
 import { Component, OnInit } from "@angular/core";
 import { EChartOption } from "echarts";
 import { Data } from "./data";
+import {
+  ApexAxisChartSeries,
+  ApexChart,
+  ApexXAxis,
+  ApexDataLabels,
+  ApexTooltip,
+  ApexYAxis,
+  ApexStroke,
+  ApexLegend,
+} from "ng-apexcharts";
+
+export type BuyerPricePredictionChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  xaxis: ApexXAxis;
+  yaxis: ApexYAxis;
+  stroke: ApexStroke;
+  tooltip: ApexTooltip;
+  dataLabels: ApexDataLabels;
+  legend: ApexLegend;
+  colors: string[];
+};
+
 @Component({
   selector: "app-dashboard2",
   templateUrl: "./dashboard2.component.html",
   styleUrls: ["./dashboard2.component.scss"],
+  standalone: false
 })
 export class Dashboard2Component implements OnInit {
-config: any;
-data: Data = new Data()
-today: any = this.data.dataAACoffee[20].price
-thisWeek: any = this.data.getSumAA(24,0,17)
-thisMonth: any = this.data.getMonthAA(0);
-today1: any = this.data.dataCoffeeAB[20].price
-thisWeek1: any = this.data.getSumAB(24,0,17)
-thisMonth1: any = this.data.getMonthAB(0);
-today2: any = this.data.dataCoffeeC[20].price
-thisWeek2: any = this.data.getSumC(24,0,17)
-thisMonth2: any = this.data.getMonthC(0);
+  config: any;
+  data: Data = new Data()
+
+  today: any = this.data.dataAACoffee[20].price
+  thisWeek: any = this.data.getSumAA(24, 0, 17)
+  thisMonth: any = this.data.getMonthAA(0);
+  today1: any = this.data.dataCoffeeAB[20].price
+  thisWeek1: any = this.data.getSumAB(24, 0, 17)
+  thisMonth1: any = this.data.getMonthAB(0);
+  today2: any = this.data.dataCoffeeC[20].price
+  thisWeek2: any = this.data.getSumC(24, 0, 17)
+  thisMonth2: any = this.data.getMonthC(0);
+
+  apexLineChartOptions: Partial<BuyerPricePredictionChartOptions>;
+
   line_chart: EChartOption = {
     grid: {
       top: "6",
@@ -71,7 +99,7 @@ thisMonth2: any = this.data.getMonthC(0);
           shadowBlur: 10,
           shadowOffsetY: 10,
         },
-        data: [this.data.getSumAA(7,0,0),this.data.getSumAA(14,0,7),this.data.getSumAA(21,0,14),this.data.getSumAA(28,0,21)],
+        data: [this.data.getSumAA(7, 0, 0), this.data.getSumAA(14, 0, 7), this.data.getSumAA(21, 0, 14), this.data.getSumAA(28, 0, 21)],
         symbolSize: 10,
         // color: ["#FF8D60"]
       },
@@ -87,7 +115,7 @@ thisMonth2: any = this.data.getMonthC(0);
         },
         symbolSize: 10,
         // size: 10,
-        data: [this.data.getSumAB(7,0,0),this.data.getSumAB(14,0,7),this.data.getSumAB(21,0,14),this.data.getSumAB(28,0,21)],
+        data: [this.data.getSumAB(7, 0, 0), this.data.getSumAB(14, 0, 7), this.data.getSumAB(21, 0, 14), this.data.getSumAB(28, 0, 21)],
         // color: ["#009DA0"]
       },
       {
@@ -103,7 +131,7 @@ thisMonth2: any = this.data.getMonthC(0);
         symbolSize: 10,
         // size: 10,
         data: [
-          this.data.getSumC(7,0,0),this.data.getSumC(14,0,7),this.data.getSumC(21,0,14),this.data.getSumC(28,0,21)],
+          this.data.getSumC(7, 0, 0), this.data.getSumC(14, 0, 7), this.data.getSumC(21, 0, 14), this.data.getSumC(28, 0, 21)],
         // color: ["#009DA0"]
       },
     ],
@@ -127,6 +155,87 @@ thisMonth2: any = this.data.getMonthC(0);
   // Doughnut chart end
   constructor() {
   }
-  ngOnInit() {}
+  ngOnInit() {
+    this.apexLineChartOptions = {
+      series: [
+        {
+          name: "AA COFFEE",
+          data: [
+            this.data.getSumAA(7, 0, 0),
+            this.data.getSumAA(14, 0, 7),
+            this.data.getSumAA(21, 0, 14),
+            this.data.getSumAA(28, 0, 21),
+          ],
+        },
+        {
+          name: "AB COFFEE",
+          data: [
+            this.data.getSumAB(7, 0, 0),
+            this.data.getSumAB(14, 0, 7),
+            this.data.getSumAB(21, 0, 14),
+            this.data.getSumAB(28, 0, 21),
+          ],
+        },
+        {
+          name: "C COFFEE",
+          data: [
+            this.data.getSumC(7, 0, 0),
+            this.data.getSumC(14, 0, 7),
+            this.data.getSumC(21, 0, 14),
+            this.data.getSumC(28, 0, 21),
+          ],
+        },
+      ],
+      chart: {
+        height: 350,
+        type: "line",
+        toolbar: { show: false },
+        foreColor: "#9aa0ac",
+      },
+      xaxis: {
+        type: "category",
+        categories: ["Week One", "Week Two", "Week Three", "Week Four"],
+        labels: {
+          style: {
+            colors: "#9aa0ac",
+          },
+        },
+      },
+      yaxis: {
+        labels: {
+          style: {
+            colors: "#9aa0ac",
+          },
+          formatter: function (val: number) {
+            return Math.round(val).toString();
+          },
+        },
+      },
+      tooltip: {
+        theme: "dark",
+        x: { show: true },
+        y: {
+          formatter: function (val: number) {
+            return Math.round(val).toString();
+          },
+        },
+      },
+      legend: {
+        position: "top",
+        horizontalAlign: "right",
+        labels: {
+          colors: "#9aa0ac",
+        },
+      },
+      colors: ["#3FA7DC", "#F6A025", "#9BC311"],
+      stroke: {
+        width: 3,
+        curve: "smooth",
+      },
+      dataLabels: {
+        enabled: false,
+      },
+    };
+  }
 
 }

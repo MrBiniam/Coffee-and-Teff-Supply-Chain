@@ -43,7 +43,7 @@ export const ROUTES: RouteInfo[] = [
       },
       {
         path: '/buyer/dashboard/dashboard2',
-        title: 'Price Forecaast',
+        title: 'Price Forecast',
         moduleName: 'dashboard',
         iconType: '',
         icon: '',

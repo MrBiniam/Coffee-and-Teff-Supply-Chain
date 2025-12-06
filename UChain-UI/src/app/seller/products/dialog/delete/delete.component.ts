@@ -5,9 +5,10 @@ import { ProductService } from '../../product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-delete',
-  templateUrl: './delete.component.html',
-  styleUrls: ['./delete.component.sass'],
+    selector: 'app-delete',
+    templateUrl: './delete.component.html',
+    styleUrls: ['./delete.component.sass'],
+    standalone: false
 })
 export class DeleteComponent {
   constructor(

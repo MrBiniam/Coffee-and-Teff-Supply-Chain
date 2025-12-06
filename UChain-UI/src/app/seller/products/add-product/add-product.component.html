@@ -119,13 +119,13 @@
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-3">
                   <mat-form-field class="example-full-width mb-3">
                     <mat-label>Image</mat-label>
-                    <ngx-mat-file-input formControlName="image" required>
-                    </ngx-mat-file-input>
-                    <mat-icon matSuffix>face</mat-icon>
+                    <input matInput [value]="selectedImageName" readonly (click)="triggerImageInput()" />
+                    <mat-icon matSuffix (click)="triggerImageInput()" style="cursor: pointer;">cloud_upload</mat-icon>
                     <mat-error *ngIf="productForm.get('image').hasError('required')">
                       Product Image is required
                     </mat-error>
                   </mat-form-field>
+                  <input #imageInput type="file" (change)="onImageChange($event)" hidden />
                 </div>
               </div>
               <div class="row">

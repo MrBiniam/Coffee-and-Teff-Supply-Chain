@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-uchain-homes',
-  templateUrl: './uchain-homes.component.html',
-  styleUrls: ['./uchain-homes.component.scss']
+    selector: 'app-uchain-homes',
+    templateUrl: './uchain-homes.component.html',
+    styleUrls: ['./uchain-homes.component.scss'],
+    standalone: false
 })
 export class UChainHomesComponent implements OnInit {
 

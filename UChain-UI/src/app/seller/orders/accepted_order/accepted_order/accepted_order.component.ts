@@ -7,9 +7,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-accepted_order',
-  templateUrl: './accepted_order.component.html',
-  styleUrls: ['./accepted_order.component.sass']
+    selector: 'app-accepted_order',
+    templateUrl: './accepted_order.component.html',
+    styleUrls: ['./accepted_order.component.sass'],
+    standalone: false
 })
 export class AcceptedOrderComponent implements OnInit {
   orders: Order[] = []

@@ -17,7 +17,6 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MaterialFileInputModule } from 'ngx-material-file-input';
 import { OrderRoutingModule } from './order-routing.module';
 import { OrderComponent } from './order/order.component';
 import { OrderProfileComponent } from './order-profile/order-profile.component';
@@ -67,7 +66,6 @@ import { PendingOrderModule } from './pending_order/pending_order.module';
     MatRadioModule,
     MatMenuModule,
     MatCheckboxModule,
-    MaterialFileInputModule,
     PendingOrderModule,
   ],
 })

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProductService } from 'src/app/seller/products/product.service';
@@ -7,9 +7,10 @@ import { environment } from 'src/environments/environment';
 import { DriverService } from '../../drivers/driver.service';
 
 @Component({
-  selector: 'app-payment-success',
-  templateUrl: './payment-success.component.html',
-  styleUrls: ['./payment-success.component.scss']
+    selector: 'app-payment-success',
+    templateUrl: './payment-success.component.html',
+    styleUrls: ['./payment-success.component.scss'],
+    standalone: false
 })
 export class PaymentSuccessComponent implements OnInit {
   // Payment details
@@ -179,7 +180,7 @@ export class PaymentSuccessComponent implements OnInit {
           
           // Calculate total amount based on quantity and price
           if (data.price) {
-            const unitPrice = parseFloat(data.price);
+            const unitPrice = Number(data.price);
             const totalAmount = unitPrice * quantity;
             this.amount = totalAmount.toFixed(2);
             console.log('Calculated total amount:', this.amount, 'for', quantity, 'items at', unitPrice, 'each');
@@ -202,7 +203,7 @@ export class PaymentSuccessComponent implements OnInit {
             
             // Calculate total amount based on quantity and price from localStorage
             if (storedProduct.price) {
-              const unitPrice = parseFloat(storedProduct.price);
+              const unitPrice = Number(storedProduct.price);
               const totalAmount = unitPrice * quantity;
               this.amount = totalAmount.toFixed(2);
               console.log('Calculated total amount from localStorage:', this.amount, 'for', quantity, 'items at', unitPrice, 'each');
@@ -306,3 +307,4 @@ export class PaymentSuccessComponent implements OnInit {
     });
   }
 }
+

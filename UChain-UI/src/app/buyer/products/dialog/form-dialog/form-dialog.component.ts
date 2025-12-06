@@ -1,10 +1,10 @@
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
 import {
-  FormControl,
+  UntypedFormControl,
   Validators,
-  FormGroup,
-  FormBuilder,
+  UntypedFormGroup,
+  UntypedFormBuilder,
 } from '@angular/forms';
 import { Product } from '../../product.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -14,20 +14,21 @@ import { TokenStorageService } from 'src/app/shared/security/token-storage.servi
 import { CustomValidators } from 'src/app/shared/validators/custom-validators';
 
 @Component({
-  selector: 'app-form-dialog',
-  templateUrl: './form-dialog.component.html',
-  styleUrls: ['./form-dialog.component.sass'],
+    selector: 'app-form-dialog',
+    templateUrl: './form-dialog.component.html',
+    styleUrls: ['./form-dialog.component.sass'],
+    standalone: false
 })
 export class FormDialogComponent {
   dialogTitle: string;
-  orderForm: FormGroup;
+  orderForm: UntypedFormGroup;
   product: Product;
   maxQuantity: number = 100; // Default max quantity if parsing fails
   constructor(
     public dialogRef: MatDialogRef<FormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public productService: ProductService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private snackBar: MatSnackBar,
     public dialog: MatDialog,
     private tokenStorageService: TokenStorageService
@@ -46,7 +47,7 @@ export class FormDialogComponent {
     
     this.orderForm = this.createContactForm();
   }
-  formControl = new FormControl('', [
+  formControl = new UntypedFormControl('', [
     Validators.required
   ]);
   getErrorMessage() {
@@ -54,7 +55,7 @@ export class FormDialogComponent {
       ? 'Required field'
       : '';
   }
-  createContactForm(): FormGroup {
+  createContactForm(): UntypedFormGroup {
     return this.orderForm = this.fb.group({
       quantity: [
         1, // Default to 1 as the initial value

@@ -1,24 +1,25 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { TrackingService, RoutePoint } from './tracking.service';
 
 @Component({
-  selector: 'app-route-info-dialog',
-  templateUrl: './route-info-dialog.component.html',
-  styleUrls: ['./route-info-dialog.component.scss']
+    selector: 'app-route-info-dialog',
+    templateUrl: './route-info-dialog.component.html',
+    styleUrls: ['./route-info-dialog.component.scss'],
+    standalone: false
 })
 export class RouteInfoDialogComponent implements OnInit {
-  routeForm: FormGroup;
+  routeForm: UntypedFormGroup;
   loading = false;
   searchResults: any[] = [];
   useCurrentPositionAsStart = true;
   currentPosition: { latitude: number, longitude: number } = null;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private trackingService: TrackingService,
     public dialogRef: MatDialogRef<RouteInfoDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { orderId: string }

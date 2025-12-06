@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TrackingComponent } from './tracking.component';
 import { RouteInfoDialogComponent } from './route-info-dialog.component';
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -16,33 +15,29 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TrackingService } from './tracking.service';
 
 @NgModule({
-  declarations: [
-    TrackingComponent,
-    RouteInfoDialogComponent
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    RouterModule,
-    LeafletModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule
-  ],
-  exports: [
-    TrackingComponent
-  ],
-  providers: [
-    TrackingService
-  ],
-  entryComponents: [
-    RouteInfoDialogComponent
-  ]
+    declarations: [
+        TrackingComponent,
+        RouteInfoDialogComponent
+    ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        RouterModule,
+        MatButtonModule,
+        MatIconModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        MatProgressSpinnerModule,
+        MatSnackBarModule
+    ],
+    exports: [
+        TrackingComponent
+    ],
+    providers: [
+        TrackingService
+    ]
 })
 export class TrackingModule { }

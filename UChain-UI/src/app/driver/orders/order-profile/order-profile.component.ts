@@ -9,9 +9,10 @@ import { UserService } from 'src/app/shared/security/user.service';
 import { OrderService } from 'src/app/buyer/orders/order.service';
 
 @Component({
-  selector: 'app-order-profile',
-  templateUrl: './order-profile.component.html',
-  styleUrls: ['./order-profile.component.scss']
+    selector: 'app-order-profile',
+    templateUrl: './order-profile.component.html',
+    styleUrls: ['./order-profile.component.scss'],
+    standalone: false
 })
 export class OrderProfileComponent implements OnInit {
   order: Order = new Order();

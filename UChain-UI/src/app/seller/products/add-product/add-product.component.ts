@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ProductService } from '../product.service';
@@ -8,15 +8,18 @@ import { CustomValidators } from 'src/app/shared/validators/custom-validators';
 
 
 @Component({
-  selector: 'app-add-patient',
-  templateUrl: './add-product.component.html',
-  styleUrls: ['./add-product.component.sass'],
+    selector: 'app-add-patient',
+    templateUrl: './add-product.component.html',
+    styleUrls: ['./add-product.component.sass'],
+    standalone: false
 })
 export class AddProductComponent implements OnInit {
-  productForm: FormGroup;
+  productForm: UntypedFormGroup;
   formErrors = {};
+  selectedImageName = '';
+  @ViewChild('imageInput') imageInput: ElementRef<HTMLInputElement>;
 
-  constructor(private http:HttpClient, private fb: FormBuilder, private router: Router, private productService: ProductService, private snackBar: MatSnackBar) {
+  constructor(private http:HttpClient, private fb: UntypedFormBuilder, private router: Router, private productService: ProductService, private snackBar: MatSnackBar) {
     this.productForm = this.fb.group({
       name: ['', [Validators.required, CustomValidators.productTitle()]], // Only letters
       description: ['', [Validators.required, CustomValidators.productDescription()]], // Only letters, multiple sentences
@@ -62,6 +65,20 @@ export class AddProductComponent implements OnInit {
     return quantity.replace(/kg$/i, 'KG');
   }
 
+  onImageChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+    const file = input.files[0];
+    this.productForm.get('image')?.setValue(file);
+    this.selectedImageName = file.name;
+  }
+
+  triggerImageInput() {
+    this.imageInput?.nativeElement.click();
+  }
+
   onSubmit() {
     // Check form validity one last time
     this.checkFormValidity();
@@ -89,10 +106,17 @@ export class AddProductComponent implements OnInit {
     formData.append('product_type', this.productForm.get('product_type').value);
     formData.append('location', this.productForm.get('location').value);
     
-    // Handle file input safely
+    // Handle file input safely for native file input
     const imageControl = this.productForm.get('image');
-    if (imageControl.value && imageControl.value._files && imageControl.value._files.length > 0) {
-      formData.append('image', imageControl.value._files[0]);
+    const value = imageControl?.value;
+    const file =
+      value instanceof File
+        ? value
+        : value?.files?.[0]
+          ? value.files[0]
+          : null;
+    if (file) {
+      formData.append('image', file, file.name);
     } else {
       console.error('No image file selected');
       this.showNotification(

@@ -9,9 +9,10 @@ import { Rate } from 'src/app/shared/security/rate';
 import { User } from 'src/app/shared/security/user';
 
 @Component({
-  selector: 'app-delivered_order-profile',
-  templateUrl: './delivered_order-profile.component.html',
-  styleUrls: ['./delivered_order-profile.component.sass']
+    selector: 'app-delivered_order-profile',
+    templateUrl: './delivered_order-profile.component.html',
+    styleUrls: ['./delivered_order-profile.component.sass'],
+    standalone: false
 })
 export class DeliveredOrderProfileComponent implements OnInit {
   order: Order = new Order();

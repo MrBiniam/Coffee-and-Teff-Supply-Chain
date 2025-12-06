@@ -9,9 +9,10 @@ import { TokenStorageService } from 'src/app/shared/security/token-storage.servi
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-patients',
-  templateUrl: './products.component.html',
-  styleUrls: ['./products.component.sass']
+    selector: 'app-patients',
+    templateUrl: './products.component.html',
+    styleUrls: ['./products.component.sass'],
+    standalone: false
 })
 export class ProductsComponent implements OnInit {
   products: Product[]=[];

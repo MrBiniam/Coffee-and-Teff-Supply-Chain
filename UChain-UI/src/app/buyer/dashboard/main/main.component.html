@@ -96,10 +96,18 @@
               Coffee price estimation</h2>
           </div>
           <div class="body">
-            <!-- Canvas for Chart.js -->
-            <canvas baseChart [chartType]="'line'" [datasets]="areaChartData" [labels]="areaChartLabels"
-              [options]="areaChartOptions" [legend]="true">
-            </canvas>
+            <!-- Chart removed due to library incompatibility in Angular upgrade -->
+            <apx-chart *ngIf="apexAreaChartOptions"
+              [series]="apexAreaChartOptions.series"
+              [chart]="apexAreaChartOptions.chart"
+              [xaxis]="apexAreaChartOptions.xaxis"
+              [yaxis]="apexAreaChartOptions.yaxis"
+              [colors]="apexAreaChartOptions.colors"
+              [stroke]="apexAreaChartOptions.stroke"
+              [legend]="apexAreaChartOptions.legend"
+              [tooltip]="apexAreaChartOptions.tooltip"
+              [dataLabels]="apexAreaChartOptions.dataLabels">
+            </apx-chart>
             <div class="text-center p-t-20">
               <div class="chart-note">
                 <span class="dot dot-product"></span>

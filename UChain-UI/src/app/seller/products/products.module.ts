@@ -17,7 +17,6 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MaterialFileInputModule } from 'ngx-material-file-input';
 import { ProductsRoutingModule } from './products-routing.module';
 import { AddProductComponent } from './add-product/add-product.component';
 import { ProductsComponent } from './my-products/products.component';
@@ -54,7 +53,6 @@ import { DeleteComponent } from './dialog/delete/delete.component';
     MatRadioModule,
     MatMenuModule,
     MatCheckboxModule,
-    MaterialFileInputModule,
   ],
 })
 export class ProductsModule {}

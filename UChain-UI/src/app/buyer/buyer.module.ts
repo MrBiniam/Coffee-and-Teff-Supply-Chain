@@ -1,8 +1,5 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { PerfectScrollbarModule } from "ngx-perfect-scrollbar";
-import { ChartsModule as chartjsModule } from "ng2-charts";
-import { NgxEchartsModule } from "ngx-echarts";
 import { MatIconModule } from "@angular/material/icon";
 import { MatButtonModule } from "@angular/material/button";
 import { BuyerRoutingModule } from "./buyer-routing.module";
@@ -24,7 +21,6 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatRadioModule } from "@angular/material/radio";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { MaterialFileInputModule } from "ngx-material-file-input";
 import { PaymentsModule } from "./payments/payments.module";
 
 @NgModule({
@@ -34,11 +30,6 @@ import { PaymentsModule } from "./payments/payments.module";
   imports: [
     CommonModule,
     BuyerRoutingModule,
-    chartjsModule,
-    NgxEchartsModule.forRoot({
-      echarts: () => import("echarts"),
-    }),
-    PerfectScrollbarModule,
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
@@ -59,7 +50,6 @@ import { PaymentsModule } from "./payments/payments.module";
     DragDropModule,
     FormsModule,
     ReactiveFormsModule,
-    MaterialFileInputModule,
     PaymentsModule,
   ],
 })

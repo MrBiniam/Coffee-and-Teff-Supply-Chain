@@ -8,4 +8,10 @@ export class RightSidebarService {
   changeMsg(msg: boolean) {
     this.statusService.next(msg);
   }
+  getCurrentStatus(): boolean {
+    return this.statusService.getValue();
+  }
+  toggle(): void {
+    this.statusService.next(!this.statusService.getValue());
+  }
 }

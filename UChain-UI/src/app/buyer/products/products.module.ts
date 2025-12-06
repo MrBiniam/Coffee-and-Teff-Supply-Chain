@@ -10,6 +10,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -17,14 +18,14 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MaterialFileInputModule } from 'ngx-material-file-input';
+
 import { ProductsRoutingModule } from './products-routing.module';
+
 import { ProductComponent } from './product/product.component';
 import { ProductProfileComponent } from './product-profile/product-profile.component';
 import { FormDialogComponent } from './dialog/form-dialog/form-dialog.component';
 import { DeleteComponent } from './dialog/delete/delete.component';
 import { PayComponent } from './dialog/pay/pay.component';
-
 
 @NgModule({
   declarations: [
@@ -45,17 +46,16 @@ import { PayComponent } from './dialog/pay/pay.component';
     MatFormFieldModule,
     MatInputModule,
     MatSnackBarModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    MatSortModule,
-    MatToolbarModule,
-    MatDatepickerModule,
-    MatSelectModule,
-    MatRadioModule,
-    MatMenuModule,
     MatCheckboxModule,
-    MaterialFileInputModule,
+    MatDatepickerModule,
+    MatToolbarModule,
+    MatSortModule,
+    MatMenuModule,
+    MatRadioModule,
+    MatSelectModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule
   ],
 })
 export class ProductsModule {}

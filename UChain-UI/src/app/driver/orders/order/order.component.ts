@@ -9,9 +9,10 @@ import { OrderService } from 'src/app/buyer/orders/order.service';
 
 
 @Component({
-  selector: 'app-product',
-  templateUrl: './order.component.html',
-  styleUrls: ['./order.component.sass']
+    selector: 'app-product',
+    templateUrl: './order.component.html',
+    styleUrls: ['./order.component.sass'],
+    standalone: false
 })
 export class OrderComponent implements OnInit {
   orders: Order[] = []

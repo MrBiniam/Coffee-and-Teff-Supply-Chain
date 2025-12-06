@@ -6,9 +6,10 @@ import { TokenStorageService } from 'src/app/shared/security/token-storage.servi
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-delete',
-  templateUrl: './pay.component.html',
-  styleUrls: ['./pay.component.sass'],
+    selector: 'app-delete',
+    templateUrl: './pay.component.html',
+    styleUrls: ['./pay.component.sass'],
+    standalone: false
 })
 export class PayComponent {
   username: string;

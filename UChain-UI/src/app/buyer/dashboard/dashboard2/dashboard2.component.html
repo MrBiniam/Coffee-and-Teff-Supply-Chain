@@ -25,7 +25,17 @@
 
           </div>
           <div class="body">
-            <div echarts [options]="line_chart" class="deshboard-echart-height"></div>
+            <apx-chart *ngIf="apexLineChartOptions"
+              [series]="apexLineChartOptions.series"
+              [chart]="apexLineChartOptions.chart"
+              [xaxis]="apexLineChartOptions.xaxis"
+              [yaxis]="apexLineChartOptions.yaxis"
+              [colors]="apexLineChartOptions.colors"
+              [stroke]="apexLineChartOptions.stroke"
+              [legend]="apexLineChartOptions.legend"
+              [tooltip]="apexLineChartOptions.tooltip"
+              [dataLabels]="apexLineChartOptions.dataLabels">
+            </apx-chart>
           </div>
         </div>
       </div>

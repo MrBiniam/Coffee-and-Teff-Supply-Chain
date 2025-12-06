@@ -1,15 +1,16 @@
 import { AuthService } from './../../shared/security/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Role } from './../../shared/security/role';
 import { TokenStorageService } from 'src/app/shared/security/token-storage.service';
 import { AuthLoginInfo } from 'src/app/shared/security/login-info';
 
 @Component({
-  selector: 'app-signin',
-  templateUrl: './signin.component.html',
-  styleUrls: ['./signin.component.scss'],
+    selector: 'app-signin',
+    templateUrl: './signin.component.html',
+    styleUrls: ['./signin.component.scss'],
+    standalone: false
 })
 export class SigninComponent implements OnInit {
   isLoggedIn = false;
@@ -17,7 +18,7 @@ export class SigninComponent implements OnInit {
   errorMessage = '';
   roles: string[] = [];
   private loginInfo: AuthLoginInfo;
-  loginForm: FormGroup;
+  loginForm: UntypedFormGroup;
   submitted = false;
   error = '';
   hide = true;
@@ -31,9 +32,9 @@ export class SigninComponent implements OnInit {
       //this.roles = this.tokenStorage.getAuthorities();
     }
     window.sessionStorage.clear();
-    this.loginForm = new FormGroup({
-      username: new FormControl(),
-      password: new FormControl()
+    this.loginForm = new UntypedFormGroup({
+      username: new UntypedFormControl(),
+      password: new UntypedFormControl()
     });
   }
 

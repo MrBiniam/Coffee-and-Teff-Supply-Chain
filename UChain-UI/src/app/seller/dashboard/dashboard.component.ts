@@ -53,9 +53,10 @@ export type radialChartOptions = {
 };
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.sass'],
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.sass'],
+    standalone: false
 })
 export class DashboardComponent implements OnInit {
   @ViewChild('chart') chart: ChartComponent;

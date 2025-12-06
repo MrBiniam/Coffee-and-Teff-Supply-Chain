@@ -1,11 +1,11 @@
-<div>
+﻿<div>
   <!-- Left Sidebar -->
   <aside id="leftsidebar" class="sidebar" (mouseenter)="mouseHover($event)" (mouseleave)="mouseOut($event)">
     <!-- Menu -->
     <div class="menu">
       <ul class="list"
-        [ngStyle]="{'position' : 'relative', 'max-height' : listMaxHeight+'px', 'max-width' : listMaxWidth+'px'}"
-        [perfectScrollbar]>
+        [ngStyle]="{'position' : 'relative', 'max-height' : listMaxHeight+'px', 'max-width' : listMaxWidth+'px', 'overflow': 'auto'}">
+
         <li class="sidebar-user-panel">
           <div class="user-panel">
             <div class=" image">

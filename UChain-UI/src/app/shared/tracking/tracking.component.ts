@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, Input, ViewChild, ElementRef } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, AfterViewInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TokenStorageService } from '../../shared/security/token-storage.service';
 import { OrderService } from '../../buyer/orders/order.service';
@@ -16,8 +16,9 @@ import { RouteInfoDialogComponent } from './route-info-dialog.component';
 import { NgZone } from '@angular/core';
 
 @Component({
-  selector: 'app-tracking',
-  templateUrl: './tracking.component.html'
+    selector: 'app-tracking',
+    templateUrl: './tracking.component.html',
+    standalone: false
 })
 export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() orderId: any; // Can be string or number depending on context
@@ -84,7 +85,7 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
   followDriver: boolean = true; // Whether to center the map on driver's position
   
   // Driver icon for map marker
-  driverIcon: Icon;
+  driverIcon: any;
   
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -911,8 +912,8 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
     
     // Add markers for start and end points if they exist in currentRoute
     if (this.currentRoute && this.currentRoute.startPoint && this.currentRoute.endPoint) {
-      const startCoords = [this.currentRoute.startPoint.latitude, this.currentRoute.startPoint.longitude];
-      const endCoords = [this.currentRoute.endPoint.latitude, this.currentRoute.endPoint.longitude];
+      const startCoords: [number, number] = [this.currentRoute.startPoint.latitude, this.currentRoute.startPoint.longitude];
+      const endCoords: [number, number] = [this.currentRoute.endPoint.latitude, this.currentRoute.endPoint.longitude];
       
       // Create custom icons for start and end points using divIcon to avoid CSP issues
       const startIcon = divIcon({
@@ -1080,7 +1081,7 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
       this.zone.run(() => {
         try {
           // Verify map is still valid before adding marker
-          if (this.map && this.map._container) {
+          if (this.map && this.map.getContainer()) {
             this.driverMarker.addTo(this.map);
             this.driverMarker.bindPopup(`<b>Driver Location</b><br>Driver: ${this.driverUser?.username || 'Unknown'}<br>Updated: ${new Date().toLocaleTimeString()}`);
           }
@@ -1091,10 +1092,10 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
 
       // Only center map on driver position if we specifically want to follow the driver
       // Wrap in try-catch to prevent _leaflet_pos errors
-      if (this.followDriver && this.map && this.map._loaded && typeof this.map.setView === 'function') {
+      if (this.followDriver && this.map && typeof this.map.setView === 'function') {
         try {
           // Check that map is fully initialized and container exists
-          if (this.map._container && document.body.contains(this.map._container)) {
+          if (this.map.getContainer() && document.body.contains(this.map.getContainer())) {
             this.map.setView(driverPosition, this.map.getZoom() || 15);
           } else {
             console.warn('Map container not found in DOM, skipping setView');
@@ -1434,7 +1435,20 @@ export class TrackingComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   initializeMap() {
-    // This method will be called in ngOnInit to set up the map
-    console.log('Map initialization will happen in ngAfterViewInit');
-  }
+  if (this.map) { return; }
+  const el = document.getElementById('tracking-map') as HTMLElement | null;
+  if (!el) { setTimeout(() => this.initializeMap(), 100); return; }
+  try {
+    this.map = new Map(el, {
+      layers: [ tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, minZoom: 5, attribution: ' OpenStreetMap contributors' }) ],
+      zoom: 15,
+      center: latLng(6.4107, 38.3087),
+      zoomControl: true
+    });
+    this.onMapReady(this.map);
+  } catch (e) { console.error('Error initializing map:', e); }
 }
+}
+
+
+

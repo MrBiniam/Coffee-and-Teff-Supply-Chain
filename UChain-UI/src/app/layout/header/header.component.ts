@@ -1,4 +1,4 @@
-import { DOCUMENT } from '@angular/common';
+﻿import { DOCUMENT } from '@angular/common';
 import {
   Component,
   Inject,
@@ -6,8 +6,10 @@ import {
   OnInit,
   Renderer2,
   AfterViewInit,
-  OnDestroy
+  OnDestroy,
+  HostListener
 } from '@angular/core';
+
 import { RightSidebarService } from '../../shared/services/rightsidebar.service';
 import { ConfigService } from '../../shared/services/config.service';
 import { AuthService } from 'src/app/shared/security/auth.service';
@@ -22,6 +24,7 @@ const document: any = window.document;
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.sass', './notification.styles.scss'],
+  standalone: false
 })
 export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   public config: any = {};
@@ -29,7 +32,10 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   homePage: string;
   isNavbarCollapsed = true;
   unreadCount: number = 0;
+  showNotifications = false;
+  showUserMenu = false;
   private refreshSubscription: Subscription;
+
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
@@ -44,6 +50,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   username = this.tokenStorage.getUsername();
   notifications: any[] = [];
+
   ngOnInit() {
     this.config = this.configService.configData;
     this.userImg = this.authService.getUserImg();
@@ -58,12 +65,12 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.homePage = 'admin/dashboard/main';
     }
-    
+
     // Subscribe to unread count
     this.notificationService.unreadCount$.subscribe(count => {
       this.unreadCount = count;
     });
-    
+
     // Subscribe to notifications from service
     this.notificationService.notifications$.subscribe(
       notifications => {
@@ -73,7 +80,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
         console.error('Error in notifications subscription', error);
       }
     );
-    
+
     // Set up polling for notifications every 15 seconds
     this.refreshSubscription = interval(15000).pipe(
       startWith(0)
@@ -130,6 +137,31 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
   }
+
+  toggleNotifications() {
+    this.showNotifications = !this.showNotifications;
+    if (this.showNotifications) {
+      this.showUserMenu = false;
+    }
+  }
+
+  toggleUserMenu() {
+    this.showUserMenu = !this.showUserMenu;
+    if (this.showUserMenu) {
+      this.showNotifications = false;
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const clickedInside = this.elementRef.nativeElement.contains(target);
+    if (!clickedInside) {
+      this.showNotifications = false;
+      this.showUserMenu = false;
+    }
+  }
+
   callFullscreen() {
     if (
       !document.fullscreenElement &&
@@ -177,10 +209,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   public toggleRightSidebar(): void {
-    this.dataService.changeMsg(
-      (this.dataService.currentStatus._isScalar = !this.dataService
-        .currentStatus._isScalar)
-    );
+    this.dataService.toggle();
   }
   logout() {
     this.authService.logout().subscribe((res) => {
@@ -237,3 +266,4 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 }
+

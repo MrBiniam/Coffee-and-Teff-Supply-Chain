@@ -1,4 +1,4 @@
-import { DOCUMENT } from '@angular/common';
+﻿import { DOCUMENT } from '@angular/common';
 import {
   Component,
   Inject,
@@ -6,16 +6,18 @@ import {
   OnInit,
   AfterViewInit,
   Renderer2,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
 } from '@angular/core';
 import { RightSidebarService } from '../../shared/services/rightsidebar.service';
 import { ConfigService } from '../../shared/services/config.service';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'app-right-sidebar',
-  templateUrl: './right-sidebar.component.html',
-  styleUrls: ['./right-sidebar.component.sass'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'app-right-sidebar',
+    templateUrl: './right-sidebar.component.html',
+    styleUrls: ['./right-sidebar.component.sass'],
+    standalone: false
 })
 export class RightSidebarComponent implements OnInit, AfterViewInit {
   selectedBgColor = 'white';
@@ -33,11 +35,14 @@ export class RightSidebarComponent implements OnInit, AfterViewInit {
     public elementRef: ElementRef,
     private dataService: RightSidebarService,
     private configService: ConfigService,
+    private cdr: ChangeDetectorRef,
   ) { }
   ngOnInit() {
     this.config = this.configService.configData;
     this.dataService.currentStatus.subscribe((data: boolean) => {
       this.isOpenSidebar = data;
+      // Ensure view updates immediately despite OnPush strategy
+      this.cdr.markForCheck();
     });
     this.setRightSidebarWindowHeight();
   }
@@ -166,16 +171,14 @@ export class RightSidebarComponent implements OnInit, AfterViewInit {
   onClickedOutside(event: Event) {
     const button = event.target as HTMLButtonElement;
     if (button.id !== 'settingBtn') {
-      if (this.dataService.currentStatus._isScalar === true) {
+      if (this.isOpenSidebar === true) {
         this.toggleRightSidebar();
       }
     }
   }
   toggleRightSidebar(): void {
-    this.dataService.changeMsg(
-      (this.dataService.currentStatus._isScalar = !this.dataService
-        .currentStatus._isScalar)
-    );
+    this.dataService.toggle();
   }
 
 }
+

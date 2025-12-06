@@ -14,9 +14,10 @@ import { MessageService } from 'src/app/shared/security/message_service';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-order-profile',
-  templateUrl: './accepted_order-profile.component.html',
-  styleUrls: ['./accepted_order-profile.component.sass']
+    selector: 'app-order-profile',
+    templateUrl: './accepted_order-profile.component.html',
+    styleUrls: ['./accepted_order-profile.component.sass'],
+    standalone: false
 })
 export class AcceptedOrderProfileComponent implements OnInit {
   order: Order = new Order();

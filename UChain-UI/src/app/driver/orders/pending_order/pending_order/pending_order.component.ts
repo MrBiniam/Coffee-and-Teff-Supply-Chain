@@ -7,9 +7,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-pending_order',
-  templateUrl: './pending_order.component.html',
-  styleUrls: ['./pending_order.component.sass']
+    selector: 'app-pending_order',
+    templateUrl: './pending_order.component.html',
+    styleUrls: ['./pending_order.component.sass'],
+    standalone: false
 })
 export class PendingOrderComponent implements OnInit {
   orders: Order[] = [];

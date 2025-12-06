@@ -35,7 +35,7 @@
             </div>
             <div id="plist" class="people-list" *ngIf="users.length > 0">
               <div class="tab-content">
-                <div id="chat_user" style="position: relative; max-height: 590px;" [perfectScrollbar]>
+                <div id="chat_user" style="position: relative; max-height: 590px; overflow: auto;">
                   <ul class="chat-list list-unstyled m-b-0">
                     <li class="clearfix" *ngFor="let user of users" 
                         [ngClass]="{'active': user.username === username}"
@@ -85,8 +85,8 @@
             </div>
             
             <!-- Chat history section -->
-            <div class="chat-history" id="chat-conversation" style="position: relative; max-height: 449px; min-height: 300px;"
-              [perfectScrollbar] #scrollContainer>
+            <div class="chat-history" id="chat-conversation" style="position: relative; max-height: 449px; min-height: 300px; overflow: auto;"
+              #scrollContainer>
               
               <div *ngIf="isLoading" class="text-center p-4">
                 <div class="spinner-border text-primary" role="status">

@@ -7,9 +7,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { OrderService } from 'src/app/buyer/orders/order.service';
 
 @Component({
-  selector: 'app-shipped_order',
-  templateUrl: './shipped_order.component.html',
-  styleUrls: ['./shipped_order.component.sass']
+    selector: 'app-shipped_order',
+    templateUrl: './shipped_order.component.html',
+    styleUrls: ['./shipped_order.component.sass'],
+    standalone: false
 })
 export class ShippedOrderComponent implements OnInit {
   orders: Order[] = []
@@ -33,7 +34,7 @@ export class ShippedOrderComponent implements OnInit {
           const status = value.status ? value.status.toLowerCase() : '';
           
           // Check if the product array exists and has elements
-          if (!value.product || !Array.isArray(value.product) || value.product.length === 0) {
+          if (!value.product || !Array.isArray(value.product) || !value.product.length) {
             console.warn(`Order #${value.id} has no valid product information`);
             return;
           }
