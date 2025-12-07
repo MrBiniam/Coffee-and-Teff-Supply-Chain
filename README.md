@@ -1,120 +1,109 @@
-# Coffee and Teff Supply Chain Management System (UChain)
+# Coffee & Teff Supply Chain (UChain)
 
-A blockchain-inspired platform for transparent and efficient supply chain management of Ethiopian Coffee and Teff, featuring integrated payment processing via Chapa.
+Blockchain‑inspired platform for transparent Coffee & Teff supply chains in Ethiopia. 
 
-## Features
+- Buyer, Seller, Driver roles with authentication
+- Product listing, orders, and delivery tracking
+- Integrated online payments via **Chapa**
+- Modern Angular UI and Django REST API
 
-- User authentication and role-based access (Farmer, Buyer, Distributor)
-- Product listing and management
-- Secure payment processing via Chapa payment gateway
-- Order tracking and management
-- Responsive UI across all devices
-- Transaction history and verification
+This repository contains **both** the frontend and backend:
 
-## Pre-requisites:
-1. **Node.js & npm**:  
-   Run `node -v` and `npm -v` to check if installed.  
-   If missing, download from [nodejs.org](https://nodejs.org/).
-   **Recommended Node Version: 14.21.3**
+- `UChain-UI/` – Angular 19 frontend
+- `UChain-API/` – Django + DRF + MySQL backend
 
-2. **Angular CLI**:  
-   Run `ng version` to check if installed.  
-   If missing, run:  
-   `npm install -g @angular/cli`
+---
 
-3. **Python**:  
-   Run `python --version` to check if installed.  
-   If missing, download from [python.org](https://www.python.org/).
+## Demo
 
-4. **Django**:  
-   Run `python -m django --version` to check if installed.  
-   If missing, run:  
-   `pip install django`
+If you add a walkthrough video, place it under:
 
-5. **MySQL**:  
-   Run `mysql --version` to check if installed.  
-   If missing, download from [MySQL](https://dev.mysql.com/downloads/).
+- `docs/UChain.mp4`
 
-6. **MySQL Connector**:  
-   Run `pip show mysqlclient` to check if installed.  
-   If missing, run:  
-   `pip install mysqlclient`
-   If errors occur, use:  
-   `pip install pymysql`
+and link it from here:
 
-7. **Git**:  
-   Run `git --version` to check if installed.  
-   If missing, download from [git-scm.com](https://git-scm.com/).
+- [UChain demo video](docs/UChain.mp4) *(local file in this repo)*
 
-8. **VS Code**:  
-   Run `code --version` to check if installed.  
-   If missing, download from [Visual Studio Code](https://code.visualstudio.com/).
+---
 
-## Project Structure
+## Prerequisites
 
-- **UChain-API**: Django REST Framework backend
-- **UChain-UI**: Angular frontend
+- **Node.js & npm**  
+  Recommended: Node **20** or **22** from [nodejs.org](https://nodejs.org/).
+- **Angular CLI**  
+  ```bash
+  npm install -g @angular/cli
+  ```
+- **Python 3.10+** from [python.org](https://www.python.org/)
+- **MySQL 8+** from [dev.mysql.com](https://dev.mysql.com/downloads/)
+- **Git** for version control
 
-## Running the Project:
+---
 
-### Front End (Angular):
-1. Navigate to the front-end directory:
-   ```
-   cd UChain-UI
-   ```
-2. Install dependencies:  
-   ```
-   npm install
-   ```
-3. Start the server:  
-   ```
-   npm start
-   ```  
-   Access at: `http://localhost:4200`
+## Quick Start
 
-### Back End (Django):
-1. Navigate to the back-end directory:
-   ```
-   cd UChain-API
-   ```
-2. Install necessary packages:  
-   ```
-   pip install chapa
-   pip install pillow
-   pip install djangorestframework
-   pip install django-cors-headers
-   ```
-3. Prepare the database:  
-   ```
-   python manage.py makemigrations  
-   python manage.py migrate
-   ```
-4. Start the server:  
-   ```
-   python manage.py runserver
-   ```  
-   Access at: `http://localhost:8000`
+### 1. Frontend – UChain-UI (Angular)
 
-## Payment Processing
+```bash
+cd UChain-UI
+npm install
+npm start
+```
 
-The system uses Chapa payment gateway for processing payments. When a buyer purchases a product:
+App runs at: `http://localhost:4200`
 
-1. The system initiates a payment request to Chapa
-2. The buyer is redirected to Chapa's secure payment page
-3. Upon successful payment, the buyer is redirected back to the application
-4. The system verifies the transaction using Chapa's API
-5. Transaction details are stored and displayed on the payment success page
+Build for production:
 
-## Recent Updates
+```bash
+npm run build
+```
 
-- Enhanced payment success page with improved UI and responsiveness
-- Fixed payment flow issues with redirect handling
-- Added proper calculation of total amount based on quantity ordered
-- Improved UChain branding visibility
+More details: see [`UChain-UI/README.md`](UChain-UI/README.md).
+
+### 2. Backend – UChain-API (Django + DRF)
+
+```bash
+cd UChain-API
+python -m venv .venv
+.\.venv\Scripts\activate   # Windows PowerShell
+pip install -r requirements.txt
+```
+
+Create your `.env` by copying the template and filling values:
+
+```bash
+copy .env.example .env
+```
+
+At minimum, configure in `.env`:
+
+- `DJANGO_SECRET_KEY` – your Django secret key
+- `DJANGO_DEBUG` – `true` for local development
+- `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT` – MySQL connection
+- `CHAPA_PUBLIC_KEY`, `CHAPA_SECRET_KEY` – Chapa API keys
+
+Run migrations and start the server:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+```
+
+API serves at: `http://localhost:8000`
+
+More details: see [`UChain-API/README.md`](UChain-API/README.md).
+
+---
+
+## Security & Secrets
+
+- **Never commit** real secrets (database passwords, Chapa keys, Django secret key).
+- Use `.env` for all sensitive values – this file is already ignored by Git.
+- The repository only documents **variable names**, not real credentials.
+
+---
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-Happy Coding! 
-Reach out if you encounter any issues. 
+Pull requests and issues are welcome. Please open a discussion if you plan significant changes to the UI or payment flow.
