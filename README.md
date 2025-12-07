@@ -16,13 +16,7 @@ This repository contains **both** the frontend and backend:
 
 ## Demo
 
-If you add a walkthrough video, place it under:
-
-- `docs/UChain.mp4`
-
-and link it from here:
-
-- [UChain demo video](docs/UChain.mp4) *(local file in this repo)*
+ [![Watch the UChain demo](docs/uchain-demo.png)](docs/UChain.mp4)
 
 ---
 
