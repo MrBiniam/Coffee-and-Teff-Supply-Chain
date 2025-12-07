@@ -6,7 +6,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { OrderService } from 'src/app/buyer/orders/order.service';
 import { UserService } from 'src/app/shared/security/user.service';
 import { Rate } from 'src/app/shared/security/rate';
-import { number } from 'ngx-custom-validators/src/app/number/validator';
 import { User } from 'src/app/shared/security/user';
 
 @Component({
