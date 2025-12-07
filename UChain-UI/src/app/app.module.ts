@@ -14,7 +14,6 @@ import { RightSidebarComponent } from "./layout/right-sidebar/right-sidebar.comp
 import { AuthLayoutComponent } from "./layout/app-layout/auth-layout/auth-layout.component";
 import { MainLayoutComponent } from "./layout/app-layout/main-layout/main-layout.component";
 
-import { DynamicScriptLoaderService } from "./shared/services/dynamic-script-loader.service";
 import { ConfigService } from "./shared/services/config.service";
 import { RightSidebarService } from "./shared/services/rightsidebar.service";
 import { AuthGuard } from "./shared/security/auth.guard";
@@ -68,7 +67,6 @@ import { SharedModule } from './shared/shared.module';
   providers: [
     httpInterceptorProviders,
     { provide: LocationStrategy, useClass: HashLocationStrategy },
-    DynamicScriptLoaderService,
     ConfigService,
     RightSidebarService,
     AuthService,
