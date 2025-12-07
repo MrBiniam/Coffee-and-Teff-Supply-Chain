@@ -14,12 +14,6 @@ This repository contains **both** the frontend and backend:
 
 ---
 
-## Demo
-
- [![Watch the UChain demo](docs/uchain-demo.png)](docs/UChain.mp4)
-
----
-
 ## Prerequisites
 
 - **Node.js & npm**  
