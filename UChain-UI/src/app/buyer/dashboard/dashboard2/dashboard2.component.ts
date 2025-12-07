@@ -1,5 +1,4 @@
 import { Component, OnInit } from "@angular/core";
-import { EChartOption } from "echarts";
 import { Data } from "./data";
 import {
   ApexAxisChartSeries,
@@ -45,8 +44,7 @@ export class Dashboard2Component implements OnInit {
   thisMonth2: any = this.data.getMonthC(0);
 
   apexLineChartOptions: Partial<BuyerPricePredictionChartOptions>;
-
-  line_chart: EChartOption = {
+  line_chart: any = {
     grid: {
       top: "6",
       right: "0",
